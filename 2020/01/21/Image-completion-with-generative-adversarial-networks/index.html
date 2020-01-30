@@ -48,9 +48,9 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
 </li>
 </ol>
 <h2 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h2><p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512<em>512的合成图片。训练时，生成器和判别器同时进行。*</em>生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。**详细网络结构如下图所示：</p>
-<p><img src="./GANImg/structure.png" alt="structure"></p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt="structure"></p>
 <h3 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h3><p>生成器基于U-net，即编码器-解码器结构。编码器接收尺寸为512×512×9的输入张量，即一个不完整的RGB通道图像，其中有一个要编辑的去除区域，一个二进制草图（描述了去除部分的结构），一个RGB色彩笔划图，一个二进制蒙版和噪音，见下图</p>
-<p><img src="./GANImg/input.png" alt="input"></p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt="input"></p>
 <p>编码器使用2个步幅内核卷积对输入进行7次下采样，然后在上采样之前进行膨胀卷积。解码器使用转置卷积进行上采样。然后，添加了跳过连接以允许以相同的空间分辨率与上一层连接。除了输出层使用tanh函数外，在每层之后都使用了泄漏的ReLU激活函数。总体而言，生成器由16个卷积层组成，网络的输出是输入大小相同（512×512）的RGB图像。在将损失函数应用到输入之前，我们用输入图像替换了蒙板之外的图像的其余部分。这种替换使生成器仅在已编辑区域上受到训练。生成器接受了每像素损失，感知损失，样式损失和总方差损失这些损失训练，还使用通用GAN损失函数。</p>
 <h3 id="判别器"><a href="#判别器" class="headerlink" title="判别器"></a>判别器</h3><p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：<br>$$<br>L_{GSN} = -IE[D(I_{comp})]<br>$$</p>
 <p>$$<br>L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]<br>$$</p>
