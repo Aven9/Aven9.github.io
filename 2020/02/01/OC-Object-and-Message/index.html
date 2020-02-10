@@ -1,6 +1,198 @@
-<!DOCTYPE html><html lang="en-us"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>OC Object and Message | Aven's Blog</title><meta name="description"><meta name="generator" content="Aven's Blog"><meta name="author" content="Wenjie Zhang"><meta name="keywords" content="Developer, Computer Science"><meta name="HandheldFriendly" content="True"><meta name="MobileOptimized" content="320"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=0"><link rel="stylesheet" type="text/css" href="/styles/screen.css"><link rel="apple-touch-icon" sizes="57x57" href="/images/apple-touch-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/images/apple-touch-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/images/apple-touch-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/images/apple-touch-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/images/apple-touch-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/images/apple-touch-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/images/apple-touch-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/images/apple-touch-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-180x180.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png"><link rel="icon" type="image/png" sizes="128x128" href="/images/favicon-128.png"><link rel="icon" type="image/png" sizes="196x196" href="/images/favicon-196x196.png"><meta name="msapplication-TileColor" content="#FFFFFF"><meta name="msapplication-TileImage" content="mstile-144x144.png"><meta name="msapplication-square70x70logo" content="mstile-70x70.png"><meta name="msapplication-square150x150logo" content="mstile-150x150.png"><meta name="msapplication-wide310x150logo" content="mstile-310x150.png"><meta name="msapplication-square310x310logo" content="mstile-310x310.png"></head><body itemscope itemtype="https://schema.org/WebPage"><header itemscope itemtype="https://schema.org/WPHeader"><div class="logo"></div><h1><a href="/" alt="Aven's Blog" title="Aven's Blog" itemprop="headline">Aven's Blog</a></h1><p itemprop="description"></p><nav itemscope itemtype="https://schema.org/SiteNavigationElement"><ul><li itemprop="name"><a href="/ " alt="home" title="home" itemprop="url">home</a></li><li itemprop="name"><a href="/articles" alt="articles" title="articles" itemprop="url">articles</a></li><li itemprop="name"><a href="/author" alt="author" title="author" itemprop="url">author</a></li></ul></nav><div class="space"></div></header><main itemscope itemtype="https://schema.org/Blog"><article class="full"><h1 itemprop="headline" class="post-heading">OC Object and Message</h1><span class="page-tag-anchor"><a href="/tags/Objective-C" itemprop="url">#Objective-C
-&nbsp;&nbsp;</a></span><span class="post-meta"></span><br><br><h1 id="OC-对象和消息"><a href="#OC-对象和消息" class="headerlink" title="OC 对象和消息"></a>OC 对象和消息</h1><p>在使用面向对象语言编程的时候，<strong>对象</strong>就是<strong>基本构造单元</strong>，通过对象可以存储并传递数据，<strong>消息传递</strong>就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做<strong>运行期环境</strong>(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。</p>
-<h2 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h2><p>属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变量，通过存取方法访问。</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="OC 对象和消息在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。 属性属性用于封装对象中的数据，OC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OC Object and Message">
+<meta property="og:url" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/index.html">
+<meta property="og:site_name" content="Aven&#39;s Blog">
+<meta property="og:description" content="OC 对象和消息在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。 属性属性用于封装对象中的数据，OC">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/OC-Object-and-Message/msg_forward.jpg">
+<meta property="og:image" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/msg_forward.jpg">
+<meta property="article:published_time" content="2020-01-31T17:22:01.000Z">
+<meta property="article:modified_time" content="2020-02-10T13:39:54.366Z">
+<meta property="article:author" content="Wenjie Zhang">
+<meta property="article:tag" content="Objective-C">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/OC-Object-and-Message/msg_forward.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/01/OC-Object-and-Message/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>OC Object and Message | Aven's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Aven's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/01/OC-Object-and-Message/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OC Object and Message
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-01 01:22:01" itemprop="dateCreated datePublished" datetime="2020-02-01T01:22:01+08:00">2020-02-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-10 21:39:54" itemprop="dateModified" datetime="2020-02-10T21:39:54+08:00">2020-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="oc-对象和消息">OC 对象和消息</span></h1><p>在使用面向对象语言编程的时候，<strong>对象</strong>就是<strong>基本构造单元</strong>，通过对象可以存储并传递数据，<strong>消息传递</strong>就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做<strong>运行期环境</strong>(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。</p>
+<h2><span id="属性">属性</span></h2><p>属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变量，通过存取方法访问。</p>
 <p>在Java或者C++中的实例变量看上去也许是这样的：</p>
 <pre><code class="c++">class Person {
   public:
@@ -26,53 +218,51 @@
   @private    
     NSString *_IDNumber;
 }</code></pre>
-<p>内存布局变化将如下所示：</p>
-<center>新增实例变量前</center>
-
+<p>内存布局变化将如下所示</p>
+<p>新增实例变量前:</p>
 <table>
 <thead>
 <tr>
-<th></th>
+<th>distance</th>
 <th>Person</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>+0</td>
-<td>_firstName</td>
+<td><code>_firstName</code></td>
 </tr>
 <tr>
 <td>+4</td>
-<td>_lastName</td>
+<td><code>_lastName</code></td>
 </tr>
 <tr>
 <td>+8</td>
-<td>_IDNumber</td>
+<td><code>_IDNumber</code></td>
 </tr>
 </tbody></table>
-<center>新增实例变量后</center>
-
+<p>新增实例变量后:</p>
 <table>
 <thead>
 <tr>
-<th align="left"></th>
+<th>distance</th>
 <th>Person</th>
 </tr>
 </thead>
 <tbody><tr>
-<td align="left">+0</td>
-<td>_birthday</td>
+<td>+0</td>
+<td><code>_birthday</code></td>
 </tr>
 <tr>
-<td align="left">+4</td>
-<td>_firstName</td>
+<td>+4</td>
+<td><code>_firstName</code></td>
 </tr>
 <tr>
-<td align="left">+8</td>
-<td>_lastName</td>
+<td>+8</td>
+<td><code>_lastName</code></td>
 </tr>
 <tr>
-<td align="left">+12</td>
-<td>_IDNumber</td>
+<td>+12</td>
+<td><code>_IDNumber</code></td>
 </tr>
 </tbody></table>
 <p>这样的后果就是如果代码使用了编译期计算出来的偏移量，那么在修改类定义之后必须重新编译，否则会出错。OC的解决办法是：<strong>将实例变量当做一种存储偏移量所用的特殊变量，交给类对象保管，偏移量在运行期再查找</strong>，由此保证始终正确的偏移量。这提供了可以在class-continuation分类或者实现文件中定义实例变量的能力。</p>
@@ -81,29 +271,29 @@
 <p>@synthesize 语法可以指定实例变量的名字，但一般情况下无需修改。</p>
 <p>@dynamic语法用于阻止编译器自动创建实现属性所用的实例变量及其存取方法，此时，编译器认为这些属性的存取方法在运行期一定能找到。</p>
 </blockquote>
-<h2 id="属性特质"><a href="#属性特质" class="headerlink" title="属性特质"></a>属性特质</h2><p>属性特质(attribute)可分为：</p>
+<h2><span id="属性特质">属性特质</span></h2><p>属性特质(attribute)可分为：</p>
 <ul>
 <li>原子性</li>
 <li>读写权限</li>
 <li>内存管理语义</li>
 <li>方法名</li>
 </ul>
-<h3 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h3><ul>
+<h3><span id="原子性">原子性</span></h3><ul>
 <li><code>atomic/nonatomic</code></li>
 </ul>
 <p>默认情况下，由编译器合成的方法会通过锁的机制确保其具有原子性(atomic)，但需要注意的是，即便是atomic也不能确保线程安全，反而占用了较大的开销。要实现线程安全，需要更深层的锁机制。</p>
-<h3 id="读写权限"><a href="#读写权限" class="headerlink" title="读写权限"></a>读写权限</h3><ul>
+<h3><span id="读写权限">读写权限</span></h3><ul>
 <li><code>readwrite</code>：可读可写</li>
 <li><code>readonly</code>：可读</li>
 </ul>
-<h3 id="内存管理语义"><a href="#内存管理语义" class="headerlink" title="内存管理语义"></a>内存管理语义</h3><ul>
+<h3><span id="内存管理语义">内存管理语义</span></h3><ul>
 <li><code>assign</code>: 设置方法只执行针对标量的简单赋值，如<code>CGFloat, NSInteger</code></li>
 <li><code>strong</code>: 表示属性定义了一种拥有关系，设置方法先保留新值，再释放旧值，最后将新值设置</li>
 <li><code>weak</code>: 表示属性定义了一种非拥有关系，设置时，既不保留新值，也不释放旧值，当属性所指对象被摧毁时，属性值也清空</li>
 <li><code>unsafe_unretained</code>: 适用于对象类型，语义与<code>assign</code>相同，当对象摧毁时，属性值不会自动清空，不安全</li>
 <li><code>copy</code>: 表示的所属关系与<code>strong</code>类似，但设置方法不保留新值，而是将其拷贝</li>
 </ul>
-<h3 id="方法名"><a href="#方法名" class="headerlink" title="方法名"></a>方法名</h3><ul>
+<h3><span id="方法名">方法名</span></h3><ul>
 <li><code>getter=&lt;name&gt;</code>: 指定获取方法名</li>
 <li><code>setter=&lt;name&gt;</code>: 指定设置方法名，不常见</li>
 </ul>
@@ -118,7 +308,7 @@
 <li>通过属性访问能够通过断点监测属性调用者和访问时机</li>
 </ul>
 <p>这也是为什么要在写入实例变量时使用设置方法来做，而读取则采取直接访问的原因。另外还需注意，在使用lazy initialization 时，必须通过获取方法来访问属性，否则实例变量永远不会被初始化。</p>
-<h2 id="关联对象"><a href="#关联对象" class="headerlink" title="关联对象"></a>关联对象</h2><p>可以给某对象关联许多其他对象，并指明其存储策略来维护相应的内存管理语义。表示存储策略的枚举类型<code>obj_AssociationPolicy</code>取值及其对应语义如下所示：</p>
+<h2><span id="关联对象">关联对象</span></h2><p>可以给某对象关联许多其他对象，并指明其存储策略来维护相应的内存管理语义。表示存储策略的枚举类型<code>obj_AssociationPolicy</code>取值及其对应语义如下所示：</p>
 <table>
 <thead>
 <tr>
@@ -154,7 +344,7 @@ id objc_getAssociatedObject(id object, void*key);    // 获取关联对象值
 
 void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部关联对象</code></pre>
 <p>需要注意，关联对象的使用可能引入一些难以查找的bug，例如保留环问题，需要谨慎使用。</p>
-<h2 id="消息传递"><a href="#消息传递" class="headerlink" title="消息传递"></a>消息传递</h2><p>在对象上调用方法叫做<strong>消息传递</strong>。C语言的函数调用方式采用的是静态绑定，但是OC不同，需要采用动态绑定机制来确定需要调用哪一个方法。在底层，所有方法都是普通的C函数，然而在对象收到消息后，调用哪一个方法完全由运行期决定，甚至能在程序运行时改变。下面是给某对象发送消息的格式：</p>
+<h2><span id="消息传递">消息传递</span></h2><p>在对象上调用方法叫做<strong>消息传递</strong>。C语言的函数调用方式采用的是静态绑定，但是OC不同，需要采用动态绑定机制来确定需要调用哪一个方法。在底层，所有方法都是普通的C函数，然而在对象收到消息后，调用哪一个方法完全由运行期决定，甚至能在程序运行时改变。下面是给某对象发送消息的格式：</p>
 <pre><code class="objective-c">id returnValue = [someObject messageName: parameter];</code></pre>
 <p>其中<code>someObject</code>是接收者，<code>messageName</code>和<code>parameter</code>同时构成<strong>消息</strong>。编译器看到这条消息后将它转换为一条标准的C函数调用：<code>objc_msgSend</code></p>
 <pre><code class="objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);</code></pre>
@@ -165,7 +355,7 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 <li>若最终不能找到相符的方法，执行消息转发。</li>
 </ol>
 <p>在搜寻方法列表时，<code>objc_msgSend</code>使用快速映射表缓存结果，以此提高性能。</p>
-<h2 id="消息转发"><a href="#消息转发" class="headerlink" title="消息转发"></a>消息转发</h2><p>对象接收到无法理解的消息时，就会启动<strong>消息转发</strong>机制。消息转发分为两大阶段：</p>
+<h2><span id="消息转发">消息转发</span></h2><p>对象接收到无法理解的消息时，就会启动<strong>消息转发</strong>机制。消息转发分为两大阶段：</p>
 <ol>
 <li><p>动态方法解析</p>
 <p>查看接收者所属类是否能够动态添加方法来处理这个未知的selector；</p>
@@ -176,9 +366,202 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 </li>
 </ol>
 <p>消息转发全过程可表示为下图：</p>
-<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt="msg_forward"></p>
+<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt></p>
+<img src="/2020/02/01/OC-Object-and-Message/msg_forward.jpg" class>
 <p>步骤越往后，消息转发花费代价越大。</p>
 <blockquote>
-<p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》 </p>
+<p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》</p>
 </blockquote>
-</article><br><br><span class="next-post"><a href="/2020/01/21/Image-completion-with-generative-adversarial-networks/" itemprop="url">Older Post ⇒</a></span><span class="prev-post"><a href="/2020/02/04/Comprehension-of-SDWebImage/" itemprop="url">⇐ Next Post </a></span><br><br><br></main></body></html>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Objective-C/" rel="tag"># Objective-C</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/01/21/Image-completion-with-generative-adversarial-networks/" rel="prev" title="GAN in Editing Portrait">
+      <i class="fa fa-chevron-left"></i> GAN in Editing Portrait
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/04/Comprehension-of-SDWebImage/" rel="next" title="Comprehension of SDWebImage">
+      Comprehension of SDWebImage <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text">OC 对象和消息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text">属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text">属性特质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text">读写权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text">内存管理语义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.4.</span> <span class="nav-text">方法名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.3.</span> <span class="nav-text">关联对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.4.</span> <span class="nav-text">消息传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.5.</span> <span class="nav-text">消息转发</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wenjie Zhang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wenjie Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

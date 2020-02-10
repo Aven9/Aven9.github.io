@@ -1,9 +1,1047 @@
-<!DOCTYPE html><html lang="en-us"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Aven's Blog</title><meta name="description"><meta name="generator" content="Aven's Blog"><meta name="author" content="Wenjie Zhang"><meta name="keywords" content="Developer, Computer Science"><meta name="HandheldFriendly" content="True"><meta name="MobileOptimized" content="320"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=0"><link rel="stylesheet" type="text/css" href="/styles/screen.css"><link rel="apple-touch-icon" sizes="57x57" href="/images/apple-touch-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/images/apple-touch-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/images/apple-touch-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/images/apple-touch-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/images/apple-touch-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/images/apple-touch-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/images/apple-touch-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/images/apple-touch-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-180x180.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png"><link rel="icon" type="image/png" sizes="128x128" href="/images/favicon-128.png"><link rel="icon" type="image/png" sizes="196x196" href="/images/favicon-196x196.png"><meta name="msapplication-TileColor" content="#FFFFFF"><meta name="msapplication-TileImage" content="mstile-144x144.png"><meta name="msapplication-square70x70logo" content="mstile-70x70.png"><meta name="msapplication-square150x150logo" content="mstile-150x150.png"><meta name="msapplication-wide310x150logo" content="mstile-310x150.png"><meta name="msapplication-square310x310logo" content="mstile-310x310.png"></head><body itemscope itemtype="https://schema.org/WebPage"><header itemscope itemtype="https://schema.org/WPHeader"><div class="logo"></div><h1><a href="/" alt="Aven's Blog" title="Aven's Blog" itemprop="headline">Aven's Blog</a></h1><p itemprop="description"></p><nav itemscope itemtype="https://schema.org/SiteNavigationElement"><ul><li itemprop="name"><a href="/ " alt="home" title="home" itemprop="url">home</a></li><li itemprop="name"><a href="/articles" alt="articles" title="articles" itemprop="url">articles</a></li><li itemprop="name"><a href="/author" alt="author" title="author" itemprop="url">author</a></li></ul></nav><div class="space"></div></header><main itemscope itemtype="https://schema.org/Blog"><h4 class="page-title">Recent Articles</h4><a href="/2020/02/04/iOS-Memory-Management/" class="article"><article itemscope itemprop="blogPost" itemtype="https://schema.org/BlogPosting" class="item"><h2 itemprop="headline">iOS Memory Management</h2><span class="post-meta"></span><p itemprop="text" class="post-excerpt">OC中的内存管理引用计数理解和使用引用计数说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-自己生成的对象，自己持有
-非自己生成的对象，自己也能持有
-</p></article></a><a href="/2020/02/04/Comprehension-of-SDWebImage/" class="article"><article itemscope itemprop="blogPost" itemtype="https://schema.org/BlogPosting" class="item"><h2 itemprop="headline">Comprehension of SDWebImage</h2><span class="post-meta"></span><p itemprop="text" class="post-excerpt">对SDWebImage的理解</p></article></a><a href="/2020/02/01/OC-Object-and-Message/" class="article"><article itemscope itemprop="blogPost" itemtype="https://schema.org/BlogPosting" class="item"><h2 itemprop="headline">OC Object and Message</h2><span class="post-meta"></span><p itemprop="text" class="post-excerpt">OC 对象和消息在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。
-属性属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变</p></article></a><a href="/2020/01/21/Image-completion-with-generative-adversarial-networks/" class="article"><article itemscope itemprop="blogPost" itemtype="https://schema.org/BlogPosting" class="item"><h2 itemprop="headline">GAN in Editing Portrait</h2><span class="post-meta"></span><p itemprop="text" class="post-excerpt">前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。
-[TOC]
-背景知识GAN原理简述顾名思义，GAN，即生成对抗网络，是由生成器和判别器构成的一种深度学习模型。以人像编辑软件为例，图像生成器的目的是接收用户的涂改作为输入，合成修改后的图片。图像判定器负责判断合成的图</p></article></a><a href="/2020/01/21/hello-world/" class="article"><article itemscope itemprop="blogPost" itemtype="https://schema.org/BlogPosting" class="item"><h2 itemprop="headline">Hello World</h2><span class="post-meta"></span><p itemprop="text" class="post-excerpt">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick StartCreate a new p</p></article></a></main></body></html>
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Aven&#39;s Blog">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="Aven&#39;s Blog">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="Wenjie Zhang">
+<meta property="article:tag" content="Developer">
+<meta property="article:tag" content=" Computer Science">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: true,
+    isPost: false
+  };
+</script>
+
+  <title>Aven's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Aven's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/04/iOS-Memory-Management/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/04/iOS-Memory-Management/" class="post-title-link" itemprop="url">iOS Memory Management</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-04 20:09:46" itemprop="dateCreated datePublished" datetime="2020-02-04T20:09:46+08:00">2020-02-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-10 20:12:40" itemprop="dateModified" datetime="2020-02-10T20:12:40+08:00">2020-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="OC中的内存管理"><a href="#OC中的内存管理" class="headerlink" title="OC中的内存管理"></a>OC中的内存管理</h1><h2 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h2><h3 id="理解和使用引用计数"><a href="#理解和使用引用计数" class="headerlink" title="理解和使用引用计数"></a>理解和使用引用计数</h3><p>说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：</p>
+<ul>
+<li>自己生成的对象，自己持有</li>
+<li>非自己生成的对象，自己也能持有</li>
+<li>不再需要自己持有对象时应当释放</li>
+<li>非自己持有的对象无法释放</li>
+</ul>
+<p>分别对应的OC方法如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>对象操作</th>
+<th>OC方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>生成并持有对象</td>
+<td>alloc/new/copy/mutableCopy</td>
+</tr>
+<tr>
+<td>持有对象</td>
+<td>retain</td>
+</tr>
+<tr>
+<td>释放对象</td>
+<td>release</td>
+</tr>
+<tr>
+<td>销毁对象</td>
+<td>dealloc</td>
+</tr>
+</tbody></table>
+<p>举个例子：</p>
+<pre><code class="objective-c">/**自己生成并持有对象**/
+id obj = [[NSObject alloc] init];
+/**自己持有对象**/
+/**释放对象**/
+[obj release];
+/**对象已被释放，不可再被访问**/</code></pre>
+<p>另一种方式：</p>
+<pre><code class="objective-c">/**生成对象但并不持有, 此时引用计数为0**/
+id obj = [NSMutableArray array];
+/**持有对象**/
+[obj retain];
+/**自己持有对象**/
+/**释放对象**/
+[obj release];
+/**对象已被释放，不可再被访问**/</code></pre>
+<p>如果企图释放计数已经为0的对象或者是自己没有持有的对象，将会造成程序崩溃。</p>
+<h3 id="Autorelease"><a href="#Autorelease" class="headerlink" title="Autorelease"></a>Autorelease</h3><p>除了<code>retain</code>和<code>release</code> 之外，还有一种用于操作计数器的方法：<code>autorelease</code>. <code>autorelease</code>将引用计数递减这一活动延后执行。</p>
+<p><code>autorelease</code>的使用方法如下：</p>
+<ul>
+<li>生成并持有<code>NSAutoreleasePool</code>对象</li>
+<li>调用已分配对象的<code>autorelease</code>实例方法</li>
+<li>废弃<code>NSAutoreleasePool</code>对象</li>
+</ul>
+<pre><code class="objective-c">/**生成并持有NSAutoreleasePool对象**/
+NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+id obj = [[NSObject alloc] init];
+/**调用已分配对象的autorelease实例方法**/
+[obj autorelease];
+/**废弃NSAutoreleasePool对象**/
+[pool drain];</code></pre>
+<p>但是在<code>Cocoa</code>框架中，在充当程序主循环的<code>NSRunloop</code>或其他可运行程序的地方都会对<code>NSAutoreleasePool</code>对象进行生成、持有、废弃处理，因此不必非要采用<code>NSAutoreleasePool</code>对象手动管理资源的生成、持有、释放。</p>
+<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt="NSAutoreleasePoolCircle"></p>
+<img src="/2020/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class="">
+
+<p>但是，在这种模式下，当大量产生<code>autorelease</code>对象时，只要<code>NSAutoreleasePool</code>对象没有废弃，那么对象也不能被释放，因此会带来内存不足的问题，此时需要在适当的位置手动生成、持有、废弃<code>NSAutoreleasePool</code>对象。</p>
+<p>例如，在读入图像文件，生成UIImage对象时：</p>
+<pre><code class="objective-c">for(int i = 0; i &lt; imageCount; ++i) {
+  NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
+  /**读入图像文件, 产生需要autorelease的对象**/
+
+  [pool drain];    //此时，对象及时被释放；
+}</code></pre>
+<h2 id="自动引用计数"><a href="#自动引用计数" class="headerlink" title="自动引用计数"></a>自动引用计数</h2><h3 id="ARC特性简介"><a href="#ARC特性简介" class="headerlink" title="ARC特性简介"></a>ARC特性简介</h3><p>ARC仍然采用的是引用计数式内存管理的机制，只不过<code>retain</code>和<code>release</code>由ARC自动添加，因此，在ARC下这些内存管理方法是不可被开发者调用的：</p>
+<ul>
+<li><code>retain</code></li>
+<li><code>release</code></li>
+<li><code>autorelease</code></li>
+<li><code>dealloc</code></li>
+</ul>
+<p>此外，ARC在调用这些方法时并不通过消息派发机制，而是直接调用底层C版本，能够节省很多CPU周期，提升性能。这也是这些方法在ARC下不可被覆写的一个原因。</p>
+<p>ARC的另一个优化是，在编译期，能够把互相抵消的<code>retain</code>, <code>release</code>, <code>autorelease</code>化简。如果在一个对象上执行了多次保留与释放的操作，那么ARC可以成对移除这两个操作。这样的实现通过设置标志位来执行。</p>
+<p>例如，ARC在运行期检测出当<code>autorelease</code>后紧跟<code>retain</code>时，不直接调用对象的<code>autorelease</code>方法，而是改为调用<code>objc_autoreleaseReturnValue</code>. 用标志位的方法来消除多余操作。</p>
+<pre><code class="objective-c">/**objc_autoreleaseReturnValue 伪代码**/
+id objc_autoreleaseReturnValue(id object) {
+  if(/*调用者之后还会retain这个对象*/) {
+    set_flag(object);    // 设置标志位
+    return object;    // 直接返回
+  } else {
+    return [object autorelease];
+  }
+}</code></pre>
+<p>同理，若是执行<code>retain</code>后紧跟<code>autorelease</code>, 则改为调用<code>obj_retainAutoreleasedReturnValue</code></p>
+<pre><code class="objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
+id obj_retainAutoreleasedReturnValue(id object) {
+  if(get_flag(object)) {    // 检测到标志位被设置
+    clear_flag(object);    // 清除标志位
+    return object;    // 返回
+  } else {
+    return [object retain];
+  }
+}</code></pre>
+<p>设置和检测标志位，比直接调用<code>autorelease</code>和<code>retain</code>更快</p>
+<h3 id="ARC下的内存管理语义"><a href="#ARC下的内存管理语义" class="headerlink" title="ARC下的内存管理语义"></a>ARC下的内存管理语义</h3><p>以设置方法为例，当我们使用ARC时只需这么写，ARC能够自动添加相关的<code>retain</code>和<code>release</code>操作</p>
+<pre><code class="objective-c">- (void) setObject: (id) object {
+  _object = object;
+}</code></pre>
+<p>如果是MRC，需要我们手动添加<code>retain</code>和<code>release</code>的操作</p>
+<pre><code class="objective-c">- (void) setObject: (id) object {
+  [_object release];
+  _object = [object retain];
+}</code></pre>
+<p>但是这么写会出现问题。如果新值和旧值相同，并且当前只有该对象在引用这个值，那么设置方法中的<code>release</code>会让<code>_object</code>的引用计数为0，从而被回收，导致应用程序崩溃。而ARC避免这种情况的做法是，以一种更安全的方式来设置：</p>
+<pre><code class="objective-c">- (void) setObject: (id) object {
+  [object retain];    // 保留新值
+  [_object release];    // 释放旧值
+  _object = object;        // 设置
+}</code></pre>
+<p>使用ARC避免了这种边界情况，而且使得代码的编写更加简洁。我们可以用所有权修饰符来控制ARC下对象的内存管理语义：</p>
+<ul>
+<li><code>__strong</code>: 默认语义，只要有一个被它修饰的指针指向某对象，这个对象就不能被回收。</li>
+<li><code>__weak</code>: 并不能保证被修饰的指针指向的对象一定存活。当某对象没有被强引用时，其弱引用会被设置为nil</li>
+<li><code>__unsafe_unretained</code>: 并不能保证被修饰的指针指向的对象一定存活。与<code>__weak</code>不同, 当某对象没有被强引用时，其弱引用也不会被设置为<code>nil</code>，如果它引用的对象被销毁，这个指针会成为悬挂指针</li>
+<li><code>__autoreleasing</code>: 把对象按引用传递给方法时，使用这个特殊的修饰符，这个值在方法返回时自动释放。</li>
+</ul>
+<p>需要留意的是，修饰符修饰的引用也有其作用范围，超出范围之外即便是<code>__strong</code>修饰的也会失效，应该被释放。当带有<code>__strong</code> 修饰符的变量在持有对象时，如果多个对象相互持有，很容易发生循环引用，进而引发内存泄露。例如：</p>
+<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
+[fetcher startWithCompletion:^(BOOL success) {
+  NSLog(@&quot;Successfully fetching from %@&quot;, fetcher.url);
+}]</code></pre>
+<p>此段代码中，由于块能够自动保留捕获的全部对象，因此这个块保留了<code>fetcher</code>,而<code>fetcher</code>本身又引用了这个块，因此构成了保留环。解除保留环最常用的就是利用__weak修饰局部变量，这样，当强引用释放，弱引用也会被设置为nil，从而解除保留环。我们可以这么修复这段代码：</p>
+<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
+MyNetworkFetcher * __weak weakFetcher = fetcher;
+[fetcher startWithCompletion:^(BOOL success) {
+  NSLog(@&quot;Successfully fetching from %@&quot;, weakFetcher.url);
+}]</code></pre>
+<p>ARC下无法直接调用<code>autorelease</code>方法，也无法使用<code>NSAutoreleasePool</code>类, 但是我们可以通过<code>@autoreleasepool</code>块来代替<code>NSAutoreleasePool</code>进行对象的生成、持有、废弃的作用域</p>
+<pre><code class="objective-c">@autoreleasepool{
+  id __autoreleasing object = [[NSObject alloc] init];
+}</code></pre>
+<p>但是通常<code>__autoreleasing</code>并不显式调用，因为@autoreleasepool块指明了对象的作用域，若是最后需要在超出作用域的范围使用变量，则编译器会自动注册<code>autoreleasepool</code>对象来完成推迟release这一操作。</p>
+<h3 id="ARC使用规则"><a href="#ARC使用规则" class="headerlink" title="ARC使用规则"></a>ARC使用规则</h3><p>最后，在ARC有效的情况下编译源代码需要遵守一定的规则：</p>
+<ul>
+<li>不能使用<code>retain/release/retainCount/autorelease</code></li>
+<li>不能使用<code>NSAllocateObject/NSDeallocateObject</code></li>
+<li>遵守内存管理的方法命名规则</li>
+<li>不要显示调用<code>dealloc</code></li>
+<li>使用<code>@autoreleasepool</code>块代替<code>NSAutoreleasePool</code></li>
+<li>不要使用<code>NSZone</code></li>
+<li>对象型变量不能作为C语言结构体的成员</li>
+<li>显示转换<code>id</code>和<code>void</code></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/04/Comprehension-of-SDWebImage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/04/Comprehension-of-SDWebImage/" class="post-title-link" itemprop="url">Comprehension of SDWebImage</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-04 11:16:10" itemprop="dateCreated datePublished" datetime="2020-02-04T11:16:10+08:00">2020-02-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-05 14:22:56" itemprop="dateModified" datetime="2020-02-05T14:22:56+08:00">2020-02-05</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="对SDWebImage的理解"><a href="#对SDWebImage的理解" class="headerlink" title="对SDWebImage的理解"></a>对SDWebImage的理解</h1>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/01/OC-Object-and-Message/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/01/OC-Object-and-Message/" class="post-title-link" itemprop="url">OC Object and Message</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-01 01:22:01" itemprop="dateCreated datePublished" datetime="2020-02-01T01:22:01+08:00">2020-02-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-10 21:39:54" itemprop="dateModified" datetime="2020-02-10T21:39:54+08:00">2020-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1><span id="oc-对象和消息">OC 对象和消息</span></h1><p>在使用面向对象语言编程的时候，<strong>对象</strong>就是<strong>基本构造单元</strong>，通过对象可以存储并传递数据，<strong>消息传递</strong>就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做<strong>运行期环境</strong>(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。</p>
+<h2><span id="属性">属性</span></h2><p>属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变量，通过存取方法访问。</p>
+<p>在Java或者C++中的实例变量看上去也许是这样的：</p>
+<pre><code class="c++">class Person {
+  public:
+    string firstName;
+    string lastName;
+    private:
+    string IDNumber;
+}</code></pre>
+<p>这样就能够定义实例变量的作用域。但是编写OC时很少这么做：</p>
+<pre><code class="objective-c">@interface Person: NSObject {
+  @public 
+    NSString *_firstName;
+      NSString *_lastName;
+  @private
+    NSString *_IDNumber;
+}</code></pre>
+<p>因为这种写法的对象布局在编译器就已经确定。换句话说，编译器将访问<code>_firstName</code>变量的代码替换为<strong>偏移量</strong>，用于表示变量距离存放对象内存的起始地址有多远，假如新增一个变量在<code>_firstName</code>前：</p>
+<pre><code class="objective-c">@interface Person: NSObject {
+  @public     
+    NSString *_birthday;    // 新增变量
+    NSString *_firstName;    
+      NSString *_lastName;  
+  @private    
+    NSString *_IDNumber;
+}</code></pre>
+<p>内存布局变化将如下所示</p>
+<p>新增实例变量前:</p>
+<table>
+<thead>
+<tr>
+<th>distance</th>
+<th>Person</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>+0</td>
+<td><code>_firstName</code></td>
+</tr>
+<tr>
+<td>+4</td>
+<td><code>_lastName</code></td>
+</tr>
+<tr>
+<td>+8</td>
+<td><code>_IDNumber</code></td>
+</tr>
+</tbody></table>
+<p>新增实例变量后:</p>
+<table>
+<thead>
+<tr>
+<th>distance</th>
+<th>Person</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>+0</td>
+<td><code>_birthday</code></td>
+</tr>
+<tr>
+<td>+4</td>
+<td><code>_firstName</code></td>
+</tr>
+<tr>
+<td>+8</td>
+<td><code>_lastName</code></td>
+</tr>
+<tr>
+<td>+12</td>
+<td><code>_IDNumber</code></td>
+</tr>
+</tbody></table>
+<p>这样的后果就是如果代码使用了编译期计算出来的偏移量，那么在修改类定义之后必须重新编译，否则会出错。OC的解决办法是：<strong>将实例变量当做一种存储偏移量所用的特殊变量，交给类对象保管，偏移量在运行期再查找</strong>，由此保证始终正确的偏移量。这提供了可以在class-continuation分类或者实现文件中定义实例变量的能力。</p>
+<p>还有一种解决方案是通过存取方法访问变量，<strong>尽量不直接访问实例变量</strong>。这时属性便派上了用场，因为使用属性能够让编译器自动编写访问这些属性所需的方法。这个过程由编译器在编译期执行，所以在编辑器里这些合成方法的源代码不可见。此外，编译期还要自动向类中添加合适类型的实例变量，并且在属性名前加<code>_</code>，以此作为实例变量的名字。</p>
+<blockquote>
+<p>@synthesize 语法可以指定实例变量的名字，但一般情况下无需修改。</p>
+<p>@dynamic语法用于阻止编译器自动创建实现属性所用的实例变量及其存取方法，此时，编译器认为这些属性的存取方法在运行期一定能找到。</p>
+</blockquote>
+<h2><span id="属性特质">属性特质</span></h2><p>属性特质(attribute)可分为：</p>
+<ul>
+<li>原子性</li>
+<li>读写权限</li>
+<li>内存管理语义</li>
+<li>方法名</li>
+</ul>
+<h3><span id="原子性">原子性</span></h3><ul>
+<li><code>atomic/nonatomic</code></li>
+</ul>
+<p>默认情况下，由编译器合成的方法会通过锁的机制确保其具有原子性(atomic)，但需要注意的是，即便是atomic也不能确保线程安全，反而占用了较大的开销。要实现线程安全，需要更深层的锁机制。</p>
+<h3><span id="读写权限">读写权限</span></h3><ul>
+<li><code>readwrite</code>：可读可写</li>
+<li><code>readonly</code>：可读</li>
+</ul>
+<h3><span id="内存管理语义">内存管理语义</span></h3><ul>
+<li><code>assign</code>: 设置方法只执行针对标量的简单赋值，如<code>CGFloat, NSInteger</code></li>
+<li><code>strong</code>: 表示属性定义了一种拥有关系，设置方法先保留新值，再释放旧值，最后将新值设置</li>
+<li><code>weak</code>: 表示属性定义了一种非拥有关系，设置时，既不保留新值，也不释放旧值，当属性所指对象被摧毁时，属性值也清空</li>
+<li><code>unsafe_unretained</code>: 适用于对象类型，语义与<code>assign</code>相同，当对象摧毁时，属性值不会自动清空，不安全</li>
+<li><code>copy</code>: 表示的所属关系与<code>strong</code>类似，但设置方法不保留新值，而是将其拷贝</li>
+</ul>
+<h3><span id="方法名">方法名</span></h3><ul>
+<li><code>getter=&lt;name&gt;</code>: 指定获取方法名</li>
+<li><code>setter=&lt;name&gt;</code>: 指定设置方法名，不常见</li>
+</ul>
+<blockquote>
+<p>注意，绝不应该在init或者dealloc中调用存取方法，因为子类可能会覆写设置方法</p>
+</blockquote>
+<p>直接访问实例变量和通过属性访问有几个区别：</p>
+<ul>
+<li>直接访问实例变量不经过方法派发，因此访问速度快</li>
+<li>直接访问实例变量时，不会调用其设置方法，也就绕过了为相关属性所定义的内存管理语义</li>
+<li>直接访问实例变量不会触发键值观测</li>
+<li>通过属性访问能够通过断点监测属性调用者和访问时机</li>
+</ul>
+<p>这也是为什么要在写入实例变量时使用设置方法来做，而读取则采取直接访问的原因。另外还需注意，在使用lazy initialization 时，必须通过获取方法来访问属性，否则实例变量永远不会被初始化。</p>
+<h2><span id="关联对象">关联对象</span></h2><p>可以给某对象关联许多其他对象，并指明其存储策略来维护相应的内存管理语义。表示存储策略的枚举类型<code>obj_AssociationPolicy</code>取值及其对应语义如下所示：</p>
+<table>
+<thead>
+<tr>
+<th>关联类型</th>
+<th>语义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OBJC_ASSOCIATION_ASSIGN</td>
+<td>assign</td>
+</tr>
+<tr>
+<td>OBJC_ASSOCIATION_RETAIN_NONATOMIC</td>
+<td>nonatomic, retain</td>
+</tr>
+<tr>
+<td>OBJC_ASSOCIATION_COPY_NONATOMIC</td>
+<td>nonatomic, copy</td>
+</tr>
+<tr>
+<td>OBJC_ASSOCIATION_RETAIN</td>
+<td>retain</td>
+</tr>
+<tr>
+<td>OBJC_ASSOCIATION_COPY</td>
+<td>copy</td>
+</tr>
+</tbody></table>
+<p>关联对象管理方法：</p>
+<pre><code class="objective-c">void objc_setAssociatedObject(id object, void*key, id value, obj_AssociationPolicy policy);    // 设置某对象的关联对象值，关联对象以key区分
+
+id objc_getAssociatedObject(id object, void*key);    // 获取关联对象值
+
+void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部关联对象</code></pre>
+<p>需要注意，关联对象的使用可能引入一些难以查找的bug，例如保留环问题，需要谨慎使用。</p>
+<h2><span id="消息传递">消息传递</span></h2><p>在对象上调用方法叫做<strong>消息传递</strong>。C语言的函数调用方式采用的是静态绑定，但是OC不同，需要采用动态绑定机制来确定需要调用哪一个方法。在底层，所有方法都是普通的C函数，然而在对象收到消息后，调用哪一个方法完全由运行期决定，甚至能在程序运行时改变。下面是给某对象发送消息的格式：</p>
+<pre><code class="objective-c">id returnValue = [someObject messageName: parameter];</code></pre>
+<p>其中<code>someObject</code>是接收者，<code>messageName</code>和<code>parameter</code>同时构成<strong>消息</strong>。编译器看到这条消息后将它转换为一条标准的C函数调用：<code>objc_msgSend</code></p>
+<pre><code class="objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);</code></pre>
+<p>然后，<code>objc_msgSend</code>根据接收者和selector的类型决定调用哪一个方法。</p>
+<ol>
+<li>首先，在接收者所属类中查看方法列表，若能找到和selector名称符合的方法，跳转到对应代码；</li>
+<li>否则，沿继承体系寻找父类的方法列表；</li>
+<li>若最终不能找到相符的方法，执行消息转发。</li>
+</ol>
+<p>在搜寻方法列表时，<code>objc_msgSend</code>使用快速映射表缓存结果，以此提高性能。</p>
+<h2><span id="消息转发">消息转发</span></h2><p>对象接收到无法理解的消息时，就会启动<strong>消息转发</strong>机制。消息转发分为两大阶段：</p>
+<ol>
+<li><p>动态方法解析</p>
+<p>查看接收者所属类是否能够动态添加方法来处理这个未知的selector；</p>
+</li>
+<li><p>完整消息转发</p>
+<p>1）让接收者查看是否存在其他的对象能够处理这条消息，有则转发消息到那个对象。例如，在一个对象内部还有其它能够处理这条消息的对象，这时，将其返回；</p>
+<p>2）否则，在运行期将消息有关的细节封装在NSInvocation对象中，再一次让接收者解决当前未能处理的消息。可以通过追加参数，改换选择子等方法在触发消息前先改变消息内容。</p>
+</li>
+</ol>
+<p>消息转发全过程可表示为下图：</p>
+<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt></p>
+<img src="/2020/02/01/OC-Object-and-Message/msg_forward.jpg" class>
+<p>步骤越往后，消息转发花费代价越大。</p>
+<blockquote>
+<p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/Image-completion-with-generative-adversarial-networks/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/01/21/Image-completion-with-generative-adversarial-networks/" class="post-title-link" itemprop="url">GAN in Editing Portrait</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-21 19:10:18" itemprop="dateCreated datePublished" datetime="2020-01-21T19:10:18+08:00">2020-01-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-10 20:58:10" itemprop="dateModified" datetime="2020-02-10T20:58:10+08:00">2020-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。</p>
+<!-- toc -->
+
+<ul>
+<li><a href="#背景知识">背景知识</a><ul>
+<li><a href="#gan原理简述">GAN原理简述</a></li>
+<li><a href="#深度学习在人像编辑的应用">深度学习在人像编辑的应用</a><ul>
+<li><a href="#工作简述">工作简述</a></li>
+<li><a href="#图像翻译">图像翻译</a></li>
+<li><a href="#图像完成">图像完成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#解决方案">解决方案</a><ul>
+<li><a href="#训练数据">训练数据</a></li>
+<li><a href="#网络结构">网络结构</a><ul>
+<li><a href="#生成器">生成器</a></li>
+<li><a href="#判别器">判别器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="背景知识">背景知识</span></h1><h2><span id="gan原理简述">GAN原理简述</span></h2><p>顾名思义，GAN，即生成对抗网络，是由生成器和判别器构成的一种深度学习模型。以人像编辑软件为例，图像生成器的目的是接收用户的涂改作为输入，合成修改后的图片。图像判定器负责判断合成的图片看上去是真的还是假的。而生成模型的训练，就是通过生成器生成图片，判别器做出判断，生成器改进，继续生成图片……直到判别器分辨不出接收到的是一张真实的图片还是由用户提交的修改的图片。</p>
+<h2><span id="深度学习在人像编辑的应用">深度学习在人像编辑的应用</span></h2><h3><span id="工作简述">工作简述</span></h3><p>深度学习已经可以应用于恢复图像中被擦除的部分。最经典的方法就是使用一个方形的蒙板，使用编码-解码生成器恢复蒙板区域的图像，图像是否真实的判断由一个全局本地判别器来判定。但是这种方法的缺点就是较低的图像解析程度，并且由于方形的蒙板导致生成的图像在蒙板区域有一个尴尬的边界。除此之外，生成器不能接收用户的输入，降低了用户友好度。</p>
+<p>其它改进的方式包括Deepfillv2(引入用户输入来恢复缺失部分)，Guided-Inpating(使用其它图片的部分来恢复被删除的部分)。一些其它的工作如Ideepcolor提出了一个能够接受用户输入作为参考，创建彩色图像；FaceShop可接受笔画和颜色同时作为用户输入。但这些方法都有着不同程度的用户交互短板，甚至不尽人意的完成效果。</p>
+<p>为克服这些缺点，这篇文章提出了一种完全卷积神经网络的SC-FEGAN，用于进行端到端训练。该网络利用SN-patchGAN判别器克服尴尬的边界；利用通用的GAN损失和新增的style损失来编辑脸部图像；复合出的图片具有高质量的真实性；具有高度自由的用户输入形式。</p>
+<h3><span id="图像翻译">图像翻译</span></h3><p>用于图像翻译的GAN是在用于学习在两个数据集之间进行图像区域转换。该数据集由一对图像组成，可用于创建将分割标签转换为原始图像，或将草图转换为图像，或将黑白图像转换为彩色图像。但是该系统要求图像和目标图像必须成对存在于训练数据集中，以便学习域之间的转换。给定目标域而没有目标图像，则在原始域中转换图像时，目标域中会存在虚拟结果。如果虚拟结果再次反转，则反转的结果必须是原始图像。因此，转换任务需要两个生成器。</p>
+<h3><span id="图像完成">图像完成</span></h3><p>图像完成领域面临两个主要挑战：</p>
+<ol>
+<li>填充图像的已删除区域</li>
+<li>在恢复区域中正确反映用户输入。</li>
+</ol>
+<h1><span id="解决方案">解决方案</span></h1><h2><span id="训练数据">训练数据</span></h2><p>适当的训练数据对于提高网络的训练性能和提高对用户输入的响应能力非常重要。为了训练模型，使用了CelebA-HQ 数据集。预处理步骤如下：</p>
+<ol>
+<li>随机选取包含29000张图片的集合作为训练数据集，1000张图片作为测试数据集。</li>
+<li>在获得草图和颜色数据集之前，我们将图像调整为512×512像素。</li>
+<li>为了更好地表达人脸图像中眼睛的复杂性，我们使用了基于眼睛位置的自由蒙板来训练网络</li>
+<li>通过使用自由形式的蒙版和面部分割GFC创建了适当的草图域和颜色域。</li>
+</ol>
+<p>关键设计如下：</p>
+<ol>
+<li><p>带有眼睛位置的自由蒙版</p>
+<p>我们使用了类似于Deepfillv2的方法，即采用蒙板的方式，然后利用用户在蒙板上的输入生成不完全的图像，此外，在用面部图像训练时，随机使用以眼睛位置为起点的自由绘制蒙版来表达眼睛的复杂部分。另外，头发的蒙板采用了GFC，细节如下算法表述的那样：</p>
+<pre><code>maxDraw, maxLine, maxAngle, maxLength are hyper
+parameters
+GFCHair is the GFC for get hair mask of input image Mask=zeros(inputSize,inputSize) HairMask=GFCHair(IntputImage) numLine=random.range(maxDraw)
+for i=0 to numLine do
+startX = random.range(inputSize) startY = random.range(inputSize) startAngle = random.range(360) numV = random.range(maxLine) for j=0 to numV do
+angleP = random.range(-maxAngle,maxAngle) if j is even then
+angle = startAngle+angleP
+else
+angle = startAngle+angleP+180
+end if
+length = random.range(maxLength)
+Draw a line on Mask from point (startX, startY) with angle and length.
+startX = startX + length * sin(angle)
+startY = stateY + length * cos(angle)
+end for
+Draw a line on Mask from eye postion randomly.
+end for
+Mask = Mask + HairMask (randomly)</code></pre></li>
+<li><p>草图、颜色域</p>
+<p>1）用HED边缘检测器生成草图数据，该数据对应于用户输入以修改面部图像。</p>
+<p>2）之后，使曲线平滑并消除了小边缘。为了创建色域数据，首先通过应用大小为3的中值过滤，然后应用20个双边过滤器来创建模糊图像。</p>
+<p>3）之后，使用GFC分割人脸，并将每个分割的部分替换为相应部分的中间颜色。</p>
+<p>4）在为色域创建数据时，未应用直方图均衡，以避免光反射和阴影污染颜色。但是，由于用户更愿意在草图域中表达面部的所有部分，而不受光干扰引起的模糊影响，因此在从主体数据创建草图时使用了直方图均衡化。</p>
+</li>
+</ol>
+<h2><span id="网络结构">网络结构</span></h2><p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512<em>512的合成图片。训练时，生成器和判别器同时进行。*</em>生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。**详细网络结构如下图所示：</p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt></p>
+<img src="/2020/01/21/Image-completion-with-generative-adversarial-networks/structure.png" class>
+
+<h3><span id="生成器">生成器</span></h3><p>生成器基于U-net，即编码器-解码器结构。编码器接收尺寸为512×512×9的输入张量，即一个不完整的RGB通道图像，其中有一个要编辑的去除区域，一个二进制草图（描述了去除部分的结构），一个RGB色彩笔划图，一个二进制蒙版和噪音，见下图</p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt></p>
+<img src="/2020/01/21/Image-completion-with-generative-adversarial-networks/input.png" class>
+
+<p>编码器使用2个步幅内核卷积对输入进行7次下采样，然后在上采样之前进行膨胀卷积。解码器使用转置卷积进行上采样。然后，添加了跳过连接以允许以相同的空间分辨率与上一层连接。除了输出层使用tanh函数外，在每层之后都使用了泄漏的ReLU激活函数。总体而言，生成器由16个卷积层组成，网络的输出是输入大小相同（512×512）的RGB图像。在将损失函数应用到输入之前，我们用输入图像替换了蒙板之外的图像的其余部分。这种替换使生成器仅在已编辑区域上受到训练。生成器接受了每像素损失，感知损失，样式损失和总方差损失这些损失训练，还使用通用GAN损失函数。</p>
+<h3><span id="判别器">判别器</span></h3><p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：<br>$$<br>L_{GSN} = -IE[D(I_{comp})]<br>$$</p>
+<p>$$<br>L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]<br>$$</p>
+<p>$$<br>L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}<br>$$</p>
+<p>生成器用$$L_G$$训练，判别器用$$L_D$$训练，$$D(I)$$是判别器的输出，其中$I$为输入；在编辑较大的区域比如头发时，损失$$L_{style}$$和$$L_{percent}$$十分关键，</p>
+<p>##</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/hello-world/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/01/21/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-01-21 16:29:54" itemprop="dateCreated datePublished" datetime="2020-01-21T16:29:54+08:00">2020-01-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;</code></pre>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server</code></pre>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate</code></pre>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy</code></pre>
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+  </div>
+
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wenjie Zhang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wenjie Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
