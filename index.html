@@ -171,7 +171,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="对SDWebImage的理解"><a href="#对SDWebImage的理解" class="headerlink" title="对SDWebImage的理解"></a>对SDWebImage的理解</h1>
+          <h1><span id="对sdwebimage的理解">对SDWebImage的理解</span></h1>
       
     </div>
 
@@ -220,14 +220,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1><span id="aibeautify画板实现">AIBeautify–画板实现</span></h1><p>前面一篇文章提到，GAN作为一种处理Image Completion和Image Translation的高效神经网络，在人像编辑上提供了很棒的思路。用户能够根据一张人像照片，思考想要修改的地方，用蒙板遮盖这个地方，然后在蒙板上简单绘制修改后的局部草图，将图片和修改数据上传至服务器，即可生成智能的修改后图片。例如：</p>
-<p>原图：<br><img src="./AIBeautify-Intro/before1.png" alt></p>
-<img src="/2020/01/03/AIBeautify-Intro/before1.png" class>
-<p>涂改：<br><img src="./AIBeautify-Intro/editing1.png" alt></p>
-<img src="/2020/01/03/AIBeautify-Intro/editing1.png" class>
-<p>返回:<br><img src="./AIBeautify-Intro/after1.png" alt></p>
-<img src="/2020/01/03/AIBeautify-Intro/after1.png" class>
-
+          <h1><span id="aibeautify画板实现">AIBeautify—画板实现</span></h1><p>前面一篇文章提到，GAN作为一种处理Image Completion和Image Translation的高效神经网络，在人像编辑上提供了很棒的思路。用户能够根据一张人像照片，思考想要修改的地方，用蒙板遮盖这个地方，然后在蒙板上简单绘制修改后的局部草图，将图片和修改数据上传至服务器，即可生成智能的修改后图片。例如：</p>
+<p>原图：<br><img src="./AIBeautify-Intro/before1.png" alt><br><img src="/2020/01/03/AIBeautify-Intro/before1.png" class><br>涂改：<br><img src="./AIBeautify-Intro/editing1.png" alt><br><img src="/2020/01/03/AIBeautify-Intro/editing1.png" class><br>返回:<br><img src="./AIBeautify-Intro/after1.png" alt><br><img src="/2020/01/03/AIBeautify-Intro/after1.png" class></p>
 <p>具体的模型搭建参考了<a href="https://github.com/run-youngjoo/SC-FEGAN" target="_blank" rel="noopener">https://github.com/run-youngjoo/SC-FEGAN</a></p>
 <p>本文会简单谈谈利用它来完成一个AI人像编辑软件的过程。</p>
 <h2><span id="需求分析">需求分析</span></h2><h3><span id="数据描述">数据描述</span></h3><ul>
@@ -238,10 +232,12 @@
 <h2><span id="主要接口">主要接口</span></h2><h3><span id="上传图片">上传图片</span></h3><p><strong><em>url:</em></strong> /image/upload</p>
 <p><strong><em>method:</em></strong> POST</p>
 <p><strong><em>params:</em></strong></p>
-<pre><code>file: file</code></pre><p><strong><em>return:</em></strong></p>
+<pre><code>file: file
+</code></pre><p><strong><em>return:</em></strong></p>
 <pre><code>{
     id: int,
-}</code></pre><h3><span id="上传修改数据">上传修改数据</span></h3><p><strong><em>url:</em></strong> /image/info/upload</p>
+}
+</code></pre><h3><span id="上传修改数据">上传修改数据</span></h3><p><strong><em>url:</em></strong> /image/info/upload</p>
 <p><strong><em>method:</em></strong> POST</p>
 <p><strong><em>params:</em></strong></p>
 <pre><code>id: int,
@@ -257,14 +253,17 @@ stroke: [{
     prev: [int, int],
     curr: [int, int],
     color: string,
-}]， //涂色笔触位置记录</code></pre><p><strong><em>return:</em></strong></p>
+}]， //涂色笔触位置记录
+</code></pre><p><strong><em>return:</em></strong></p>
 <pre><code>{
     url: string, //处理完图片的url
-}</code></pre><h3><span id="获得该用户相关图片数据">获得该用户相关图片数据</span></h3><p><strong><em>url:</em></strong> /image/info/get</p>
+}
+</code></pre><h3><span id="获得该用户相关图片数据">获得该用户相关图片数据</span></h3><p><strong><em>url:</em></strong> /image/info/get</p>
 <p><strong><em>method:</em></strong> POST</p>
 <p><strong><em>params:</em></strong></p>
 <pre><code>page: int, //从1开始
-limit: int, //每页有多少个</code></pre><p><strong><em>return:</em></strong></p>
+limit: int, //每页有多少个
+</code></pre><p><strong><em>return:</em></strong></p>
 <pre><code>{
     totalNumber: int, //总共有多少个
     list: [{
@@ -273,7 +272,8 @@ limit: int, //每页有多少个</code></pre><p><strong><em>return:</em></strong
         nowUrl: string, //处理后的地址
         status: int, //图片状态，0为未处理，1为已处理，要注意未处理的nowUrl为空
     }]
-}</code></pre><h2><span id="画板模块实现">画板模块实现</span></h2><p>画板模块实现部分参考了 <a href="https://github.com/Harley-xk/MaLiang。" target="_blank" rel="noopener">https://github.com/Harley-xk/MaLiang。</a></p>
+}
+</code></pre><h2><span id="画板模块实现">画板模块实现</span></h2><p>画板模块实现部分参考了 <a href="https://github.com/Harley-xk/MaLiang。" target="_blank" rel="noopener">https://github.com/Harley-xk/MaLiang。</a></p>
 <ul>
 <li>借助贝塞尔曲线原理将一系列的点生成为较为圆滑的曲线。</li>
 <li>Canvas记录绘制的点以及它们的序号（时间相关）和位置，清除的点以及序号位置，记录redo的点和undo的点用于扩展redo和undo画板功能。</li>
@@ -333,7 +333,6 @@ limit: int, //每页有多少个</code></pre><p><strong><em>return:</em></strong
       
           <p>前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。</p>
 <!-- toc -->
-
 <ul>
 <li><a href="#背景知识">背景知识</a><ul>
 <li><a href="#gan原理简述">GAN原理简述</a></li>
@@ -356,7 +355,6 @@ limit: int, //每页有多少个</code></pre><p><strong><em>return:</em></strong
 </li>
 </ul>
 <!-- tocstop -->
-
 <h1><span id="背景知识">背景知识</span></h1><h2><span id="gan原理简述">GAN原理简述</span></h2><p>顾名思义，GAN，即生成对抗网络，是由生成器和判别器构成的一种深度学习模型。以人像编辑软件为例，图像生成器的目的是接收用户的涂改作为输入，合成修改后的图片。图像判定器负责判断合成的图片看上去是真的还是假的。而生成模型的训练，就是通过生成器生成图片，判别器做出判断，生成器改进，继续生成图片……直到判别器分辨不出接收到的是一张真实的图片还是由用户提交的修改的图片。</p>
 <h2><span id="深度学习在人像编辑的应用">深度学习在人像编辑的应用</span></h2><h3><span id="工作简述">工作简述</span></h3><p>深度学习已经可以应用于恢复图像中被擦除的部分。最经典的方法就是使用一个方形的蒙板，使用编码-解码生成器恢复蒙板区域的图像，图像是否真实的判断由一个全局本地判别器来判定。但是这种方法的缺点就是较低的图像解析程度，并且由于方形的蒙板导致生成的图像在蒙板区域有一个尴尬的边界。除此之外，生成器不能接收用户的输入，降低了用户友好度。</p>
 <p>其它改进的方式包括Deepfillv2(引入用户输入来恢复缺失部分)，Guided-Inpating(使用其它图片的部分来恢复被删除的部分)。一些其它的工作如Ideepcolor提出了一个能够接受用户输入作为参考，创建彩色图像；FaceShop可接受笔画和颜色同时作为用户输入。但这些方法都有着不同程度的用户交互短板，甚至不尽人意的完成效果。</p>
@@ -395,7 +393,8 @@ startY = stateY + length * cos(angle)
 end for
 Draw a line on Mask from eye postion randomly.
 end for
-Mask = Mask + HairMask (randomly)</code></pre></li>
+Mask = Mask + HairMask (randomly)
+</code></pre></li>
 <li><p>草图、颜色域</p>
 <p>1）用HED边缘检测器生成草图数据，该数据对应于用户输入以修改面部图像。</p>
 <p>2）之后，使曲线平滑并消除了小边缘。为了创建色域数据，首先通过应用大小为3的中值过滤，然后应用20个双边过滤器来创建模糊图像。</p>
@@ -403,21 +402,339 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
 <p>4）在为色域创建数据时，未应用直方图均衡，以避免光反射和阴影污染颜色。但是，由于用户更愿意在草图域中表达面部的所有部分，而不受光干扰引起的模糊影响，因此在从主体数据创建草图时使用了直方图均衡化。</p>
 </li>
 </ol>
-<h2><span id="网络结构">网络结构</span></h2><p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512<em>512的合成图片。训练时，生成器和判别器同时进行。*</em>生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。**详细网络结构如下图所示：</p>
-<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt></p>
-<img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/structure.png" class>
-
+<h2><span id="网络结构">网络结构</span></h2><p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512<em>512的合成图片。训练时，生成器和判别器同时进行。<em>*生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。</em></em>详细网络结构如下图所示：</p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt><br><img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/structure.png" class></p>
 <h3><span id="生成器">生成器</span></h3><p>生成器基于U-net，即编码器-解码器结构。编码器接收尺寸为512×512×9的输入张量，即一个不完整的RGB通道图像，其中有一个要编辑的去除区域，一个二进制草图（描述了去除部分的结构），一个RGB色彩笔划图，一个二进制蒙版和噪音，见下图</p>
-<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt></p>
-<img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/input.png" class>
-
+<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt><br><img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/input.png" class></p>
 <p>编码器使用2个步幅内核卷积对输入进行7次下采样，然后在上采样之前进行膨胀卷积。解码器使用转置卷积进行上采样。然后，添加了跳过连接以允许以相同的空间分辨率与上一层连接。除了输出层使用tanh函数外，在每层之后都使用了泄漏的ReLU激活函数。总体而言，生成器由16个卷积层组成，网络的输出是输入大小相同（512×512）的RGB图像。在将损失函数应用到输入之前，我们用输入图像替换了蒙板之外的图像的其余部分。这种替换使生成器仅在已编辑区域上受到训练。生成器接受了每像素损失，感知损失，样式损失和总方差损失这些损失训练，还使用通用GAN损失函数。</p>
-<h3><span id="判别器">判别器</span></h3><p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：<br>$$<br>L_{GSN} = -IE[D(I_{comp})]<br>$$</p>
-<p>$$<br>L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]<br>$$</p>
-<p>$$<br>L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}<br>$$</p>
-<p>生成器用$$L_G$$训练，判别器用$$L_D$$训练，$$D(I)$$是判别器的输出，其中$I$为输入；在编辑较大的区域比如头发时，损失$$L_{style}$$和$$L_{percent}$$十分关键，</p>
-<p>##</p>
+<h3><span id="判别器">判别器</span></h3><p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：</p>
+<script type="math/tex; mode=display">
+L_{GSN} = -IE[D(I_{comp})]</script><script type="math/tex; mode=display">
+L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]</script><script type="math/tex; mode=display">
+L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}</script><p>生成器用<script type="math/tex">L_G</script>训练，判别器用<script type="math/tex">L_D</script>训练，<script type="math/tex">D(I)</script>是判别器的输出，其中$I$为输入；在编辑较大的区域比如头发时，损失<script type="math/tex">L_{style}</script>和<script type="math/tex">L_{percent}</script>十分关键，</p>
+<h1><span id>#</span></h1>
+      
+    </div>
 
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">ARTMM建模笔记</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1><span id="洋流节点建模信息">洋流节点建模信息</span></h1><ol>
+<li><p>洋流分层，旋转；因此垂直运动相对水平运动是微不足道的</p>
+</li>
+<li><p>任何不可压缩的二维流由函数描述（需要自己建模），其中：</p>
+<ul>
+<li>, 为向东的流速</li>
+<li>, 为向北的流速</li>
+</ul>
+</li>
+<li><p>随洋流的传感器轨迹为是以下哈密顿常微分方程系统的解</p>
+</li>
+</ol>
+<ol>
+<li><p>所有水下节点拥有相同的计算能力、交流能力、存储能力</p>
+</li>
+<li><p>网络是一个多跳网络：只有当两个传感器节点相互进入通信范围时，它们才能相互检测并开始通信。在任何两个节点之间交换的分组（不在彼此的通信范围内）由其他转发节点转发。</p>
+</li>
+<li><p>不可靠信道：两个相邻节点即使在彼此的通信范围内也不能总是彼此接收分组。</p>
+</li>
+<li><p>信任值范围0-1，阈值为0.5，初始信任值为0.5</p>
+</li>
+</ol>
+<blockquote>
+<p>注：更多参考信息：</p>
+<p>A. Caruso, F. Paparella, L. Vieira, M. Erol, and M. Gerla, “The meandering current mobility model and its impact on underwater mobile sensor networks,” in Proc. 27th Conf. Comput. Commun., Apr. 2008, pp. 1–9. </p>
+</blockquote>
+<h1><span id="arttm基本架构">ARTTM基本架构</span></h1><p>理解传输数据，参与传感器节点和通信链路之间的关系</p>
+<h2><span id="相互依赖性">相互依赖性</span></h2><p>数据的信任值不仅基于参与的传感器节点的信任，而且还受链路质量的影响。</p>
+<p><img src="./ARTMM建模笔记/artmm_archi.png" alt><br><img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/artmm_archi.png" class></p>
+<p>如上图所示，ARTMM由三个主要部分组成：链路信任，数据信任和节点信任。节点信任和链路信任确定数据的可信度。数据信任反映了相关节点和通信链路的可靠性。链路信任基于链路质量和链路容量进行评估。</p>
+<p>链路质量反映了通信信道的性能，其基于分组丢失的预测和分组错误的计算来评估。链路容量定义为链路的使用率，即链路已被使用的次数的比率。</p>
+<p>节点信任基于节点诚实和节点能力来计算。节点诚实度是指一个传感器节点认为其邻居节点基于其通信行为（成功和不成功的通信）是诚实的。节点能力意味着传感器节点是否具有足够的能量来执行其预期功能，因此它是基于传感器节点的能量消耗来计算的。</p>
+<p>基于链接信任和节点信任，我们可以通过相似性和正确性检测方法最终获得数据的可信度</p>
+<h2><span id="滑动时间窗口">滑动时间窗口</span></h2><p>由于动态水下环境，应考虑历史信任值以动态更新可信度。为了解决这个问题，我们采用滑动时间窗口概念来更新信任值如下：</p>
+<ol>
+<li>每个时间窗口由几个单元组成</li>
+<li>在每个时间窗口期间，在两个相邻节点之间交换的分组，因此<strong>成功和不成功通信的数量以及传感器节点的剩余能量</strong>都记录在邻居列表中。</li>
+<li>分别计算通信链路，节点和数据的当前信任值。</li>
+<li>经过一段时间后，窗口向前滑动一个时间单位。然后，在下一个时间窗口中，把历史信任值用于更新新信任值，之后丢弃</li>
+</ol>
+<blockquote>
+<p>小结：</p>
+</blockquote>
+<p>ARTMM包含两个步骤：每个时间窗口中的当前信任计算和基于历史信任值的信任更新。</p>
+<h1><span id="信任值计算">信任值计算</span></h1><h2><span id="链路信任值计算">链路信任值计算</span></h2><p><img src="./ARTMM建模笔记/link_trust_evaluation.png" alt><br><img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/link_trust_evaluation.png" class></p>
+<p>PLR: packet loss rate</p>
+<h3><span id="包错误率计算">包错误率计算</span></h3><h4><span id="计算传输损失">计算传输损失</span></h4><p>基于射线理论的多径瑞利水下航道模型：</p>
+<p>浅水和深水的传输损失是：</p>
+<ul>
+<li><p>浅水：</p>
+</li>
+<li><p>深水：</p>
+<p>其中，和分别代表浅水和深水中的吸收系数（衰减系数），代表传输范围。</p>
+<p>注：吸收系数计算：M. C. Domingo, “Overview of channel models for underwater wireless communication networks,” Phys. Commun., vol. 1, pp. 163–182, 2008.</p>
+<h4><span id="计算snr">计算SNR</span></h4><p>不考虑干扰，比特误码率(BER)可由信噪比计算得出，基于被动声纳方程，SNR在接收器处发射的水下信号为：</p>
+</li>
+</ul>
+<p>  其中为探测阈值，为源级，为<strong>传输损失(</strong>上小节)，为噪音级别，为指向性指数</p>
+<h4><span id="计算ber">计算BER</span></h4><p>  所选的调制方法也会影响BER，如16QAM的BER：</p>
+<p>  其中, 为噪声带宽，R为数据的速率（data rate）</p>
+<h4><span id="计算per">计算PER</span></h4><p>  其中n代表包中的比特数</p>
+<h4><span id="考虑声道干扰的per">考虑声道干扰的PER</span></h4><p>  使用前向纠错，考虑块码来提升前向纠错的效率并降低其复杂度。对于一个块码, 可得到它的块错误率(BLER)为：</p>
+<p>  其中，是块码的长度，是比特的纠错能力</p>
+<p>  <strong>PER计算更正为</strong>：</p>
+<p>  其中N是数据包中的有效负载数</p>
+  <!--有效负载数-->：当通过因特网发送数据时，发送的每个单元包括头信息和发送的实际数据。标头标识数据包的源和目标，而实际数据称为有效负载。
+
+  ### 包丢失率计算
+
+  #### PRR计算
+
+  1. 最近最大权重的PRR：
+
+
+
+     漏洞：选择性转发攻击
+
+  2. 最小化噪声和干扰影响的PRR：
+
+     每个时间窗口T中，在声学信道上的分组丢失可以被视为一组随机时间序列。基于ARIMA模型，时间序列的历史数据可用于预测未来数据值
+
+     1. 使时间序列固定。被分析的时间序列必须是静止的。如果原始时间序列是非静止的，则必须通过差分对其进行变换以使序列静止
+     2. 确定预测模型。 ARIMA模型由三个部分组成：自回归（AR），移动平均（MA）和ARMA。首先，确定静止时间序列的自相关函数（ACF）和部分自相关函数（PACF）。如果静止序列的PACF被截断并且ACF拖尾，则选择AR模型。如果静止序列的ACF显示急剧截止且PACF拖尾，则选择MA模型。否则，ARMA模型用于预测未来的数据值。
+     3. 估计ARIMA模型参数
+     4. 诊断ARIMA残留序列。此步骤使用白噪声测试来检查剩余时间序列是否包含其他有用信息。在这种情况下，必须通过重复步骤3和4继续分析，直到找到通过白噪声测试的适当ARIMA模型。
+     5. 选择最合适的ARIMA模型来预测信任值。它假定在网络部署阶段的最初阶段没有恶意攻击。因此，我们可以根据公式（4）得到初始丢包率。
+
+  ### 链路质量计算
+
+  然后，通过使用上述ARIMA模型，可以预测每个时间窗口中由不可靠通信信道引起的实际分组丢失。基于等式（2）和（4），通过计算链路质量：
+
+
+
+  ### 链路容量$lc$计算
+
+  #### $lc$定义
+
+  链路使用越多越可靠，可以从传感器节点的路由表条目中提取最大可能的使用次数，因此：
+$$
+  lc = \frac{n{use}}{N{use}}\tag{6}
+$$
+
+
+  其中$n_{use}$是在当前时间窗口中已经使用链接的次数，$N_{use}$是可以使用链接的最大可能次数
+
+  缺点：DoS攻击可能改变通信链路的使用次数
+
+  #### 改进的$lc$
+
+  在没有恶意节点的普通UASN中，所有传感器节点的所有流量负载均衡，以延长网络生命周期，从而稳定地使用每个通信链路。因此，链接容量重写为：
+$$
+  lc(i) = \left\{
+  \begin{aligned}
+  &\frac{n_{use}(i)}{N_{use}(i-1)}, &if|n_{use}(i)-n_{use}(i-1)|\geq \theta\\
+  &lc(i-1), &otherwise
+  \end{aligned}
+  \right.
+$$
+  其中$n_{use}(i)$和$n_{use}(i-1)$指的是当前和上一次时间窗口中已使用链接的次数。$\theta$是定义的阈值，当链路的使用保持稳定即：$|n_{use}(i)-n_{use}(i-1)|< \theta$ 
+
+  我们能确信这个链路用得越多越稳定，否则，该通信链路可能受到恶意攻击。
+
+  ### 链路信任值计算
+
+  链路信任取决于链路质量和链路容量:
+$$
+  T_{link} = \left\{
+  \begin{aligned}
+  &0.5+(lq-0.5)\times lc, &lq \geq 0.5\\
+  &lq \times lc, &lq < 0.5
+  \end{aligned}
+  \right.
+$$
+
+
+
+  ## 数据信任值计算
+
+  数据信任是对容错和数据一致性的信任评估。通常已知发送的数据信息是时间和空间相关性。在某个时间段内，相邻节点之间关于同一事件的感知数据信息总是彼此相似。数据信息的数值始终遵循某些特定分布，例如正态分布。为简单起见，假设数据项的分布服从正态分布。数据项的概率密度函数可以通过计算$f(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$得到，其中$x$为数据项$v_d$的数值，$\mu$和$\sigma$分别是数据的均值和方差。基于正态分布模型，观察到平均值$m$由数据信息的多数值确定，因此平均值被认为是能够很好地反映数据的值相似性的最具代表性的值。这意味着，对于一组数据，均值应该是具有最高信任值的。值越接近于均值，信任值越大，反之亦然。因此，数据信任值定义为：
+$$
+  T_{data} = 2\times(0.5-\int_\mu^{v_d}{f(x)dx}) = 2\int_{v_d}^\infty f(x)dx \tag{9}
+$$
+  但是，如果存在数据修改攻击，则在出现不诚实的数据信息时，方程（9）无法正常工作。因此，我们首先使用*中值绝对偏差（MAD） - 中值规则*来消除异常值，然后平均剩余数据值并使用相似性来评估数据信任。
+
+
+
+  ## 节点信任值计算
+
+  通常，基于受试者的观察和第三方的推荐来计算传感器节点的信任值。但是收集和管理第三方推荐占用大量能耗，因此:
+
+  1. 检查对象和主题节点之间交换的分组的数量
+  2. 如果它们之间交换的数据包的数量大于定义的阈值$Th_{num}$，则仅计算直接信任
+  3. 否则，对象的信任评估需要来自公共邻居节点的建议。
+
+  ### 直接计算信任
+
+  直接信任是通过考虑节点诚实和节点能力来计算的。
+
+  1. 基于直接通信行为计算节点诚实度以检查传感器节点是否可靠
+  2. 用剩余能量度量传感器节点是否有能力执行其预期功能
+
+  #### 节点诚实度（NH）
+
+  使用主观逻辑模型。主观模型中的信任值被表示为$T = \{b,d,u\}$, 其中，$b,d,u$分别对应信任，不信任和不确定并且$b,d,u\in [0,1], b+d+1=1$.基于此节点诚实度（NH）为：
+$$
+  NH = \frac{2b+u}{2}
+$$
+  其中，$b = \frac{s}{s+f+1}, u = \frac{1}{s+f+1}, s和f$ 是成功和不成功通信的数量。
+
+  如上所述，数据包丢失不仅是由恶意节点引起的，也是由不可靠的水下通信信道引起的。由不可靠的通信信道引起的丢包率（$P_{PLR}$）由ARIMA模型在5.1.1节中预测。因此，成功$s$和不成功$f$的通信可以被更正为:
+$$
+  s_{new} = s+P_{plr} \times (s+f)\\
+  f_{new} = f-P_{plr} \times (s+f)\tag{11}
+$$
+
+  #### 节点能力（NC）
+
+  假设所有传感器节点具有相同的初始能量水平和能量消耗率。但是，恶意节点总是消耗异常能量来发动恶意攻击。例如，启动DoS攻击的恶意节点比正常节点消耗更多能量，而自私节点消耗更少能量。因此，我们使用能量作为QoS信任度量来测量传感器节点是自私的还是恶意地耗尽额外的能量。
+
+  1. 首先，定义能量阈值 $\theta$ 。当一个传感器节点的剩余能量$E_{res}$下降到低于阈值时，传感器节点不足以胜任（没有足够的能量）来执行其预期的功能。因此，节点能力被认为是0
+
+  2. 否则，节点能力基于能量消耗率$p_{ene}$计算，$p_{ene} \in [0,1]$。能量消耗率越高，剩余能量越少，这最终导致传感器节点完成任务的能力越小。因此，传感器节点的节点能力被认为更小。节点能力通过以下方式计算：
+     $$
+     NC = \left\{
+     \begin{aligned}
+     &1-p_{ene}, &E_{res}\geq \theta \\
+     &0, &E_{res} < \theta
+     \end{aligned}\tag{12}
+     \right.
+     $$
+     其中，$p_{ene}$是基于Ray Projection方法计算的。
+
+  #### 直接信任值计算
+
+$$
+  T_{direct} = \left\{
+  \begin{aligned}
+  &0.5+(NH-0.5)\times NC, &NH\geq 0.5 \\
+  &NH \times NC, &NH < 0.5
+  \end{aligned}\tag{13}
+  \right.
+$$
+
+
+
+  ### 间接计算信任
+
+  需要注意防止恶意节点的推荐。
+
+  1. 定义推荐可靠性$T_{rel}$：计算推荐的平均值；获得推荐值和平均值之间的差异，差异越大，推荐的可靠性就越低。$T_{rel}$计算如下：
+
+$$
+  T_{rel} = 1-|T_{bc_i}-T_{ave}|\tag{14}
+$$
+
+  ​        其中，$T_{bc_i}$是推荐者$C_i$报告的对象节点$B$的推荐值，$T_{ave}$是所有推荐的平均值。
+
+  2. 如果推荐者的可靠性差（<0.5），即使其推荐值非常高，也不能用于计算推荐信任。如果推荐者是可靠的（> 0.5），则基于推荐值$T_{bc_i}$的信任值和推荐$T_{rel}$的可靠性，推荐信任计算如下
+     $$
+     T_{recom} = \frac{\sum_{i=0}^n T_{rel} \times T_{bc_i}}{n}
+     $$
+     其中，n是所有推荐者的数目。
+
+  3. 节点信任值计算为：
+     $$
+     T_{node} = \left\{
+     \begin{aligned}
+     &T_{direct}, &s_{new} \geq Th_{num}\\
+     &w_{direct}T_{direct} + w_{recom}T_{recom}, &s_{new}<th_{num} \end{aligned} \right. $$ 其中，$w_{direct}, w_{recom}$分别是权重，$w_{direct}\in[0,1], w_{recom}\in[0,1], w_{direct}+w_{recom}="1$" # 信任值更新 为了更新artmm中的信任，我们使用滑动时间窗口概念。计算链路，数据和节点的当前信任值。根据历史值更新信任值。为历史信任值定义时间衰减函数（越古老的信息占用越少的权重）。我们采用artmm中的指数衰减，其定义为： w_{decay}="exp(-\delta" \times (t-t_0))\tag{17} 其中$\delta$是调节因子，$\delta \in (0,1) , t$为当前信任值的时间，$t_0$为历史信任值的时间。 ## 内部依赖属性计算 定义中间信任值$t_{inter-l}, t_{inter-d}, t_{inter-n}$ 用于更新链路交流，传输数据和参与节点的信任值。 - $t_{inter-l}$根据传感器节点$t_{node}$和传输数据$t_{data}$的信任值确定。 $t_{inter-d}$根据传感器节点$t_{node}$和通信链路$t_{link}$的信任值确定。 $t_{inter-n }$根据传输数据$t_{data}$和通信链路$t_{link}$的信任值确定。 这里，采用模糊逻辑方法计算链路，数据和节点的相互依赖性。> <!--模糊逻辑允许逻辑值在0，1之间-->
+<p>  &gt;</p>
+<blockquote>
+<p>假设模糊 成员函数信任值由五个模糊集组成：</p>
+<ol>
+<li>完全不信任，$trustvalue \in [0, 0.25)$</li>
+<li>不信任，$trustvalue \in [0.25, 0.5)$</li>
+<li>不确定，$trustvalue = 0.5$</li>
+<li>信任，$trustvalue \in [0.5 , 0.75)$</li>
+<li>完全信任，$trustvalue \in [0.75, 1)$</li>
+</ol>
+<p>信任等级的逻辑规则如下图所示</p>
+<p><img src="./ARTMM建模笔记/信任值逻辑规则.png" alt></p>
+<img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E4%BF%A1%E4%BB%BB%E5%80%BC%E9%80%BB%E8%BE%91%E8%A7%84%E5%88%99.png" class>
+<p>以$T_{inter-d}$为例，上图的规则建立了一个从$T_{node} \circ T_{link}$到$T_{inter-d}$的映射。</p>
+<p>对于每对给定的$T_{node}$和$T_{link}$，使用一般总关系R，我们可以得到：</p>
+<script type="math/tex; mode=display">
+T_{inter-d} = (T_{node}) \times T_{link} \circ R \tag{18}</script><p>在<code>the maximum membership degree approach</code>的帮助下，我们根据去模糊化可得到确定的信任值$T_{inter-d}$. 同理， 模糊逻辑方法还可以计算出$T_{inter-l}, T_{inter-n}$</p>
+<h2><span id="链路信任值更新">链路信任值更新</span></h2><p>根据（17），我们可以更新第$i$个时间窗口的链路信任值为：</p>
+<script type="math/tex; mode=display">
+T_{link}(i) = w_{decay}T_{link}(i-1)+(1-w_{decay})T_{inter-l}</script><p>其中$T_{link}(i-1)$是第$i-1$个时间窗口的链路信任值</p>
+<h2><span id="数据信任值更新">数据信任值更新</span></h2><p>基于当前数据信任，中间数据信任和信任衰减函数，第i个时间窗口中的数据信任更新为：</p>
+<script type="math/tex; mode=display">
+T_{data}(i) = w_{decay}T_{data}(i-1)+(1-decay)T_{inter-d}</script><h2><span id="节点信任值更新">节点信任值更新</span></h2><p>在UASN中，传感器节点总是随着海流而移动。有两种情况需要考虑：</p>
+<p><img src="./ARTMM建模笔记/洋流节点移动.png" alt><br><img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E6%B4%8B%E6%B5%81%E8%8A%82%E7%82%B9%E7%A7%BB%E5%8A%A8.png" class></p>
+</blockquote>
+<ol>
+<li>对于节点C，节点B是新的邻居节点，如何计算新邻居节点的信任值是第一个问题</li>
+<li><p>当节点B在某个时间回退时，如何用历史信任值重新计算节点B的信任值</p>
+<h3><span id="新节点的信任迁移">新节点的信任迁移</span></h3></li>
+<li><p>如图4所示，节点B和节点C没有历史通信行为，因此，节点A计算出的B的信任值不能直接用于节点C</p>
+</li>
+<li><p>如果节点A信任节点B并且节点B信任节点C，可推断出A一定程度上信任节点C。因此，如果节点C认为节点A是值得信任的，则A计算出的节点B的信任值可迁移到C节点。否则，节点B的信任值设置为0.5。</p>
+<h3><span id="旧节点的信任迁移">旧节点的信任迁移</span></h3><p>对于返回的旧邻居节点，应在信任重新评估过程中考虑历史信任值。通常，传感器节点的信任值总是随着时间的推移而衰减。</p>
+<p>当邻居节点在静态网络中连续地相互通信时，两个节点之间的信任值随时间成比例地衰减。</p>
+<p>但是，当传感器节点移出其相邻节点的通信范围时，公式（17）中定义的衰减函数不再适用。</p>
+<p>在这里，我们介绍了关系成熟度的概念，它基于两个节点之间关系的年龄。关系成熟度定义为：</p>
+<script type="math/tex; mode=display">
+RM = \frac{n_{ab}}{n_a} \times \beta^{\frac{1}{n_{ab}}}\tag{19}</script><p>其中$n_{ab}$是A和B之间成功通信的次数，$n_a$是A节点总的成功通信的次数。时间衰减函数计算为：</p>
+<script type="math/tex; mode=display">
+w_{decay} = exp(-\delta \times (t-t_0) \times (1-RM))\tag{20}</script><p>第$i$个窗口的节点信任值更新为：</p>
+<script type="math/tex; mode=display">
+T_{node}(i)= w_{decay}T_{node}(i-1)+(1-w_{decay})T_{inter-n}\tag{21}</script><p>其中$T_{node}(i-1)$是第$i-1$个时间窗口的节点信任值</p>
+</li>
+</ol>
+</th_{num}></0.5），即使其推荐值非常高，也不能用于计算推荐信任。如果推荐者是可靠的（>
       
     </div>
 
@@ -490,9 +807,7 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
 </ol>
 <h2><span id="模型">模型</span></h2><p>SDB 模型也是基于秘密共享，并且只需要一个 SP 和一个 DO 就可执行支持大部分 基本 SQL 查询语句的协议。</p>
 <h3><span id="数据说明">数据说明</span></h3><p>使用[v]表示敏感数据v，符号[]表示当中的数据应该为密文且被安全保存。 [v]使用秘密共享生成两个份额，分别为:𝒗𝒌(保存在 DO)以及𝒗𝒆(保存 在 SP)。本文的目标是防止通过𝒗𝒆恢复出对应的[v]集合。另外，数据库由 一系列表构成，因为本文的方案建立在关系模型上。表中每列为全明文或 者全密文。</p>
-<h3><span id="模型架构">模型架构</span></h3><p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" alt></p>
-<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" class>
-
+<h3><span id="模型架构">模型架构</span></h3><p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" alt><br><img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" class></p>
 <ol>
 <li>SP 使用 DBMS 存储非敏感数据的明文或者敏感数据的𝒗𝒆。</li>
 <li>敏感数据的𝒗𝒌由 DO 保存，但 DO 不需要实际存储所有𝒗𝒌,而是存储每个敏感列的 column key(ck),敏感列 A 所有𝒗𝒌可以由𝒄𝒌𝐀生成。</li>
@@ -504,9 +819,7 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
 <li>最后一步计算结果返回给客户层，解密之后即为对应的明文结果。</li>
 </ol>
 <h3><span id="查询操作">查询操作</span></h3><p>支持的查询如下所示：</p>
-<p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" alt></p>
-<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" class>
-
+<p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" alt><br><img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" class></p>
 <h4><span id="说明">说明</span></h4><ul>
 <li>协议:对于客户协议，将ck作为输入和输出;对服务协议，将密文列作为 输入和输出。</li>
 <li>操作模式:EE模式表示两个操作数都是密文;EC模式表示一个操作数是密 文，另一个是常数;EP 模式表示一个操作数分别是密文和明文，后续对于 不同操作的讨论仅限 EE 模式和 EC 模式，因为 EP 模式可以转换成为 EC 模 式。</li>
@@ -581,6 +894,7 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
 <li>非自己持有的对象无法释放</li>
 </ul>
 <p>分别对应的OC方法如下表所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -588,7 +902,8 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
 <th>OC方法</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>生成并持有对象</td>
 <td>alloc/new/copy/mutableCopy</td>
 </tr>
@@ -604,23 +919,27 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
 <td>销毁对象</td>
 <td>dealloc</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>举个例子：</p>
-<pre><code class="objective-c">/**自己生成并持有对象**/
+<pre><code class="lang-objective-c">/**自己生成并持有对象**/
 id obj = [[NSObject alloc] init];
 /**自己持有对象**/
 /**释放对象**/
 [obj release];
-/**对象已被释放，不可再被访问**/</code></pre>
+/**对象已被释放，不可再被访问**/
+</code></pre>
 <p>另一种方式：</p>
-<pre><code class="objective-c">/**生成对象但并不持有, 此时引用计数为0**/
+<pre><code class="lang-objective-c">/**生成对象但并不持有, 此时引用计数为0**/
 id obj = [NSMutableArray array];
 /**持有对象**/
 [obj retain];
 /**自己持有对象**/
 /**释放对象**/
 [obj release];
-/**对象已被释放，不可再被访问**/</code></pre>
+/**对象已被释放，不可再被访问**/
+</code></pre>
 <p>如果企图释放计数已经为0的对象或者是自己没有持有的对象，将会造成程序崩溃。</p>
 <h3><span id="autorelease">Autorelease</span></h3><p>除了<code>retain</code>和<code>release</code> 之外，还有一种用于操作计数器的方法：<code>autorelease</code>. <code>autorelease</code>将引用计数递减这一活动延后执行。</p>
 <p><code>autorelease</code>的使用方法如下：</p>
@@ -629,26 +948,26 @@ id obj = [NSMutableArray array];
 <li>调用已分配对象的<code>autorelease</code>实例方法</li>
 <li>废弃<code>NSAutoreleasePool</code>对象</li>
 </ul>
-<pre><code class="objective-c">/**生成并持有NSAutoreleasePool对象**/
+<pre><code class="lang-objective-c">/**生成并持有NSAutoreleasePool对象**/
 NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 id obj = [[NSObject alloc] init];
 /**调用已分配对象的autorelease实例方法**/
 [obj autorelease];
 /**废弃NSAutoreleasePool对象**/
-[pool drain];</code></pre>
+[pool drain];
+</code></pre>
 <p>但是在<code>Cocoa</code>框架中，在充当程序主循环的<code>NSRunloop</code>或其他可运行程序的地方都会对<code>NSAutoreleasePool</code>对象进行生成、持有、废弃处理，因此不必非要采用<code>NSAutoreleasePool</code>对象手动管理资源的生成、持有、释放。</p>
-<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt></p>
-<img src="/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class>
-
+<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt><br><img src="/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class></p>
 <p>但是，在这种模式下，当大量产生<code>autorelease</code>对象时，只要<code>NSAutoreleasePool</code>对象没有废弃，那么对象也不能被释放，因此会带来内存不足的问题，此时需要在适当的位置手动生成、持有、废弃<code>NSAutoreleasePool</code>对象。</p>
 <p>例如，在读入图像文件，生成UIImage对象时：</p>
-<pre><code class="objective-c">for(int i = 0; i &lt; imageCount; ++i) {
+<pre><code class="lang-objective-c">for(int i = 0; i &lt; imageCount; ++i) {
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
   /**读入图像文件, 产生需要autorelease的对象**/
 
   [pool drain];    //此时，对象及时被释放；
-}</code></pre>
+}
+</code></pre>
 <h2><span id="自动引用计数">自动引用计数</span></h2><h3><span id="arc特性简介">ARC特性简介</span></h3><p>ARC仍然采用的是引用计数式内存管理的机制，只不过<code>retain</code>和<code>release</code>由ARC自动添加，因此，在ARC下这些内存管理方法是不可被开发者调用的：</p>
 <ul>
 <li><code>retain</code></li>
@@ -659,7 +978,7 @@ id obj = [[NSObject alloc] init];
 <p>此外，ARC在调用这些方法时并不通过消息派发机制，而是直接调用底层C版本，能够节省很多CPU周期，提升性能。这也是这些方法在ARC下不可被覆写的一个原因。</p>
 <p>ARC的另一个优化是，在编译期，能够把互相抵消的<code>retain</code>, <code>release</code>, <code>autorelease</code>化简。如果在一个对象上执行了多次保留与释放的操作，那么ARC可以成对移除这两个操作。这样的实现通过设置标志位来执行。</p>
 <p>例如，ARC在运行期检测出当<code>autorelease</code>后紧跟<code>retain</code>时，不直接调用对象的<code>autorelease</code>方法，而是改为调用<code>objc_autoreleaseReturnValue</code>. 用标志位的方法来消除多余操作。</p>
-<pre><code class="objective-c">/**objc_autoreleaseReturnValue 伪代码**/
+<pre><code class="lang-objective-c">/**objc_autoreleaseReturnValue 伪代码**/
 id objc_autoreleaseReturnValue(id object) {
   if(/*调用者之后还会retain这个对象*/) {
     set_flag(object);    // 设置标志位
@@ -667,9 +986,10 @@ id objc_autoreleaseReturnValue(id object) {
   } else {
     return [object autorelease];
   }
-}</code></pre>
+}
+</code></pre>
 <p>同理，若是执行<code>retain</code>后紧跟<code>autorelease</code>, 则改为调用<code>obj_retainAutoreleasedReturnValue</code></p>
-<pre><code class="objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
+<pre><code class="lang-objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
 id obj_retainAutoreleasedReturnValue(id object) {
   if(get_flag(object)) {    // 检测到标志位被设置
     clear_flag(object);    // 清除标志位
@@ -677,23 +997,27 @@ id obj_retainAutoreleasedReturnValue(id object) {
   } else {
     return [object retain];
   }
-}</code></pre>
+}
+</code></pre>
 <p>设置和检测标志位，比直接调用<code>autorelease</code>和<code>retain</code>更快</p>
 <h3><span id="arc下的内存管理语义">ARC下的内存管理语义</span></h3><p>以设置方法为例，当我们使用ARC时只需这么写，ARC能够自动添加相关的<code>retain</code>和<code>release</code>操作</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
+<pre><code class="lang-objective-c">- (void) setObject: (id) object {
   _object = object;
-}</code></pre>
+}
+</code></pre>
 <p>如果是MRC，需要我们手动添加<code>retain</code>和<code>release</code>的操作</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
+<pre><code class="lang-objective-c">- (void) setObject: (id) object {
   [_object release];
   _object = [object retain];
-}</code></pre>
+}
+</code></pre>
 <p>但是这么写会出现问题。如果新值和旧值相同，并且当前只有该对象在引用这个值，那么设置方法中的<code>release</code>会让<code>_object</code>的引用计数为0，从而被回收，导致应用程序崩溃。而ARC避免这种情况的做法是，以一种更安全的方式来设置：</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
+<pre><code class="lang-objective-c">- (void) setObject: (id) object {
   [object retain];    // 保留新值
   [_object release];    // 释放旧值
   _object = object;        // 设置
-}</code></pre>
+}
+</code></pre>
 <p>使用ARC避免了这种边界情况，而且使得代码的编写更加简洁。我们可以用所有权修饰符来控制ARC下对象的内存管理语义：</p>
 <ul>
 <li><code>__strong</code>: 默认语义，只要有一个被它修饰的指针指向某对象，这个对象就不能被回收。</li>
@@ -702,22 +1026,25 @@ id obj_retainAutoreleasedReturnValue(id object) {
 <li><code>__autoreleasing</code>: 把对象按引用传递给方法时，使用这个特殊的修饰符，这个值在方法返回时自动释放。</li>
 </ul>
 <p>需要留意的是，修饰符修饰的引用也有其作用范围，超出范围之外即便是<code>__strong</code>修饰的也会失效，应该被释放。当带有<code>__strong</code> 修饰符的变量在持有对象时，如果多个对象相互持有，很容易发生循环引用，进而引发内存泄露。例如：</p>
-<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+<pre><code class="lang-objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
 MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
 [fetcher startWithCompletion:^(BOOL success) {
   NSLog(@&quot;Successfully fetching from %@&quot;, fetcher.url);
-}]</code></pre>
+}]
+</code></pre>
 <p>此段代码中，由于块能够自动保留捕获的全部对象，因此这个块保留了<code>fetcher</code>,而<code>fetcher</code>本身又引用了这个块，因此构成了保留环。解除保留环最常用的就是利用__weak修饰局部变量，这样，当强引用释放，弱引用也会被设置为nil，从而解除保留环。我们可以这么修复这段代码：</p>
-<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+<pre><code class="lang-objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
 MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
 MyNetworkFetcher * __weak weakFetcher = fetcher;
 [fetcher startWithCompletion:^(BOOL success) {
   NSLog(@&quot;Successfully fetching from %@&quot;, weakFetcher.url);
-}]</code></pre>
+}]
+</code></pre>
 <p>ARC下无法直接调用<code>autorelease</code>方法，也无法使用<code>NSAutoreleasePool</code>类, 但是我们可以通过<code>@autoreleasepool</code>块来代替<code>NSAutoreleasePool</code>进行对象的生成、持有、废弃的作用域</p>
-<pre><code class="objective-c">@autoreleasepool{
+<pre><code class="lang-objective-c">@autoreleasepool{
   id __autoreleasing object = [[NSObject alloc] init];
-}</code></pre>
+}
+</code></pre>
 <p>但是通常<code>__autoreleasing</code>并不显式调用，因为@autoreleasepool块指明了对象的作用域，若是最后需要在超出作用域的范围使用变量，则编译器会自动注册<code>autoreleasepool</code>对象来完成推迟release这一操作。</p>
 <h3><span id="arc使用规则">ARC使用规则</span></h3><p>最后，在ARC有效的情况下编译源代码需要遵守一定的规则：</p>
 <ul>
@@ -782,32 +1109,36 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
           <h1><span id="oc-对象和消息">OC 对象和消息</span></h1><p>在使用面向对象语言编程的时候，<strong>对象</strong>就是<strong>基本构造单元</strong>，通过对象可以存储并传递数据，<strong>消息传递</strong>就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做<strong>运行期环境</strong>(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。</p>
 <h2><span id="属性">属性</span></h2><p>属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变量，通过存取方法访问。</p>
 <p>在Java或者C++中的实例变量看上去也许是这样的：</p>
-<pre><code class="c++">class Person {
+<pre><code class="lang-c++">class Person {
   public:
     string firstName;
     string lastName;
     private:
     string IDNumber;
-}</code></pre>
+}
+</code></pre>
 <p>这样就能够定义实例变量的作用域。但是编写OC时很少这么做：</p>
-<pre><code class="objective-c">@interface Person: NSObject {
+<pre><code class="lang-objective-c">@interface Person: NSObject {
   @public 
     NSString *_firstName;
       NSString *_lastName;
   @private
     NSString *_IDNumber;
-}</code></pre>
+}
+</code></pre>
 <p>因为这种写法的对象布局在编译器就已经确定。换句话说，编译器将访问<code>_firstName</code>变量的代码替换为<strong>偏移量</strong>，用于表示变量距离存放对象内存的起始地址有多远，假如新增一个变量在<code>_firstName</code>前：</p>
-<pre><code class="objective-c">@interface Person: NSObject {
+<pre><code class="lang-objective-c">@interface Person: NSObject {
   @public     
     NSString *_birthday;    // 新增变量
     NSString *_firstName;    
       NSString *_lastName;  
   @private    
     NSString *_IDNumber;
-}</code></pre>
+}
+</code></pre>
 <p>内存布局变化将如下所示</p>
 <p>新增实例变量前:</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -815,7 +1146,8 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 <th>Person</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>+0</td>
 <td><code>_firstName</code></td>
 </tr>
@@ -827,8 +1159,11 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 <td>+8</td>
 <td><code>_IDNumber</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>新增实例变量后:</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -836,7 +1171,8 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 <th>Person</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>+0</td>
 <td><code>_birthday</code></td>
 </tr>
@@ -852,7 +1188,9 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 <td>+12</td>
 <td><code>_IDNumber</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>这样的后果就是如果代码使用了编译期计算出来的偏移量，那么在修改类定义之后必须重新编译，否则会出错。OC的解决办法是：<strong>将实例变量当做一种存储偏移量所用的特殊变量，交给类对象保管，偏移量在运行期再查找</strong>，由此保证始终正确的偏移量。这提供了可以在class-continuation分类或者实现文件中定义实例变量的能力。</p>
 <p>还有一种解决方案是通过存取方法访问变量，<strong>尽量不直接访问实例变量</strong>。这时属性便派上了用场，因为使用属性能够让编译器自动编写访问这些属性所需的方法。这个过程由编译器在编译期执行，所以在编辑器里这些合成方法的源代码不可见。此外，编译期还要自动向类中添加合适类型的实例变量，并且在属性名前加<code>_</code>，以此作为实例变量的名字。</p>
 <blockquote>
@@ -897,6 +1235,7 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 </ul>
 <p>这也是为什么要在写入实例变量时使用设置方法来做，而读取则采取直接访问的原因。另外还需注意，在使用lazy initialization 时，必须通过获取方法来访问属性，否则实例变量永远不会被初始化。</p>
 <h2><span id="关联对象">关联对象</span></h2><p>可以给某对象关联许多其他对象，并指明其存储策略来维护相应的内存管理语义。表示存储策略的枚举类型<code>obj_AssociationPolicy</code>取值及其对应语义如下所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -904,7 +1243,8 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 <th>语义</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>OBJC_ASSOCIATION_ASSIGN</td>
 <td>assign</td>
 </tr>
@@ -924,18 +1264,23 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 <td>OBJC_ASSOCIATION_COPY</td>
 <td>copy</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>关联对象管理方法：</p>
-<pre><code class="objective-c">void objc_setAssociatedObject(id object, void*key, id value, obj_AssociationPolicy policy);    // 设置某对象的关联对象值，关联对象以key区分
+<pre><code class="lang-objective-c">void objc_setAssociatedObject(id object, void*key, id value, obj_AssociationPolicy policy);    // 设置某对象的关联对象值，关联对象以key区分
 
 id objc_getAssociatedObject(id object, void*key);    // 获取关联对象值
 
-void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部关联对象</code></pre>
+void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部关联对象
+</code></pre>
 <p>需要注意，关联对象的使用可能引入一些难以查找的bug，例如保留环问题，需要谨慎使用。</p>
 <h2><span id="消息传递">消息传递</span></h2><p>在对象上调用方法叫做<strong>消息传递</strong>。C语言的函数调用方式采用的是静态绑定，但是OC不同，需要采用动态绑定机制来确定需要调用哪一个方法。在底层，所有方法都是普通的C函数，然而在对象收到消息后，调用哪一个方法完全由运行期决定，甚至能在程序运行时改变。下面是给某对象发送消息的格式：</p>
-<pre><code class="objective-c">id returnValue = [someObject messageName: parameter];</code></pre>
+<pre><code class="lang-objective-c">id returnValue = [someObject messageName: parameter];
+</code></pre>
 <p>其中<code>someObject</code>是接收者，<code>messageName</code>和<code>parameter</code>同时构成<strong>消息</strong>。编译器看到这条消息后将它转换为一条标准的C函数调用：<code>objc_msgSend</code></p>
-<pre><code class="objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);</code></pre>
+<pre><code class="lang-objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);
+</code></pre>
 <p>然后，<code>objc_msgSend</code>根据接收者和selector的类型决定调用哪一个方法。</p>
 <ol>
 <li>首先，在接收者所属类中查看方法列表，若能找到和selector名称符合的方法，跳转到对应代码；</li>
@@ -954,9 +1299,7 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 </li>
 </ol>
 <p>消息转发全过程可表示为下图：</p>
-<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt></p>
-<img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class>
-<p>步骤越往后，消息转发花费代价越大。</p>
+<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt><br><img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class><br>步骤越往后，消息转发花费代价越大。</p>
 <blockquote>
 <p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》</p>
 </blockquote>
@@ -1042,12 +1385,12 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>

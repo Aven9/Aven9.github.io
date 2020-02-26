@@ -179,32 +179,36 @@
         <h1><span id="oc-对象和消息">OC 对象和消息</span></h1><p>在使用面向对象语言编程的时候，<strong>对象</strong>就是<strong>基本构造单元</strong>，通过对象可以存储并传递数据，<strong>消息传递</strong>就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做<strong>运行期环境</strong>(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。</p>
 <h2><span id="属性">属性</span></h2><p>属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变量，通过存取方法访问。</p>
 <p>在Java或者C++中的实例变量看上去也许是这样的：</p>
-<pre><code class="c++">class Person {
+<pre><code class="lang-c++">class Person {
   public:
     string firstName;
     string lastName;
     private:
     string IDNumber;
-}</code></pre>
+}
+</code></pre>
 <p>这样就能够定义实例变量的作用域。但是编写OC时很少这么做：</p>
-<pre><code class="objective-c">@interface Person: NSObject {
+<pre><code class="lang-objective-c">@interface Person: NSObject {
   @public 
     NSString *_firstName;
       NSString *_lastName;
   @private
     NSString *_IDNumber;
-}</code></pre>
+}
+</code></pre>
 <p>因为这种写法的对象布局在编译器就已经确定。换句话说，编译器将访问<code>_firstName</code>变量的代码替换为<strong>偏移量</strong>，用于表示变量距离存放对象内存的起始地址有多远，假如新增一个变量在<code>_firstName</code>前：</p>
-<pre><code class="objective-c">@interface Person: NSObject {
+<pre><code class="lang-objective-c">@interface Person: NSObject {
   @public     
     NSString *_birthday;    // 新增变量
     NSString *_firstName;    
       NSString *_lastName;  
   @private    
     NSString *_IDNumber;
-}</code></pre>
+}
+</code></pre>
 <p>内存布局变化将如下所示</p>
 <p>新增实例变量前:</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -212,7 +216,8 @@
 <th>Person</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>+0</td>
 <td><code>_firstName</code></td>
 </tr>
@@ -224,8 +229,11 @@
 <td>+8</td>
 <td><code>_IDNumber</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>新增实例变量后:</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -233,7 +241,8 @@
 <th>Person</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>+0</td>
 <td><code>_birthday</code></td>
 </tr>
@@ -249,7 +258,9 @@
 <td>+12</td>
 <td><code>_IDNumber</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>这样的后果就是如果代码使用了编译期计算出来的偏移量，那么在修改类定义之后必须重新编译，否则会出错。OC的解决办法是：<strong>将实例变量当做一种存储偏移量所用的特殊变量，交给类对象保管，偏移量在运行期再查找</strong>，由此保证始终正确的偏移量。这提供了可以在class-continuation分类或者实现文件中定义实例变量的能力。</p>
 <p>还有一种解决方案是通过存取方法访问变量，<strong>尽量不直接访问实例变量</strong>。这时属性便派上了用场，因为使用属性能够让编译器自动编写访问这些属性所需的方法。这个过程由编译器在编译期执行，所以在编辑器里这些合成方法的源代码不可见。此外，编译期还要自动向类中添加合适类型的实例变量，并且在属性名前加<code>_</code>，以此作为实例变量的名字。</p>
 <blockquote>
@@ -294,6 +305,7 @@
 </ul>
 <p>这也是为什么要在写入实例变量时使用设置方法来做，而读取则采取直接访问的原因。另外还需注意，在使用lazy initialization 时，必须通过获取方法来访问属性，否则实例变量永远不会被初始化。</p>
 <h2><span id="关联对象">关联对象</span></h2><p>可以给某对象关联许多其他对象，并指明其存储策略来维护相应的内存管理语义。表示存储策略的枚举类型<code>obj_AssociationPolicy</code>取值及其对应语义如下所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -301,7 +313,8 @@
 <th>语义</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>OBJC_ASSOCIATION_ASSIGN</td>
 <td>assign</td>
 </tr>
@@ -321,18 +334,23 @@
 <td>OBJC_ASSOCIATION_COPY</td>
 <td>copy</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>关联对象管理方法：</p>
-<pre><code class="objective-c">void objc_setAssociatedObject(id object, void*key, id value, obj_AssociationPolicy policy);    // 设置某对象的关联对象值，关联对象以key区分
+<pre><code class="lang-objective-c">void objc_setAssociatedObject(id object, void*key, id value, obj_AssociationPolicy policy);    // 设置某对象的关联对象值，关联对象以key区分
 
 id objc_getAssociatedObject(id object, void*key);    // 获取关联对象值
 
-void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部关联对象</code></pre>
+void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部关联对象
+</code></pre>
 <p>需要注意，关联对象的使用可能引入一些难以查找的bug，例如保留环问题，需要谨慎使用。</p>
 <h2><span id="消息传递">消息传递</span></h2><p>在对象上调用方法叫做<strong>消息传递</strong>。C语言的函数调用方式采用的是静态绑定，但是OC不同，需要采用动态绑定机制来确定需要调用哪一个方法。在底层，所有方法都是普通的C函数，然而在对象收到消息后，调用哪一个方法完全由运行期决定，甚至能在程序运行时改变。下面是给某对象发送消息的格式：</p>
-<pre><code class="objective-c">id returnValue = [someObject messageName: parameter];</code></pre>
+<pre><code class="lang-objective-c">id returnValue = [someObject messageName: parameter];
+</code></pre>
 <p>其中<code>someObject</code>是接收者，<code>messageName</code>和<code>parameter</code>同时构成<strong>消息</strong>。编译器看到这条消息后将它转换为一条标准的C函数调用：<code>objc_msgSend</code></p>
-<pre><code class="objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);</code></pre>
+<pre><code class="lang-objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);
+</code></pre>
 <p>然后，<code>objc_msgSend</code>根据接收者和selector的类型决定调用哪一个方法。</p>
 <ol>
 <li>首先，在接收者所属类中查看方法列表，若能找到和selector名称符合的方法，跳转到对应代码；</li>
@@ -351,9 +369,7 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 </li>
 </ol>
 <p>消息转发全过程可表示为下图：</p>
-<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt></p>
-<img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class>
-<p>步骤越往后，消息转发花费代价越大。</p>
+<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt><br><img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class><br>步骤越往后，消息转发花费代价越大。</p>
 <blockquote>
 <p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》</p>
 </blockquote>
@@ -452,12 +468,12 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>

@@ -202,9 +202,7 @@
 </ol>
 <h2><span id="模型">模型</span></h2><p>SDB 模型也是基于秘密共享，并且只需要一个 SP 和一个 DO 就可执行支持大部分 基本 SQL 查询语句的协议。</p>
 <h3><span id="数据说明">数据说明</span></h3><p>使用[v]表示敏感数据v，符号[]表示当中的数据应该为密文且被安全保存。 [v]使用秘密共享生成两个份额，分别为:𝒗𝒌(保存在 DO)以及𝒗𝒆(保存 在 SP)。本文的目标是防止通过𝒗𝒆恢复出对应的[v]集合。另外，数据库由 一系列表构成，因为本文的方案建立在关系模型上。表中每列为全明文或 者全密文。</p>
-<h3><span id="模型架构">模型架构</span></h3><p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" alt></p>
-<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" class>
-
+<h3><span id="模型架构">模型架构</span></h3><p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" alt><br><img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" class></p>
 <ol>
 <li>SP 使用 DBMS 存储非敏感数据的明文或者敏感数据的𝒗𝒆。</li>
 <li>敏感数据的𝒗𝒌由 DO 保存，但 DO 不需要实际存储所有𝒗𝒌,而是存储每个敏感列的 column key(ck),敏感列 A 所有𝒗𝒌可以由𝒄𝒌𝐀生成。</li>
@@ -216,9 +214,7 @@
 <li>最后一步计算结果返回给客户层，解密之后即为对应的明文结果。</li>
 </ol>
 <h3><span id="查询操作">查询操作</span></h3><p>支持的查询如下所示：</p>
-<p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" alt></p>
-<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" class>
-
+<p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" alt><br><img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" class></p>
 <h4><span id="说明">说明</span></h4><ul>
 <li>协议:对于客户协议，将ck作为输入和输出;对服务协议，将密文列作为 输入和输出。</li>
 <li>操作模式:EE模式表示两个操作数都是密文;EC模式表示一个操作数是密 文，另一个是常数;EP 模式表示一个操作数分别是密文和明文，后续对于 不同操作的讨论仅限 EE 模式和 EC 模式，因为 EP 模式可以转换成为 EC 模 式。</li>
@@ -258,8 +254,8 @@
       <i class="fa fa-chevron-left"></i> iOS Memory Management
     </a></div>
       <div class="post-nav-item">
-    <a href="/2019/07/21/Image-completion-with-generative-adversarial-networks/" rel="next" title="GAN in Editing Portrait">
-      GAN in Editing Portrait <i class="fa fa-chevron-right"></i>
+    <a href="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/" rel="next" title="ARTMM建模笔记">
+      ARTMM建模笔记 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -334,12 +330,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>

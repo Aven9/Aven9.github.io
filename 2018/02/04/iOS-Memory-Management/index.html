@@ -184,6 +184,7 @@
 <li>非自己持有的对象无法释放</li>
 </ul>
 <p>分别对应的OC方法如下表所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -191,7 +192,8 @@
 <th>OC方法</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>生成并持有对象</td>
 <td>alloc/new/copy/mutableCopy</td>
 </tr>
@@ -207,23 +209,27 @@
 <td>销毁对象</td>
 <td>dealloc</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>举个例子：</p>
-<pre><code class="objective-c">/**自己生成并持有对象**/
+<pre><code class="lang-objective-c">/**自己生成并持有对象**/
 id obj = [[NSObject alloc] init];
 /**自己持有对象**/
 /**释放对象**/
 [obj release];
-/**对象已被释放，不可再被访问**/</code></pre>
+/**对象已被释放，不可再被访问**/
+</code></pre>
 <p>另一种方式：</p>
-<pre><code class="objective-c">/**生成对象但并不持有, 此时引用计数为0**/
+<pre><code class="lang-objective-c">/**生成对象但并不持有, 此时引用计数为0**/
 id obj = [NSMutableArray array];
 /**持有对象**/
 [obj retain];
 /**自己持有对象**/
 /**释放对象**/
 [obj release];
-/**对象已被释放，不可再被访问**/</code></pre>
+/**对象已被释放，不可再被访问**/
+</code></pre>
 <p>如果企图释放计数已经为0的对象或者是自己没有持有的对象，将会造成程序崩溃。</p>
 <h3><span id="autorelease">Autorelease</span></h3><p>除了<code>retain</code>和<code>release</code> 之外，还有一种用于操作计数器的方法：<code>autorelease</code>. <code>autorelease</code>将引用计数递减这一活动延后执行。</p>
 <p><code>autorelease</code>的使用方法如下：</p>
@@ -232,26 +238,26 @@ id obj = [NSMutableArray array];
 <li>调用已分配对象的<code>autorelease</code>实例方法</li>
 <li>废弃<code>NSAutoreleasePool</code>对象</li>
 </ul>
-<pre><code class="objective-c">/**生成并持有NSAutoreleasePool对象**/
+<pre><code class="lang-objective-c">/**生成并持有NSAutoreleasePool对象**/
 NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 id obj = [[NSObject alloc] init];
 /**调用已分配对象的autorelease实例方法**/
 [obj autorelease];
 /**废弃NSAutoreleasePool对象**/
-[pool drain];</code></pre>
+[pool drain];
+</code></pre>
 <p>但是在<code>Cocoa</code>框架中，在充当程序主循环的<code>NSRunloop</code>或其他可运行程序的地方都会对<code>NSAutoreleasePool</code>对象进行生成、持有、废弃处理，因此不必非要采用<code>NSAutoreleasePool</code>对象手动管理资源的生成、持有、释放。</p>
-<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt></p>
-<img src="/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class>
-
+<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt><br><img src="/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class></p>
 <p>但是，在这种模式下，当大量产生<code>autorelease</code>对象时，只要<code>NSAutoreleasePool</code>对象没有废弃，那么对象也不能被释放，因此会带来内存不足的问题，此时需要在适当的位置手动生成、持有、废弃<code>NSAutoreleasePool</code>对象。</p>
 <p>例如，在读入图像文件，生成UIImage对象时：</p>
-<pre><code class="objective-c">for(int i = 0; i &lt; imageCount; ++i) {
+<pre><code class="lang-objective-c">for(int i = 0; i &lt; imageCount; ++i) {
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
   /**读入图像文件, 产生需要autorelease的对象**/
 
   [pool drain];    //此时，对象及时被释放；
-}</code></pre>
+}
+</code></pre>
 <h2><span id="自动引用计数">自动引用计数</span></h2><h3><span id="arc特性简介">ARC特性简介</span></h3><p>ARC仍然采用的是引用计数式内存管理的机制，只不过<code>retain</code>和<code>release</code>由ARC自动添加，因此，在ARC下这些内存管理方法是不可被开发者调用的：</p>
 <ul>
 <li><code>retain</code></li>
@@ -262,7 +268,7 @@ id obj = [[NSObject alloc] init];
 <p>此外，ARC在调用这些方法时并不通过消息派发机制，而是直接调用底层C版本，能够节省很多CPU周期，提升性能。这也是这些方法在ARC下不可被覆写的一个原因。</p>
 <p>ARC的另一个优化是，在编译期，能够把互相抵消的<code>retain</code>, <code>release</code>, <code>autorelease</code>化简。如果在一个对象上执行了多次保留与释放的操作，那么ARC可以成对移除这两个操作。这样的实现通过设置标志位来执行。</p>
 <p>例如，ARC在运行期检测出当<code>autorelease</code>后紧跟<code>retain</code>时，不直接调用对象的<code>autorelease</code>方法，而是改为调用<code>objc_autoreleaseReturnValue</code>. 用标志位的方法来消除多余操作。</p>
-<pre><code class="objective-c">/**objc_autoreleaseReturnValue 伪代码**/
+<pre><code class="lang-objective-c">/**objc_autoreleaseReturnValue 伪代码**/
 id objc_autoreleaseReturnValue(id object) {
   if(/*调用者之后还会retain这个对象*/) {
     set_flag(object);    // 设置标志位
@@ -270,9 +276,10 @@ id objc_autoreleaseReturnValue(id object) {
   } else {
     return [object autorelease];
   }
-}</code></pre>
+}
+</code></pre>
 <p>同理，若是执行<code>retain</code>后紧跟<code>autorelease</code>, 则改为调用<code>obj_retainAutoreleasedReturnValue</code></p>
-<pre><code class="objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
+<pre><code class="lang-objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
 id obj_retainAutoreleasedReturnValue(id object) {
   if(get_flag(object)) {    // 检测到标志位被设置
     clear_flag(object);    // 清除标志位
@@ -280,23 +287,27 @@ id obj_retainAutoreleasedReturnValue(id object) {
   } else {
     return [object retain];
   }
-}</code></pre>
+}
+</code></pre>
 <p>设置和检测标志位，比直接调用<code>autorelease</code>和<code>retain</code>更快</p>
 <h3><span id="arc下的内存管理语义">ARC下的内存管理语义</span></h3><p>以设置方法为例，当我们使用ARC时只需这么写，ARC能够自动添加相关的<code>retain</code>和<code>release</code>操作</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
+<pre><code class="lang-objective-c">- (void) setObject: (id) object {
   _object = object;
-}</code></pre>
+}
+</code></pre>
 <p>如果是MRC，需要我们手动添加<code>retain</code>和<code>release</code>的操作</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
+<pre><code class="lang-objective-c">- (void) setObject: (id) object {
   [_object release];
   _object = [object retain];
-}</code></pre>
+}
+</code></pre>
 <p>但是这么写会出现问题。如果新值和旧值相同，并且当前只有该对象在引用这个值，那么设置方法中的<code>release</code>会让<code>_object</code>的引用计数为0，从而被回收，导致应用程序崩溃。而ARC避免这种情况的做法是，以一种更安全的方式来设置：</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
+<pre><code class="lang-objective-c">- (void) setObject: (id) object {
   [object retain];    // 保留新值
   [_object release];    // 释放旧值
   _object = object;        // 设置
-}</code></pre>
+}
+</code></pre>
 <p>使用ARC避免了这种边界情况，而且使得代码的编写更加简洁。我们可以用所有权修饰符来控制ARC下对象的内存管理语义：</p>
 <ul>
 <li><code>__strong</code>: 默认语义，只要有一个被它修饰的指针指向某对象，这个对象就不能被回收。</li>
@@ -305,22 +316,25 @@ id obj_retainAutoreleasedReturnValue(id object) {
 <li><code>__autoreleasing</code>: 把对象按引用传递给方法时，使用这个特殊的修饰符，这个值在方法返回时自动释放。</li>
 </ul>
 <p>需要留意的是，修饰符修饰的引用也有其作用范围，超出范围之外即便是<code>__strong</code>修饰的也会失效，应该被释放。当带有<code>__strong</code> 修饰符的变量在持有对象时，如果多个对象相互持有，很容易发生循环引用，进而引发内存泄露。例如：</p>
-<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+<pre><code class="lang-objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
 MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
 [fetcher startWithCompletion:^(BOOL success) {
   NSLog(@&quot;Successfully fetching from %@&quot;, fetcher.url);
-}]</code></pre>
+}]
+</code></pre>
 <p>此段代码中，由于块能够自动保留捕获的全部对象，因此这个块保留了<code>fetcher</code>,而<code>fetcher</code>本身又引用了这个块，因此构成了保留环。解除保留环最常用的就是利用__weak修饰局部变量，这样，当强引用释放，弱引用也会被设置为nil，从而解除保留环。我们可以这么修复这段代码：</p>
-<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+<pre><code class="lang-objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
 MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
 MyNetworkFetcher * __weak weakFetcher = fetcher;
 [fetcher startWithCompletion:^(BOOL success) {
   NSLog(@&quot;Successfully fetching from %@&quot;, weakFetcher.url);
-}]</code></pre>
+}]
+</code></pre>
 <p>ARC下无法直接调用<code>autorelease</code>方法，也无法使用<code>NSAutoreleasePool</code>类, 但是我们可以通过<code>@autoreleasepool</code>块来代替<code>NSAutoreleasePool</code>进行对象的生成、持有、废弃的作用域</p>
-<pre><code class="objective-c">@autoreleasepool{
+<pre><code class="lang-objective-c">@autoreleasepool{
   id __autoreleasing object = [[NSObject alloc] init];
-}</code></pre>
+}
+</code></pre>
 <p>但是通常<code>__autoreleasing</code>并不显式调用，因为@autoreleasepool块指明了对象的作用域，若是最后需要在超出作用域的范围使用变量，则编译器会自动注册<code>autoreleasepool</code>对象来完成推迟release这一操作。</p>
 <h3><span id="arc使用规则">ARC使用规则</span></h3><p>最后，在ARC有效的情况下编译源代码需要遵守一定的规则：</p>
 <ul>
@@ -431,12 +445,12 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="洋流节点建模信息 洋流分层，旋转；因此垂直运动相对水平运动是微不足道的  任何不可压缩的二维流由函数描述（需要自己建模），其中：  , 为向东的流速 , 为向北的流速   随洋流的传感器轨迹为是以下哈密顿常微分方程系统的解    所有水下节点拥有相同的计算能力、交流能力、存储能力  网络是一个多跳网络：只有当两个传感器节点相互进入通信范围时，它们才能相互检测并开始通信。在任何两个节点之间交换的分组">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARTMM建模笔记">
+<meta property="og:url" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Aven&#39;s Blog">
+<meta property="og:description" content="洋流节点建模信息 洋流分层，旋转；因此垂直运动相对水平运动是微不足道的  任何不可压缩的二维流由函数描述（需要自己建模），其中：  , 为向东的流速 , 为向北的流速   随洋流的传感器轨迹为是以下哈密顿常微分方程系统的解    所有水下节点拥有相同的计算能力、交流能力、存储能力  网络是一个多跳网络：只有当两个传感器节点相互进入通信范围时，它们才能相互检测并开始通信。在任何两个节点之间交换的分组">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/artmm_archi.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/artmm_archi.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/link_trust_evaluation.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/link_trust_evaluation.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E4%BF%A1%E4%BB%BB%E5%80%BC%E9%80%BB%E8%BE%91%E8%A7%84%E5%88%99.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E4%BF%A1%E4%BB%BB%E5%80%BC%E9%80%BB%E8%BE%91%E8%A7%84%E5%88%99.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E6%B4%8B%E6%B5%81%E8%8A%82%E7%82%B9%E7%A7%BB%E5%8A%A8.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E6%B4%8B%E6%B5%81%E8%8A%82%E7%82%B9%E7%A7%BB%E5%8A%A8.png">
+<meta property="article:published_time" content="2019-07-20T09:30:28.000Z">
+<meta property="article:modified_time" content="2020-02-26T09:40:45.801Z">
+<meta property="article:author" content="Wenjie Zhang">
+<meta property="article:tag" content="水下声传感网 信任机制 数学建模">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/artmm_archi.png">
+
+<link rel="canonical" href="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>ARTMM建模笔记 | Aven's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Aven's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ARTMM建模笔记
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="洋流节点建模信息">洋流节点建模信息</span></h1><ol>
+<li><p>洋流分层，旋转；因此垂直运动相对水平运动是微不足道的</p>
+</li>
+<li><p>任何不可压缩的二维流由函数描述（需要自己建模），其中：</p>
+<ul>
+<li>, 为向东的流速</li>
+<li>, 为向北的流速</li>
+</ul>
+</li>
+<li><p>随洋流的传感器轨迹为是以下哈密顿常微分方程系统的解</p>
+</li>
+</ol>
+<ol>
+<li><p>所有水下节点拥有相同的计算能力、交流能力、存储能力</p>
+</li>
+<li><p>网络是一个多跳网络：只有当两个传感器节点相互进入通信范围时，它们才能相互检测并开始通信。在任何两个节点之间交换的分组（不在彼此的通信范围内）由其他转发节点转发。</p>
+</li>
+<li><p>不可靠信道：两个相邻节点即使在彼此的通信范围内也不能总是彼此接收分组。</p>
+</li>
+<li><p>信任值范围0-1，阈值为0.5，初始信任值为0.5</p>
+</li>
+</ol>
+<blockquote>
+<p>注：更多参考信息：</p>
+<p>A. Caruso, F. Paparella, L. Vieira, M. Erol, and M. Gerla, “The meandering current mobility model and its impact on underwater mobile sensor networks,” in Proc. 27th Conf. Comput. Commun., Apr. 2008, pp. 1–9. </p>
+</blockquote>
+<h1><span id="arttm基本架构">ARTTM基本架构</span></h1><p>理解传输数据，参与传感器节点和通信链路之间的关系</p>
+<h2><span id="相互依赖性">相互依赖性</span></h2><p>数据的信任值不仅基于参与的传感器节点的信任，而且还受链路质量的影响。</p>
+<p><img src="./ARTMM建模笔记/artmm_archi.png" alt><br><img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/artmm_archi.png" class></p>
+<p>如上图所示，ARTMM由三个主要部分组成：链路信任，数据信任和节点信任。节点信任和链路信任确定数据的可信度。数据信任反映了相关节点和通信链路的可靠性。链路信任基于链路质量和链路容量进行评估。</p>
+<p>链路质量反映了通信信道的性能，其基于分组丢失的预测和分组错误的计算来评估。链路容量定义为链路的使用率，即链路已被使用的次数的比率。</p>
+<p>节点信任基于节点诚实和节点能力来计算。节点诚实度是指一个传感器节点认为其邻居节点基于其通信行为（成功和不成功的通信）是诚实的。节点能力意味着传感器节点是否具有足够的能量来执行其预期功能，因此它是基于传感器节点的能量消耗来计算的。</p>
+<p>基于链接信任和节点信任，我们可以通过相似性和正确性检测方法最终获得数据的可信度</p>
+<h2><span id="滑动时间窗口">滑动时间窗口</span></h2><p>由于动态水下环境，应考虑历史信任值以动态更新可信度。为了解决这个问题，我们采用滑动时间窗口概念来更新信任值如下：</p>
+<ol>
+<li>每个时间窗口由几个单元组成</li>
+<li>在每个时间窗口期间，在两个相邻节点之间交换的分组，因此<strong>成功和不成功通信的数量以及传感器节点的剩余能量</strong>都记录在邻居列表中。</li>
+<li>分别计算通信链路，节点和数据的当前信任值。</li>
+<li>经过一段时间后，窗口向前滑动一个时间单位。然后，在下一个时间窗口中，把历史信任值用于更新新信任值，之后丢弃</li>
+</ol>
+<blockquote>
+<p>小结：</p>
+</blockquote>
+<p>ARTMM包含两个步骤：每个时间窗口中的当前信任计算和基于历史信任值的信任更新。</p>
+<h1><span id="信任值计算">信任值计算</span></h1><h2><span id="链路信任值计算">链路信任值计算</span></h2><p><img src="./ARTMM建模笔记/link_trust_evaluation.png" alt><br><img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/link_trust_evaluation.png" class></p>
+<p>PLR: packet loss rate</p>
+<h3><span id="包错误率计算">包错误率计算</span></h3><h4><span id="计算传输损失">计算传输损失</span></h4><p>基于射线理论的多径瑞利水下航道模型：</p>
+<p>浅水和深水的传输损失是：</p>
+<ul>
+<li><p>浅水：</p>
+</li>
+<li><p>深水：</p>
+<p>其中，和分别代表浅水和深水中的吸收系数（衰减系数），代表传输范围。</p>
+<p>注：吸收系数计算：M. C. Domingo, “Overview of channel models for underwater wireless communication networks,” Phys. Commun., vol. 1, pp. 163–182, 2008.</p>
+<h4><span id="计算snr">计算SNR</span></h4><p>不考虑干扰，比特误码率(BER)可由信噪比计算得出，基于被动声纳方程，SNR在接收器处发射的水下信号为：</p>
+</li>
+</ul>
+<p>  其中为探测阈值，为源级，为<strong>传输损失(</strong>上小节)，为噪音级别，为指向性指数</p>
+<h4><span id="计算ber">计算BER</span></h4><p>  所选的调制方法也会影响BER，如16QAM的BER：</p>
+<p>  其中, 为噪声带宽，R为数据的速率（data rate）</p>
+<h4><span id="计算per">计算PER</span></h4><p>  其中n代表包中的比特数</p>
+<h4><span id="考虑声道干扰的per">考虑声道干扰的PER</span></h4><p>  使用前向纠错，考虑块码来提升前向纠错的效率并降低其复杂度。对于一个块码, 可得到它的块错误率(BLER)为：</p>
+<p>  其中，是块码的长度，是比特的纠错能力</p>
+<p>  <strong>PER计算更正为</strong>：</p>
+<p>  其中N是数据包中的有效负载数</p>
+  <!--有效负载数-->：当通过因特网发送数据时，发送的每个单元包括头信息和发送的实际数据。标头标识数据包的源和目标，而实际数据称为有效负载。
+
+  ### 包丢失率计算
+
+  #### PRR计算
+
+  1. 最近最大权重的PRR：
+
+
+
+     漏洞：选择性转发攻击
+
+  2. 最小化噪声和干扰影响的PRR：
+
+     每个时间窗口T中，在声学信道上的分组丢失可以被视为一组随机时间序列。基于ARIMA模型，时间序列的历史数据可用于预测未来数据值
+
+     1. 使时间序列固定。被分析的时间序列必须是静止的。如果原始时间序列是非静止的，则必须通过差分对其进行变换以使序列静止
+     2. 确定预测模型。 ARIMA模型由三个部分组成：自回归（AR），移动平均（MA）和ARMA。首先，确定静止时间序列的自相关函数（ACF）和部分自相关函数（PACF）。如果静止序列的PACF被截断并且ACF拖尾，则选择AR模型。如果静止序列的ACF显示急剧截止且PACF拖尾，则选择MA模型。否则，ARMA模型用于预测未来的数据值。
+     3. 估计ARIMA模型参数
+     4. 诊断ARIMA残留序列。此步骤使用白噪声测试来检查剩余时间序列是否包含其他有用信息。在这种情况下，必须通过重复步骤3和4继续分析，直到找到通过白噪声测试的适当ARIMA模型。
+     5. 选择最合适的ARIMA模型来预测信任值。它假定在网络部署阶段的最初阶段没有恶意攻击。因此，我们可以根据公式（4）得到初始丢包率。
+
+  ### 链路质量计算
+
+  然后，通过使用上述ARIMA模型，可以预测每个时间窗口中由不可靠通信信道引起的实际分组丢失。基于等式（2）和（4），通过计算链路质量：
+
+
+
+  ### 链路容量$lc$计算
+
+  #### $lc$定义
+
+  链路使用越多越可靠，可以从传感器节点的路由表条目中提取最大可能的使用次数，因此：
+$$
+  lc = \frac{n{use}}{N{use}}\tag{6}
+$$
+
+
+  其中$n_{use}$是在当前时间窗口中已经使用链接的次数，$N_{use}$是可以使用链接的最大可能次数
+
+  缺点：DoS攻击可能改变通信链路的使用次数
+
+  #### 改进的$lc$
+
+  在没有恶意节点的普通UASN中，所有传感器节点的所有流量负载均衡，以延长网络生命周期，从而稳定地使用每个通信链路。因此，链接容量重写为：
+$$
+  lc(i) = \left\{
+  \begin{aligned}
+  &\frac{n_{use}(i)}{N_{use}(i-1)}, &if|n_{use}(i)-n_{use}(i-1)|\geq \theta\\
+  &lc(i-1), &otherwise
+  \end{aligned}
+  \right.
+$$
+  其中$n_{use}(i)$和$n_{use}(i-1)$指的是当前和上一次时间窗口中已使用链接的次数。$\theta$是定义的阈值，当链路的使用保持稳定即：$|n_{use}(i)-n_{use}(i-1)|< \theta$ 
+
+  我们能确信这个链路用得越多越稳定，否则，该通信链路可能受到恶意攻击。
+
+  ### 链路信任值计算
+
+  链路信任取决于链路质量和链路容量:
+$$
+  T_{link} = \left\{
+  \begin{aligned}
+  &0.5+(lq-0.5)\times lc, &lq \geq 0.5\\
+  &lq \times lc, &lq < 0.5
+  \end{aligned}
+  \right.
+$$
+
+
+
+  ## 数据信任值计算
+
+  数据信任是对容错和数据一致性的信任评估。通常已知发送的数据信息是时间和空间相关性。在某个时间段内，相邻节点之间关于同一事件的感知数据信息总是彼此相似。数据信息的数值始终遵循某些特定分布，例如正态分布。为简单起见，假设数据项的分布服从正态分布。数据项的概率密度函数可以通过计算$f(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$得到，其中$x$为数据项$v_d$的数值，$\mu$和$\sigma$分别是数据的均值和方差。基于正态分布模型，观察到平均值$m$由数据信息的多数值确定，因此平均值被认为是能够很好地反映数据的值相似性的最具代表性的值。这意味着，对于一组数据，均值应该是具有最高信任值的。值越接近于均值，信任值越大，反之亦然。因此，数据信任值定义为：
+$$
+  T_{data} = 2\times(0.5-\int_\mu^{v_d}{f(x)dx}) = 2\int_{v_d}^\infty f(x)dx \tag{9}
+$$
+  但是，如果存在数据修改攻击，则在出现不诚实的数据信息时，方程（9）无法正常工作。因此，我们首先使用*中值绝对偏差（MAD） - 中值规则*来消除异常值，然后平均剩余数据值并使用相似性来评估数据信任。
+
+
+
+  ## 节点信任值计算
+
+  通常，基于受试者的观察和第三方的推荐来计算传感器节点的信任值。但是收集和管理第三方推荐占用大量能耗，因此:
+
+  1. 检查对象和主题节点之间交换的分组的数量
+  2. 如果它们之间交换的数据包的数量大于定义的阈值$Th_{num}$，则仅计算直接信任
+  3. 否则，对象的信任评估需要来自公共邻居节点的建议。
+
+  ### 直接计算信任
+
+  直接信任是通过考虑节点诚实和节点能力来计算的。
+
+  1. 基于直接通信行为计算节点诚实度以检查传感器节点是否可靠
+  2. 用剩余能量度量传感器节点是否有能力执行其预期功能
+
+  #### 节点诚实度（NH）
+
+  使用主观逻辑模型。主观模型中的信任值被表示为$T = \{b,d,u\}$, 其中，$b,d,u$分别对应信任，不信任和不确定并且$b,d,u\in [0,1], b+d+1=1$.基于此节点诚实度（NH）为：
+$$
+  NH = \frac{2b+u}{2}
+$$
+  其中，$b = \frac{s}{s+f+1}, u = \frac{1}{s+f+1}, s和f$ 是成功和不成功通信的数量。
+
+  如上所述，数据包丢失不仅是由恶意节点引起的，也是由不可靠的水下通信信道引起的。由不可靠的通信信道引起的丢包率（$P_{PLR}$）由ARIMA模型在5.1.1节中预测。因此，成功$s$和不成功$f$的通信可以被更正为:
+$$
+  s_{new} = s+P_{plr} \times (s+f)\\
+  f_{new} = f-P_{plr} \times (s+f)\tag{11}
+$$
+
+  #### 节点能力（NC）
+
+  假设所有传感器节点具有相同的初始能量水平和能量消耗率。但是，恶意节点总是消耗异常能量来发动恶意攻击。例如，启动DoS攻击的恶意节点比正常节点消耗更多能量，而自私节点消耗更少能量。因此，我们使用能量作为QoS信任度量来测量传感器节点是自私的还是恶意地耗尽额外的能量。
+
+  1. 首先，定义能量阈值 $\theta$ 。当一个传感器节点的剩余能量$E_{res}$下降到低于阈值时，传感器节点不足以胜任（没有足够的能量）来执行其预期的功能。因此，节点能力被认为是0
+
+  2. 否则，节点能力基于能量消耗率$p_{ene}$计算，$p_{ene} \in [0,1]$。能量消耗率越高，剩余能量越少，这最终导致传感器节点完成任务的能力越小。因此，传感器节点的节点能力被认为更小。节点能力通过以下方式计算：
+     $$
+     NC = \left\{
+     \begin{aligned}
+     &1-p_{ene}, &E_{res}\geq \theta \\
+     &0, &E_{res} < \theta
+     \end{aligned}\tag{12}
+     \right.
+     $$
+     其中，$p_{ene}$是基于Ray Projection方法计算的。
+
+  #### 直接信任值计算
+
+$$
+  T_{direct} = \left\{
+  \begin{aligned}
+  &0.5+(NH-0.5)\times NC, &NH\geq 0.5 \\
+  &NH \times NC, &NH < 0.5
+  \end{aligned}\tag{13}
+  \right.
+$$
+
+
+
+  ### 间接计算信任
+
+  需要注意防止恶意节点的推荐。
+
+  1. 定义推荐可靠性$T_{rel}$：计算推荐的平均值；获得推荐值和平均值之间的差异，差异越大，推荐的可靠性就越低。$T_{rel}$计算如下：
+
+$$
+  T_{rel} = 1-|T_{bc_i}-T_{ave}|\tag{14}
+$$
+
+  ​        其中，$T_{bc_i}$是推荐者$C_i$报告的对象节点$B$的推荐值，$T_{ave}$是所有推荐的平均值。
+
+  2. 如果推荐者的可靠性差（<0.5），即使其推荐值非常高，也不能用于计算推荐信任。如果推荐者是可靠的（> 0.5），则基于推荐值$T_{bc_i}$的信任值和推荐$T_{rel}$的可靠性，推荐信任计算如下
+     $$
+     T_{recom} = \frac{\sum_{i=0}^n T_{rel} \times T_{bc_i}}{n}
+     $$
+     其中，n是所有推荐者的数目。
+
+  3. 节点信任值计算为：
+     $$
+     T_{node} = \left\{
+     \begin{aligned}
+     &T_{direct}, &s_{new} \geq Th_{num}\\
+     &w_{direct}T_{direct} + w_{recom}T_{recom}, &s_{new}<th_{num} \end{aligned} \right. $$ 其中，$w_{direct}, w_{recom}$分别是权重，$w_{direct}\in[0,1], w_{recom}\in[0,1], w_{direct}+w_{recom}="1$" # 信任值更新 为了更新artmm中的信任，我们使用滑动时间窗口概念。计算链路，数据和节点的当前信任值。根据历史值更新信任值。为历史信任值定义时间衰减函数（越古老的信息占用越少的权重）。我们采用artmm中的指数衰减，其定义为： w_{decay}="exp(-\delta" \times (t-t_0))\tag{17} 其中$\delta$是调节因子，$\delta \in (0,1) , t$为当前信任值的时间，$t_0$为历史信任值的时间。 ## 内部依赖属性计算 定义中间信任值$t_{inter-l}, t_{inter-d}, t_{inter-n}$ 用于更新链路交流，传输数据和参与节点的信任值。 - $t_{inter-l}$根据传感器节点$t_{node}$和传输数据$t_{data}$的信任值确定。 $t_{inter-d}$根据传感器节点$t_{node}$和通信链路$t_{link}$的信任值确定。 $t_{inter-n }$根据传输数据$t_{data}$和通信链路$t_{link}$的信任值确定。 这里，采用模糊逻辑方法计算链路，数据和节点的相互依赖性。> <!--模糊逻辑允许逻辑值在0，1之间-->
+<p>  &gt;</p>
+<blockquote>
+<p>假设模糊 成员函数信任值由五个模糊集组成：</p>
+<ol>
+<li>完全不信任，$trustvalue \in [0, 0.25)$</li>
+<li>不信任，$trustvalue \in [0.25, 0.5)$</li>
+<li>不确定，$trustvalue = 0.5$</li>
+<li>信任，$trustvalue \in [0.5 , 0.75)$</li>
+<li>完全信任，$trustvalue \in [0.75, 1)$</li>
+</ol>
+<p>信任等级的逻辑规则如下图所示</p>
+<p><img src="./ARTMM建模笔记/信任值逻辑规则.png" alt></p>
+<img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E4%BF%A1%E4%BB%BB%E5%80%BC%E9%80%BB%E8%BE%91%E8%A7%84%E5%88%99.png" class>
+<p>以$T_{inter-d}$为例，上图的规则建立了一个从$T_{node} \circ T_{link}$到$T_{inter-d}$的映射。</p>
+<p>对于每对给定的$T_{node}$和$T_{link}$，使用一般总关系R，我们可以得到：</p>
+<script type="math/tex; mode=display">
+T_{inter-d} = (T_{node}) \times T_{link} \circ R \tag{18}</script><p>在<code>the maximum membership degree approach</code>的帮助下，我们根据去模糊化可得到确定的信任值$T_{inter-d}$. 同理， 模糊逻辑方法还可以计算出$T_{inter-l}, T_{inter-n}$</p>
+<h2><span id="链路信任值更新">链路信任值更新</span></h2><p>根据（17），我们可以更新第$i$个时间窗口的链路信任值为：</p>
+<script type="math/tex; mode=display">
+T_{link}(i) = w_{decay}T_{link}(i-1)+(1-w_{decay})T_{inter-l}</script><p>其中$T_{link}(i-1)$是第$i-1$个时间窗口的链路信任值</p>
+<h2><span id="数据信任值更新">数据信任值更新</span></h2><p>基于当前数据信任，中间数据信任和信任衰减函数，第i个时间窗口中的数据信任更新为：</p>
+<script type="math/tex; mode=display">
+T_{data}(i) = w_{decay}T_{data}(i-1)+(1-decay)T_{inter-d}</script><h2><span id="节点信任值更新">节点信任值更新</span></h2><p>在UASN中，传感器节点总是随着海流而移动。有两种情况需要考虑：</p>
+<p><img src="./ARTMM建模笔记/洋流节点移动.png" alt><br><img src="/2019/07/20/ARTMM%E5%BB%BA%E6%A8%A1%E7%AC%94%E8%AE%B0/%E6%B4%8B%E6%B5%81%E8%8A%82%E7%82%B9%E7%A7%BB%E5%8A%A8.png" class></p>
+</blockquote>
+<ol>
+<li>对于节点C，节点B是新的邻居节点，如何计算新邻居节点的信任值是第一个问题</li>
+<li><p>当节点B在某个时间回退时，如何用历史信任值重新计算节点B的信任值</p>
+<h3><span id="新节点的信任迁移">新节点的信任迁移</span></h3></li>
+<li><p>如图4所示，节点B和节点C没有历史通信行为，因此，节点A计算出的B的信任值不能直接用于节点C</p>
+</li>
+<li><p>如果节点A信任节点B并且节点B信任节点C，可推断出A一定程度上信任节点C。因此，如果节点C认为节点A是值得信任的，则A计算出的节点B的信任值可迁移到C节点。否则，节点B的信任值设置为0.5。</p>
+<h3><span id="旧节点的信任迁移">旧节点的信任迁移</span></h3><p>对于返回的旧邻居节点，应在信任重新评估过程中考虑历史信任值。通常，传感器节点的信任值总是随着时间的推移而衰减。</p>
+<p>当邻居节点在静态网络中连续地相互通信时，两个节点之间的信任值随时间成比例地衰减。</p>
+<p>但是，当传感器节点移出其相邻节点的通信范围时，公式（17）中定义的衰减函数不再适用。</p>
+<p>在这里，我们介绍了关系成熟度的概念，它基于两个节点之间关系的年龄。关系成熟度定义为：</p>
+<script type="math/tex; mode=display">
+RM = \frac{n_{ab}}{n_a} \times \beta^{\frac{1}{n_{ab}}}\tag{19}</script><p>其中$n_{ab}$是A和B之间成功通信的次数，$n_a$是A节点总的成功通信的次数。时间衰减函数计算为：</p>
+<script type="math/tex; mode=display">
+w_{decay} = exp(-\delta \times (t-t_0) \times (1-RM))\tag{20}</script><p>第$i$个窗口的节点信任值更新为：</p>
+<script type="math/tex; mode=display">
+T_{node}(i)= w_{decay}T_{node}(i-1)+(1-w_{decay})T_{inter-n}\tag{21}</script><p>其中$T_{node}(i-1)$是第$i-1$个时间窗口的节点信任值</p>
+</li>
+</ol>
+</th_{num}></0.5），即使其推荐值非常高，也不能用于计算推荐信任。如果推荐者是可靠的（>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%B0%B4%E4%B8%8B%E5%A3%B0%E4%BC%A0%E6%84%9F%E7%BD%91-%E4%BF%A1%E4%BB%BB%E6%9C%BA%E5%88%B6-%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/" rel="tag"># 水下声传感网 信任机制 数学建模</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/" rel="prev" title="Secure Query Processing in a Cloud Database Environment">
+      <i class="fa fa-chevron-left"></i> Secure Query Processing in a Cloud Database Environment
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/07/21/Image-completion-with-generative-adversarial-networks/" rel="next" title="GAN in Editing Portrait">
+      GAN in Editing Portrait <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text">洋流节点建模信息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">2.</span> <span class="nav-text">ARTTM基本架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">2.1.</span> <span class="nav-text">相互依赖性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">2.2.</span> <span class="nav-text">滑动时间窗口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">3.</span> <span class="nav-text">信任值计算</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">3.1.</span> <span class="nav-text">链路信任值计算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">3.1.1.</span> <span class="nav-text">包错误率计算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">3.1.1.1.</span> <span class="nav-text">计算传输损失</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">3.1.1.2.</span> <span class="nav-text">计算SNR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">3.1.1.3.</span> <span class="nav-text">计算BER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">3.1.1.4.</span> <span class="nav-text">计算PER</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">3.1.1.5.</span> <span class="nav-text">考虑声道干扰的PER</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">3.2.</span> <span class="nav-text">链路信任值更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">3.3.</span> <span class="nav-text">数据信任值更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">3.4.</span> <span class="nav-text">节点信任值更新</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">3.4.1.</span> <span class="nav-text">新节点的信任迁移</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">3.4.2.</span> <span class="nav-text">旧节点的信任迁移</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wenjie Zhang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wenjie Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
