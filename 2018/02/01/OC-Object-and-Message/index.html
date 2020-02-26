@@ -23,20 +23,20 @@
   <meta name="description" content="OC 对象和消息在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。 属性属性用于封装对象中的数据，OC">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OC Object and Message">
-<meta property="og:url" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/index.html">
+<meta property="og:url" content="http://yoursite.com/2018/02/01/OC-Object-and-Message/index.html">
 <meta property="og:site_name" content="Aven&#39;s Blog">
 <meta property="og:description" content="OC 对象和消息在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。 属性属性用于封装对象中的数据，OC">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/OC-Object-and-Message/msg_forward.jpg">
-<meta property="og:image" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/msg_forward.jpg">
-<meta property="article:published_time" content="2020-01-31T17:22:01.000Z">
-<meta property="article:modified_time" content="2020-02-10T13:39:54.366Z">
+<meta property="og:image" content="http://yoursite.com/2018/02/01/OC-Object-and-Message/OC-Object-and-Message/msg_forward.jpg">
+<meta property="og:image" content="http://yoursite.com/2018/02/01/OC-Object-and-Message/msg_forward.jpg">
+<meta property="article:published_time" content="2018-01-31T17:22:01.000Z">
+<meta property="article:modified_time" content="2020-02-26T01:52:06.588Z">
 <meta property="article:author" content="Wenjie Zhang">
 <meta property="article:tag" content="Objective-C">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/2020/02/01/OC-Object-and-Message/OC-Object-and-Message/msg_forward.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2018/02/01/OC-Object-and-Message/OC-Object-and-Message/msg_forward.jpg">
 
-<link rel="canonical" href="http://yoursite.com/2020/02/01/OC-Object-and-Message/">
+<link rel="canonical" href="http://yoursite.com/2018/02/01/OC-Object-and-Message/">
 
 
 <script id="page-configurations">
@@ -147,7 +147,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/01/OC-Object-and-Message/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/OC-Object-and-Message/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -170,14 +170,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-02-01 01:22:01" itemprop="dateCreated datePublished" datetime="2020-02-01T01:22:01+08:00">2020-02-01</time>
+              <time title="Created: 2018-02-01 01:22:01" itemprop="dateCreated datePublished" datetime="2018-02-01T01:22:01+08:00">2018-02-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-02-10 21:39:54" itemprop="dateModified" datetime="2020-02-10T21:39:54+08:00">2020-02-10</time>
+                <time title="Modified: 2020-02-26 09:52:06" itemprop="dateModified" datetime="2020-02-26T09:52:06+08:00">2020-02-26</time>
               </span>
 
           
@@ -367,7 +367,7 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 </ol>
 <p>消息转发全过程可表示为下图：</p>
 <p><img src="./OC-Object-and-Message/msg_forward.jpg" alt></p>
-<img src="/2020/02/01/OC-Object-and-Message/msg_forward.jpg" class>
+<img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class>
 <p>步骤越往后，消息转发花费代价越大。</p>
 <blockquote>
 <p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》</p>
@@ -389,13 +389,10 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 
         
     <div class="post-nav">
+      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/01/21/Image-completion-with-generative-adversarial-networks/" rel="prev" title="GAN in Editing Portrait">
-      <i class="fa fa-chevron-left"></i> GAN in Editing Portrait
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/02/04/Comprehension-of-SDWebImage/" rel="next" title="Comprehension of SDWebImage">
-      Comprehension of SDWebImage <i class="fa fa-chevron-right"></i>
+    <a href="/2018/02/04/iOS-Memory-Management/" rel="next" title="iOS Memory Management">
+      iOS Memory Management <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -475,7 +472,7 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>

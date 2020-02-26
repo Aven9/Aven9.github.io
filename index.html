@@ -141,227 +141,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/04/iOS-Memory-Management/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Wenjie Zhang">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Aven's Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/04/iOS-Memory-Management/" class="post-title-link" itemprop="url">iOS Memory Management</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-02-04 20:09:46" itemprop="dateCreated datePublished" datetime="2020-02-04T20:09:46+08:00">2020-02-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-02-10 20:12:40" itemprop="dateModified" datetime="2020-02-10T20:12:40+08:00">2020-02-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="OC中的内存管理"><a href="#OC中的内存管理" class="headerlink" title="OC中的内存管理"></a>OC中的内存管理</h1><h2 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h2><h3 id="理解和使用引用计数"><a href="#理解和使用引用计数" class="headerlink" title="理解和使用引用计数"></a>理解和使用引用计数</h3><p>说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：</p>
-<ul>
-<li>自己生成的对象，自己持有</li>
-<li>非自己生成的对象，自己也能持有</li>
-<li>不再需要自己持有对象时应当释放</li>
-<li>非自己持有的对象无法释放</li>
-</ul>
-<p>分别对应的OC方法如下表所示：</p>
-<table>
-<thead>
-<tr>
-<th>对象操作</th>
-<th>OC方法</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>生成并持有对象</td>
-<td>alloc/new/copy/mutableCopy</td>
-</tr>
-<tr>
-<td>持有对象</td>
-<td>retain</td>
-</tr>
-<tr>
-<td>释放对象</td>
-<td>release</td>
-</tr>
-<tr>
-<td>销毁对象</td>
-<td>dealloc</td>
-</tr>
-</tbody></table>
-<p>举个例子：</p>
-<pre><code class="objective-c">/**自己生成并持有对象**/
-id obj = [[NSObject alloc] init];
-/**自己持有对象**/
-/**释放对象**/
-[obj release];
-/**对象已被释放，不可再被访问**/</code></pre>
-<p>另一种方式：</p>
-<pre><code class="objective-c">/**生成对象但并不持有, 此时引用计数为0**/
-id obj = [NSMutableArray array];
-/**持有对象**/
-[obj retain];
-/**自己持有对象**/
-/**释放对象**/
-[obj release];
-/**对象已被释放，不可再被访问**/</code></pre>
-<p>如果企图释放计数已经为0的对象或者是自己没有持有的对象，将会造成程序崩溃。</p>
-<h3 id="Autorelease"><a href="#Autorelease" class="headerlink" title="Autorelease"></a>Autorelease</h3><p>除了<code>retain</code>和<code>release</code> 之外，还有一种用于操作计数器的方法：<code>autorelease</code>. <code>autorelease</code>将引用计数递减这一活动延后执行。</p>
-<p><code>autorelease</code>的使用方法如下：</p>
-<ul>
-<li>生成并持有<code>NSAutoreleasePool</code>对象</li>
-<li>调用已分配对象的<code>autorelease</code>实例方法</li>
-<li>废弃<code>NSAutoreleasePool</code>对象</li>
-</ul>
-<pre><code class="objective-c">/**生成并持有NSAutoreleasePool对象**/
-NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-id obj = [[NSObject alloc] init];
-/**调用已分配对象的autorelease实例方法**/
-[obj autorelease];
-/**废弃NSAutoreleasePool对象**/
-[pool drain];</code></pre>
-<p>但是在<code>Cocoa</code>框架中，在充当程序主循环的<code>NSRunloop</code>或其他可运行程序的地方都会对<code>NSAutoreleasePool</code>对象进行生成、持有、废弃处理，因此不必非要采用<code>NSAutoreleasePool</code>对象手动管理资源的生成、持有、释放。</p>
-<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt="NSAutoreleasePoolCircle"></p>
-<img src="/2020/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class="">
-
-<p>但是，在这种模式下，当大量产生<code>autorelease</code>对象时，只要<code>NSAutoreleasePool</code>对象没有废弃，那么对象也不能被释放，因此会带来内存不足的问题，此时需要在适当的位置手动生成、持有、废弃<code>NSAutoreleasePool</code>对象。</p>
-<p>例如，在读入图像文件，生成UIImage对象时：</p>
-<pre><code class="objective-c">for(int i = 0; i &lt; imageCount; ++i) {
-  NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-
-  /**读入图像文件, 产生需要autorelease的对象**/
-
-  [pool drain];    //此时，对象及时被释放；
-}</code></pre>
-<h2 id="自动引用计数"><a href="#自动引用计数" class="headerlink" title="自动引用计数"></a>自动引用计数</h2><h3 id="ARC特性简介"><a href="#ARC特性简介" class="headerlink" title="ARC特性简介"></a>ARC特性简介</h3><p>ARC仍然采用的是引用计数式内存管理的机制，只不过<code>retain</code>和<code>release</code>由ARC自动添加，因此，在ARC下这些内存管理方法是不可被开发者调用的：</p>
-<ul>
-<li><code>retain</code></li>
-<li><code>release</code></li>
-<li><code>autorelease</code></li>
-<li><code>dealloc</code></li>
-</ul>
-<p>此外，ARC在调用这些方法时并不通过消息派发机制，而是直接调用底层C版本，能够节省很多CPU周期，提升性能。这也是这些方法在ARC下不可被覆写的一个原因。</p>
-<p>ARC的另一个优化是，在编译期，能够把互相抵消的<code>retain</code>, <code>release</code>, <code>autorelease</code>化简。如果在一个对象上执行了多次保留与释放的操作，那么ARC可以成对移除这两个操作。这样的实现通过设置标志位来执行。</p>
-<p>例如，ARC在运行期检测出当<code>autorelease</code>后紧跟<code>retain</code>时，不直接调用对象的<code>autorelease</code>方法，而是改为调用<code>objc_autoreleaseReturnValue</code>. 用标志位的方法来消除多余操作。</p>
-<pre><code class="objective-c">/**objc_autoreleaseReturnValue 伪代码**/
-id objc_autoreleaseReturnValue(id object) {
-  if(/*调用者之后还会retain这个对象*/) {
-    set_flag(object);    // 设置标志位
-    return object;    // 直接返回
-  } else {
-    return [object autorelease];
-  }
-}</code></pre>
-<p>同理，若是执行<code>retain</code>后紧跟<code>autorelease</code>, 则改为调用<code>obj_retainAutoreleasedReturnValue</code></p>
-<pre><code class="objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
-id obj_retainAutoreleasedReturnValue(id object) {
-  if(get_flag(object)) {    // 检测到标志位被设置
-    clear_flag(object);    // 清除标志位
-    return object;    // 返回
-  } else {
-    return [object retain];
-  }
-}</code></pre>
-<p>设置和检测标志位，比直接调用<code>autorelease</code>和<code>retain</code>更快</p>
-<h3 id="ARC下的内存管理语义"><a href="#ARC下的内存管理语义" class="headerlink" title="ARC下的内存管理语义"></a>ARC下的内存管理语义</h3><p>以设置方法为例，当我们使用ARC时只需这么写，ARC能够自动添加相关的<code>retain</code>和<code>release</code>操作</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
-  _object = object;
-}</code></pre>
-<p>如果是MRC，需要我们手动添加<code>retain</code>和<code>release</code>的操作</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
-  [_object release];
-  _object = [object retain];
-}</code></pre>
-<p>但是这么写会出现问题。如果新值和旧值相同，并且当前只有该对象在引用这个值，那么设置方法中的<code>release</code>会让<code>_object</code>的引用计数为0，从而被回收，导致应用程序崩溃。而ARC避免这种情况的做法是，以一种更安全的方式来设置：</p>
-<pre><code class="objective-c">- (void) setObject: (id) object {
-  [object retain];    // 保留新值
-  [_object release];    // 释放旧值
-  _object = object;        // 设置
-}</code></pre>
-<p>使用ARC避免了这种边界情况，而且使得代码的编写更加简洁。我们可以用所有权修饰符来控制ARC下对象的内存管理语义：</p>
-<ul>
-<li><code>__strong</code>: 默认语义，只要有一个被它修饰的指针指向某对象，这个对象就不能被回收。</li>
-<li><code>__weak</code>: 并不能保证被修饰的指针指向的对象一定存活。当某对象没有被强引用时，其弱引用会被设置为nil</li>
-<li><code>__unsafe_unretained</code>: 并不能保证被修饰的指针指向的对象一定存活。与<code>__weak</code>不同, 当某对象没有被强引用时，其弱引用也不会被设置为<code>nil</code>，如果它引用的对象被销毁，这个指针会成为悬挂指针</li>
-<li><code>__autoreleasing</code>: 把对象按引用传递给方法时，使用这个特殊的修饰符，这个值在方法返回时自动释放。</li>
-</ul>
-<p>需要留意的是，修饰符修饰的引用也有其作用范围，超出范围之外即便是<code>__strong</code>修饰的也会失效，应该被释放。当带有<code>__strong</code> 修饰符的变量在持有对象时，如果多个对象相互持有，很容易发生循环引用，进而引发内存泄露。例如：</p>
-<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
-MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
-[fetcher startWithCompletion:^(BOOL success) {
-  NSLog(@&quot;Successfully fetching from %@&quot;, fetcher.url);
-}]</code></pre>
-<p>此段代码中，由于块能够自动保留捕获的全部对象，因此这个块保留了<code>fetcher</code>,而<code>fetcher</code>本身又引用了这个块，因此构成了保留环。解除保留环最常用的就是利用__weak修饰局部变量，这样，当强引用释放，弱引用也会被设置为nil，从而解除保留环。我们可以这么修复这段代码：</p>
-<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
-MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
-MyNetworkFetcher * __weak weakFetcher = fetcher;
-[fetcher startWithCompletion:^(BOOL success) {
-  NSLog(@&quot;Successfully fetching from %@&quot;, weakFetcher.url);
-}]</code></pre>
-<p>ARC下无法直接调用<code>autorelease</code>方法，也无法使用<code>NSAutoreleasePool</code>类, 但是我们可以通过<code>@autoreleasepool</code>块来代替<code>NSAutoreleasePool</code>进行对象的生成、持有、废弃的作用域</p>
-<pre><code class="objective-c">@autoreleasepool{
-  id __autoreleasing object = [[NSObject alloc] init];
-}</code></pre>
-<p>但是通常<code>__autoreleasing</code>并不显式调用，因为@autoreleasepool块指明了对象的作用域，若是最后需要在超出作用域的范围使用变量，则编译器会自动注册<code>autoreleasepool</code>对象来完成推迟release这一操作。</p>
-<h3 id="ARC使用规则"><a href="#ARC使用规则" class="headerlink" title="ARC使用规则"></a>ARC使用规则</h3><p>最后，在ARC有效的情况下编译源代码需要遵守一定的规则：</p>
-<ul>
-<li>不能使用<code>retain/release/retainCount/autorelease</code></li>
-<li>不能使用<code>NSAllocateObject/NSDeallocateObject</code></li>
-<li>遵守内存管理的方法命名规则</li>
-<li>不要显示调用<code>dealloc</code></li>
-<li>使用<code>@autoreleasepool</code>块代替<code>NSAutoreleasePool</code></li>
-<li>不要使用<code>NSZone</code></li>
-<li>对象型变量不能作为C语言结构体的成员</li>
-<li>显示转换<code>id</code>和<code>void</code></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/04/Comprehension-of-SDWebImage/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -426,7 +205,7 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/01/OC-Object-and-Message/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/21/Image-completion-with-generative-adversarial-networks/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -440,7 +219,7 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/2020/02/01/OC-Object-and-Message/" class="post-title-link" itemprop="url">OC Object and Message</a>
+            <a href="/2019/07/21/Image-completion-with-generative-adversarial-networks/" class="post-title-link" itemprop="url">GAN in Editing Portrait</a>
         </h1>
 
         <div class="post-meta">
@@ -450,14 +229,507 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-02-01 01:22:01" itemprop="dateCreated datePublished" datetime="2020-02-01T01:22:01+08:00">2020-02-01</time>
+              <time title="Created: 2019-07-21 19:10:18" itemprop="dateCreated datePublished" datetime="2019-07-21T19:10:18+08:00">2019-07-21</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-02-10 21:39:54" itemprop="dateModified" datetime="2020-02-10T21:39:54+08:00">2020-02-10</time>
+                <time title="Modified: 2020-02-26 09:52:35" itemprop="dateModified" datetime="2020-02-26T09:52:35+08:00">2020-02-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。</p>
+<!-- toc -->
+
+<ul>
+<li><a href="#背景知识">背景知识</a><ul>
+<li><a href="#gan原理简述">GAN原理简述</a></li>
+<li><a href="#深度学习在人像编辑的应用">深度学习在人像编辑的应用</a><ul>
+<li><a href="#工作简述">工作简述</a></li>
+<li><a href="#图像翻译">图像翻译</a></li>
+<li><a href="#图像完成">图像完成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#解决方案">解决方案</a><ul>
+<li><a href="#训练数据">训练数据</a></li>
+<li><a href="#网络结构">网络结构</a><ul>
+<li><a href="#生成器">生成器</a></li>
+<li><a href="#判别器">判别器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="背景知识">背景知识</span></h1><h2><span id="gan原理简述">GAN原理简述</span></h2><p>顾名思义，GAN，即生成对抗网络，是由生成器和判别器构成的一种深度学习模型。以人像编辑软件为例，图像生成器的目的是接收用户的涂改作为输入，合成修改后的图片。图像判定器负责判断合成的图片看上去是真的还是假的。而生成模型的训练，就是通过生成器生成图片，判别器做出判断，生成器改进，继续生成图片……直到判别器分辨不出接收到的是一张真实的图片还是由用户提交的修改的图片。</p>
+<h2><span id="深度学习在人像编辑的应用">深度学习在人像编辑的应用</span></h2><h3><span id="工作简述">工作简述</span></h3><p>深度学习已经可以应用于恢复图像中被擦除的部分。最经典的方法就是使用一个方形的蒙板，使用编码-解码生成器恢复蒙板区域的图像，图像是否真实的判断由一个全局本地判别器来判定。但是这种方法的缺点就是较低的图像解析程度，并且由于方形的蒙板导致生成的图像在蒙板区域有一个尴尬的边界。除此之外，生成器不能接收用户的输入，降低了用户友好度。</p>
+<p>其它改进的方式包括Deepfillv2(引入用户输入来恢复缺失部分)，Guided-Inpating(使用其它图片的部分来恢复被删除的部分)。一些其它的工作如Ideepcolor提出了一个能够接受用户输入作为参考，创建彩色图像；FaceShop可接受笔画和颜色同时作为用户输入。但这些方法都有着不同程度的用户交互短板，甚至不尽人意的完成效果。</p>
+<p>为克服这些缺点，这篇文章提出了一种完全卷积神经网络的SC-FEGAN，用于进行端到端训练。该网络利用SN-patchGAN判别器克服尴尬的边界；利用通用的GAN损失和新增的style损失来编辑脸部图像；复合出的图片具有高质量的真实性；具有高度自由的用户输入形式。</p>
+<h3><span id="图像翻译">图像翻译</span></h3><p>用于图像翻译的GAN是在用于学习在两个数据集之间进行图像区域转换。该数据集由一对图像组成，可用于创建将分割标签转换为原始图像，或将草图转换为图像，或将黑白图像转换为彩色图像。但是该系统要求图像和目标图像必须成对存在于训练数据集中，以便学习域之间的转换。给定目标域而没有目标图像，则在原始域中转换图像时，目标域中会存在虚拟结果。如果虚拟结果再次反转，则反转的结果必须是原始图像。因此，转换任务需要两个生成器。</p>
+<h3><span id="图像完成">图像完成</span></h3><p>图像完成领域面临两个主要挑战：</p>
+<ol>
+<li>填充图像的已删除区域</li>
+<li>在恢复区域中正确反映用户输入。</li>
+</ol>
+<h1><span id="解决方案">解决方案</span></h1><h2><span id="训练数据">训练数据</span></h2><p>适当的训练数据对于提高网络的训练性能和提高对用户输入的响应能力非常重要。为了训练模型，使用了CelebA-HQ 数据集。预处理步骤如下：</p>
+<ol>
+<li>随机选取包含29000张图片的集合作为训练数据集，1000张图片作为测试数据集。</li>
+<li>在获得草图和颜色数据集之前，我们将图像调整为512×512像素。</li>
+<li>为了更好地表达人脸图像中眼睛的复杂性，我们使用了基于眼睛位置的自由蒙板来训练网络</li>
+<li>通过使用自由形式的蒙版和面部分割GFC创建了适当的草图域和颜色域。</li>
+</ol>
+<p>关键设计如下：</p>
+<ol>
+<li><p>带有眼睛位置的自由蒙版</p>
+<p>我们使用了类似于Deepfillv2的方法，即采用蒙板的方式，然后利用用户在蒙板上的输入生成不完全的图像，此外，在用面部图像训练时，随机使用以眼睛位置为起点的自由绘制蒙版来表达眼睛的复杂部分。另外，头发的蒙板采用了GFC，细节如下算法表述的那样：</p>
+<pre><code>maxDraw, maxLine, maxAngle, maxLength are hyper
+parameters
+GFCHair is the GFC for get hair mask of input image Mask=zeros(inputSize,inputSize) HairMask=GFCHair(IntputImage) numLine=random.range(maxDraw)
+for i=0 to numLine do
+startX = random.range(inputSize) startY = random.range(inputSize) startAngle = random.range(360) numV = random.range(maxLine) for j=0 to numV do
+angleP = random.range(-maxAngle,maxAngle) if j is even then
+angle = startAngle+angleP
+else
+angle = startAngle+angleP+180
+end if
+length = random.range(maxLength)
+Draw a line on Mask from point (startX, startY) with angle and length.
+startX = startX + length * sin(angle)
+startY = stateY + length * cos(angle)
+end for
+Draw a line on Mask from eye postion randomly.
+end for
+Mask = Mask + HairMask (randomly)</code></pre></li>
+<li><p>草图、颜色域</p>
+<p>1）用HED边缘检测器生成草图数据，该数据对应于用户输入以修改面部图像。</p>
+<p>2）之后，使曲线平滑并消除了小边缘。为了创建色域数据，首先通过应用大小为3的中值过滤，然后应用20个双边过滤器来创建模糊图像。</p>
+<p>3）之后，使用GFC分割人脸，并将每个分割的部分替换为相应部分的中间颜色。</p>
+<p>4）在为色域创建数据时，未应用直方图均衡，以避免光反射和阴影污染颜色。但是，由于用户更愿意在草图域中表达面部的所有部分，而不受光干扰引起的模糊影响，因此在从主体数据创建草图时使用了直方图均衡化。</p>
+</li>
+</ol>
+<h2><span id="网络结构">网络结构</span></h2><p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512<em>512的合成图片。训练时，生成器和判别器同时进行。*</em>生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。**详细网络结构如下图所示：</p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt></p>
+<img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/structure.png" class>
+
+<h3><span id="生成器">生成器</span></h3><p>生成器基于U-net，即编码器-解码器结构。编码器接收尺寸为512×512×9的输入张量，即一个不完整的RGB通道图像，其中有一个要编辑的去除区域，一个二进制草图（描述了去除部分的结构），一个RGB色彩笔划图，一个二进制蒙版和噪音，见下图</p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt></p>
+<img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/input.png" class>
+
+<p>编码器使用2个步幅内核卷积对输入进行7次下采样，然后在上采样之前进行膨胀卷积。解码器使用转置卷积进行上采样。然后，添加了跳过连接以允许以相同的空间分辨率与上一层连接。除了输出层使用tanh函数外，在每层之后都使用了泄漏的ReLU激活函数。总体而言，生成器由16个卷积层组成，网络的输出是输入大小相同（512×512）的RGB图像。在将损失函数应用到输入之前，我们用输入图像替换了蒙板之外的图像的其余部分。这种替换使生成器仅在已编辑区域上受到训练。生成器接受了每像素损失，感知损失，样式损失和总方差损失这些损失训练，还使用通用GAN损失函数。</p>
+<h3><span id="判别器">判别器</span></h3><p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：<br>$$<br>L_{GSN} = -IE[D(I_{comp})]<br>$$</p>
+<p>$$<br>L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]<br>$$</p>
+<p>$$<br>L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}<br>$$</p>
+<p>生成器用$$L_G$$训练，判别器用$$L_D$$训练，$$D(I)$$是判别器的输出，其中$I$为输入；在编辑较大的区域比如头发时，损失$$L_{style}$$和$$L_{percent}$$十分关键，</p>
+<p>##</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/" class="post-title-link" itemprop="url">Secure Query Processing in a Cloud Database Environment</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-04-26 10:05:29" itemprop="dateCreated datePublished" datetime="2019-04-26T10:05:29+08:00">2019-04-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-26 10:38:50" itemprop="dateModified" datetime="2020-02-26T10:38:50+08:00">2020-02-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1><span id="安全查询处理模型sdb的解读">安全查询处理模型SDB的解读</span></h1><h2><span id="方案来源">方案来源</span></h2><p>针对应用了DBaaS模型的云数据服务存在如下安全问题：Data Owner将数据服务外包给Service Provider, 数据在此时并不安全，Service Provider随时有可能将数据泄露出去。</p>
+<p>为了保护隐私数据，有如下几种思路对数据进行加密：</p>
+<ol>
+<li>完全同态加密。缺点是显而易见的，计算开销过大。</li>
+<li>部分同态加密。节约的开销，但由于计算类型受限，对数据的加密能力有限。</li>
+<li>基于Secret Share提出的安全多计算模型，只要是闭合的运算都能被该模型所处理。</li>
+<li>ShareMinds方案。主要思想为将shares分到独立的SP，基于SMC提供安全存储，并提供不同的计算协议。</li>
+<li>本文将着重介绍的SDB方案。</li>
+</ol>
+<blockquote>
+<p>秘密共享方案: 一种基于秘密共享方案是安全多方计算(SMC)，任何明文都可以分解成多 个份额，每个份额被多方中的一方持有，任何一方不可能以自己持有的份 额恢复出明文;多方通过定义执行协议来计算特定的函数，可以被证明的 是，只要是封闭的计算都能在SMC中实现。将SMC应用于云数据库环境，只 需要将敏感数据分解成多个份额，每个份额由一个独立的SP保存。例如， ShareMind就采用了这样的做法。ShareMind基于SMC提供安全存储以及一 系列针对不同操作的协议。但是ShareMind仍有一些缺陷:需要至少三个 独立的SP，计算开销大(SP上的计算和SP之间的通信)。</p>
+</blockquote>
+<p>SDB方案是一种在云数据库环境下具备数据协同处理能力的安全查询模型，以下是相关概念：</p>
+<ol>
+<li><p>云数据库环境</p>
+<p>本文的云数据库环境指的是 Database-as-a-service-model,是一种数据 持有者(DO)和计算服务提供者(SP)分离的一种环境，这种模式(DBaaS) 的优点是负载均衡，理想状态下，对于应用提出的查询请求，DO 仅仅需要 提供数据，查询操作能够分担给一个或多个 SP，极大提高了云数据库的计 算效率。但缺点也是显而易见的，DO 在将计算外包给 SP 的同时，如果不 对传给 SP 的数据进行加密处理，数据会泄露给 SP。</p>
+</li>
+<li><p>安全查询处理<br> 为避免敏感数据从 DO 泄露给 SP，需要提出一种方案在不泄露敏感数据的 同时能够发挥云数据库的负载均衡的能力。</p>
+</li>
+<li><p>数据协同处理能力 现有方案尽管能够实现安全查询处理，但是当遇到复杂的查询语句时(一 个语句中包含多种操作符)，无法执行，因为这些方案都是对不同的操作符 设计了不同的加密函数，这使得数据的协同处理成为短板。本文提出的方 案能够有效克服这个缺点，这也是本方案的一大创新点。</p>
+</li>
+</ol>
+<h2><span id="模型">模型</span></h2><p>SDB 模型也是基于秘密共享，并且只需要一个 SP 和一个 DO 就可执行支持大部分 基本 SQL 查询语句的协议。</p>
+<h3><span id="数据说明">数据说明</span></h3><p>使用[v]表示敏感数据v，符号[]表示当中的数据应该为密文且被安全保存。 [v]使用秘密共享生成两个份额，分别为:𝒗𝒌(保存在 DO)以及𝒗𝒆(保存 在 SP)。本文的目标是防止通过𝒗𝒆恢复出对应的[v]集合。另外，数据库由 一系列表构成，因为本文的方案建立在关系模型上。表中每列为全明文或 者全密文。</p>
+<h3><span id="模型架构">模型架构</span></h3><p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" alt></p>
+<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" class>
+
+<ol>
+<li>SP 使用 DBMS 存储非敏感数据的明文或者敏感数据的𝒗𝒆。</li>
+<li>敏感数据的𝒗𝒌由 DO 保存，但 DO 不需要实际存储所有𝒗𝒌,而是存储每个敏感列的 column key(ck),敏感列 A 所有𝒗𝒌可以由𝒄𝒌𝐀生成。</li>
+<li>SDB 由软件层实现，分别是客户层和服务层。</li>
+<li>客户层接收从应用发来的查询，并将其翻译成为一个查询计划。</li>
+<li>查询计划生成一系列对数据的操作，如果操作仅仅设计非敏感数据，操作直接传递给 SP;否则，操作被秘密共享协议执行。</li>
+<li>秘密共享协议包括一个轻量级的客户端协议和一个服务器协议。客户端协议准备一条包括数据 id、执行的操作以及一个线索组成的消息。线 索由相关的 ck 生成并用于 SP 正确执行密文的计算。消息通过秘密信道发送给 SP。</li>
+<li>当服务层收到消息时，它根据 id 标识相关数据。如果这个数据存在于内存里，例如这个数据是上一步操作的结果，服务层运行服务协议来对 驻留在缓存的数据执行操作;否则，从 DBMS 中取出数据再运行服务协议。</li>
+<li>最后一步计算结果返回给客户层，解密之后即为对应的明文结果。</li>
+</ol>
+<h3><span id="查询操作">查询操作</span></h3><p>支持的查询如下所示：</p>
+<p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" alt></p>
+<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" class>
+
+<h4><span id="说明">说明</span></h4><ul>
+<li>协议:对于客户协议，将ck作为输入和输出;对服务协议，将密文列作为 输入和输出。</li>
+<li>操作模式:EE模式表示两个操作数都是密文;EC模式表示一个操作数是密 文，另一个是常数;EP 模式表示一个操作数分别是密文和明文，后续对于 不同操作的讨论仅限 EE 模式和 EC 模式，因为 EP 模式可以转换成为 EC 模 式。</li>
+<li>操作输出:很多情况下，一个操作输出的结果是查询的中间结果，因此它 仅仅短暂存在，并不会存储到数据库中。为了简化讨论结果，本文省略中 间数据实际存储的细节。</li>
+<li>附加列:附加列添加的目的是为了实现多种安全操作，对于每个表 T，添 加两列 S 和 R，S 的每一行为 1，R 的每一行为随机数，S 列和 R 列使用上 文的秘密共享进行加密，并将对于的 ck 存储于 DO，𝑺𝒆和𝐑𝒆保存在 SP。</li>
+<li>由于𝒗𝒌的计算公式，若𝒄𝐤𝑨 =&lt;𝒎,𝟎&gt;,则A列的所有值都有相同的𝒗𝒌 =m; 若𝒄𝐤𝑨 = &lt; 𝟏, 𝟎 &gt;，则所有的𝒗𝒆 = [𝒗]，这种性质可以在计算中需要明文结 果的时候使用到，例如选择语句中的比较操作，但是本文证明了这种方式 并不会真正泄露明文。</li>
+</ul>
+<h4><span id="乘操作">乘操作:</span></h4><h5><span id="ee模式">EE模式:</span></h5><p>设操作的两列分别为A和B，𝒄𝐤𝑨 =&lt;𝐦𝑨,𝒙𝑨 &gt;,𝒄𝐤𝑩 =&lt;𝐦𝑩,𝒙𝑩 &gt;,C=A ×B 为输出列,设𝒄𝐤𝐂 = &lt; 𝐦𝑪, 𝒙𝑪 &gt; =&lt; 𝐦𝑨𝐦𝑩, 𝒙𝑨 + 𝒙𝑩 &gt;,则客户协议计 算𝐜𝒌 = 𝐦𝑪 · 𝒈𝒓𝒙𝑪 = 𝐦𝑨𝐦𝑩 · 𝒈𝒓(𝒙𝑨]𝒙𝐁) = 𝐚𝐤𝐛𝐤(𝒎𝒐𝒅𝒏),根据𝐜𝒌和𝐜𝒆恢复明 文:𝐜 = 𝐜𝒆𝐜𝒌 = 𝐚𝐞𝐛𝐞𝐜𝐤 = 𝒂 𝒂V𝒌𝟏 𝒃 𝒃V𝒌𝟏𝒂𝒌𝒃𝒌 = 𝒂 [𝒃],因此设置𝒄𝐤𝐂 = &lt; 𝐦𝑪, 𝒙𝑪 &gt; =&lt; 𝐦𝑨𝐦𝑩, 𝒙𝑨 + 𝒙𝑩 &gt;能够使得协议计算正确。</p>
+<h5><span id="ec模式">EC模式</span></h5><p>设操作的两列分别为A和p，𝒄𝐤𝑨 =&lt;𝐦𝑨,𝒙𝑨 &gt;,p为常数,C=A ×p 为输出列，设𝒄𝐤𝐂 = &lt; 𝐦𝑪, 𝒙𝑪 &gt; =&lt; 𝐩 · 𝐦𝑨, 𝒙𝑨 &gt;，服务协议设表中的 每列的𝒄𝒆=𝒂𝒆,通过引用实现。客户协议计算𝐜 =𝒄𝒆·𝒄𝒌=𝒂𝒆·𝒄𝒌=𝒂𝒂V𝒌𝟏𝒄𝒌= 𝒂𝒂V𝒌𝟏·𝒑·𝒂𝒌=𝒑[𝒂].</p>
+<h5><span id="秘钥更新">秘钥更新</span></h5><p>秘钥更新表示为𝛋(𝐀,&lt; 𝒎𝑪,𝒙𝑪 &gt;),操作符为列A和更新后的秘钥的𝐜𝐤𝑪，其中A 和 C 的明文值相同。利用 S 列秘钥𝒄𝐤𝒔 = &lt; 𝒎𝒔, 𝒙𝒔 &gt;,客户协议计算 p, q:<br> 𝐩 = 𝒙 V𝒔 𝟏 𝒙 𝒄 − 𝒙 𝑨 𝒎 𝒐 𝒅 𝝋 𝒏 , 𝐪 = 𝒎 𝑨 𝒎 𝒑𝒔 𝒎 V𝒄 𝟏 𝒎 𝒐 𝒅 𝒏 𝒑 然后将p和q发送给服务层，服务协议计算出列C的加密值:𝒄𝒆 = 𝒒 · 𝒂𝒆 · 𝒔𝒆. 由于:</p>
+<p>由于p和q由A和C的列秘钥生成，因此我们应该保证攻击者知道p和q之后 不能推断出任何秘钥的信息。以下性质被[1]证明:<br> 1 攻击者拥有DB知识，得到p，q和𝒄𝐤𝒄的情况下不能恢复𝒄𝐤𝑨或𝒄𝐤𝐬.<br> 2 攻击者拥有DB知识，得到p，q和𝒄𝐤𝑨的情况下不能恢复𝒄𝐤𝑪或𝒄𝐤𝐬.</p>
+<h4><span id="加减操作">加减操作</span></h4><p>下面详述加操作，减操作十分类似。</p>
+<h5><span id="ee模式">EE模式:</span></h5><p>设操作的两列分别为A和B，𝒄𝐤𝑨 =&lt;𝐦𝑨,𝒙𝑨 &gt;,𝒄𝐤𝑩 =&lt;𝐦𝑩,𝒙𝑩 &gt;,C=A+B 为输出列。我们注意到如果A，B，C的值 𝐚,𝐛,𝐜的秘钥均为k，则有:</p>
+<p>故可利用秘钥协议辅助计算:客户协议首先生成𝒄𝐤𝒄 =&lt;𝒎𝒄,𝒙𝒄 &gt;,然后执 行秘钥更新协议，计算出𝑨k = 𝜿(𝑨, &lt; 𝒎𝒄, 𝒙𝒄 &gt;), 𝑩k = 𝜿(𝑩, &lt; 𝒎𝒄, 𝒙𝒄 &gt;), 并将秘钥更新中的 p 和 q 传给服务层，服务层通过计算𝐜𝒆 = 𝒂k𝒆 + 𝒃k𝒆就能 得出 C 列对应的加密加结果。</p>
+<h5><span id="ec模式">EC模式:</span></h5><p>设两个操作数分别为列 A 和常数 u，可通过计算 A +(S×u)得到结果。S 为附加列中全 1 的列，这样可将操作拆分为 EC 乘和 EE 加。</p>
+<h4><span id="比较操作">比较操作</span></h4><p>考虑两个比较操作=和&gt;，给出两列 A 和 B，比较结果用列 C 保存，C 中值为 1 表示比较结果为真，0 表示比较结果为假，由于在选择语句中服务层需要知道 比较结果才能进行选择，因此 C 列以明文保存。为计算 C，协议首先计算 Z = R ×(A-B), R 是附加列中的随机列。接着对 Z 进行秘钥更新，计算𝒁k = 𝜿(𝒁, &lt; 𝟏, 𝟎 &gt;),由本章 1)节说明5可以知道𝒁k的加密值和明文结果一致，因此服务端 能知道 R×(A-B)的结果，因为 R 为随机列，因此在不会泄露 A 和 B 的信息的情 况下服务端就能计算出比较结果，EP 模式下也如此。</p>
+<h4><span id="投影操作">投影操作</span></h4><p>投影操作并不会对表中数据产生实际操作，而是通过服务协议返回需要的列， 客户协议对返回结果进行解密即可。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/04/iOS-Memory-Management/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/02/04/iOS-Memory-Management/" class="post-title-link" itemprop="url">iOS Memory Management</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-02-04 20:09:46" itemprop="dateCreated datePublished" datetime="2018-02-04T20:09:46+08:00">2018-02-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-26 09:52:20" itemprop="dateModified" datetime="2020-02-26T09:52:20+08:00">2020-02-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1><span id="oc中的内存管理">OC中的内存管理</span></h1><h2><span id="引用计数">引用计数</span></h2><h3><span id="理解和使用引用计数">理解和使用引用计数</span></h3><p>说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：</p>
+<ul>
+<li>自己生成的对象，自己持有</li>
+<li>非自己生成的对象，自己也能持有</li>
+<li>不再需要自己持有对象时应当释放</li>
+<li>非自己持有的对象无法释放</li>
+</ul>
+<p>分别对应的OC方法如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>对象操作</th>
+<th>OC方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>生成并持有对象</td>
+<td>alloc/new/copy/mutableCopy</td>
+</tr>
+<tr>
+<td>持有对象</td>
+<td>retain</td>
+</tr>
+<tr>
+<td>释放对象</td>
+<td>release</td>
+</tr>
+<tr>
+<td>销毁对象</td>
+<td>dealloc</td>
+</tr>
+</tbody></table>
+<p>举个例子：</p>
+<pre><code class="objective-c">/**自己生成并持有对象**/
+id obj = [[NSObject alloc] init];
+/**自己持有对象**/
+/**释放对象**/
+[obj release];
+/**对象已被释放，不可再被访问**/</code></pre>
+<p>另一种方式：</p>
+<pre><code class="objective-c">/**生成对象但并不持有, 此时引用计数为0**/
+id obj = [NSMutableArray array];
+/**持有对象**/
+[obj retain];
+/**自己持有对象**/
+/**释放对象**/
+[obj release];
+/**对象已被释放，不可再被访问**/</code></pre>
+<p>如果企图释放计数已经为0的对象或者是自己没有持有的对象，将会造成程序崩溃。</p>
+<h3><span id="autorelease">Autorelease</span></h3><p>除了<code>retain</code>和<code>release</code> 之外，还有一种用于操作计数器的方法：<code>autorelease</code>. <code>autorelease</code>将引用计数递减这一活动延后执行。</p>
+<p><code>autorelease</code>的使用方法如下：</p>
+<ul>
+<li>生成并持有<code>NSAutoreleasePool</code>对象</li>
+<li>调用已分配对象的<code>autorelease</code>实例方法</li>
+<li>废弃<code>NSAutoreleasePool</code>对象</li>
+</ul>
+<pre><code class="objective-c">/**生成并持有NSAutoreleasePool对象**/
+NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+id obj = [[NSObject alloc] init];
+/**调用已分配对象的autorelease实例方法**/
+[obj autorelease];
+/**废弃NSAutoreleasePool对象**/
+[pool drain];</code></pre>
+<p>但是在<code>Cocoa</code>框架中，在充当程序主循环的<code>NSRunloop</code>或其他可运行程序的地方都会对<code>NSAutoreleasePool</code>对象进行生成、持有、废弃处理，因此不必非要采用<code>NSAutoreleasePool</code>对象手动管理资源的生成、持有、释放。</p>
+<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt></p>
+<img src="/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class>
+
+<p>但是，在这种模式下，当大量产生<code>autorelease</code>对象时，只要<code>NSAutoreleasePool</code>对象没有废弃，那么对象也不能被释放，因此会带来内存不足的问题，此时需要在适当的位置手动生成、持有、废弃<code>NSAutoreleasePool</code>对象。</p>
+<p>例如，在读入图像文件，生成UIImage对象时：</p>
+<pre><code class="objective-c">for(int i = 0; i &lt; imageCount; ++i) {
+  NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
+  /**读入图像文件, 产生需要autorelease的对象**/
+
+  [pool drain];    //此时，对象及时被释放；
+}</code></pre>
+<h2><span id="自动引用计数">自动引用计数</span></h2><h3><span id="arc特性简介">ARC特性简介</span></h3><p>ARC仍然采用的是引用计数式内存管理的机制，只不过<code>retain</code>和<code>release</code>由ARC自动添加，因此，在ARC下这些内存管理方法是不可被开发者调用的：</p>
+<ul>
+<li><code>retain</code></li>
+<li><code>release</code></li>
+<li><code>autorelease</code></li>
+<li><code>dealloc</code></li>
+</ul>
+<p>此外，ARC在调用这些方法时并不通过消息派发机制，而是直接调用底层C版本，能够节省很多CPU周期，提升性能。这也是这些方法在ARC下不可被覆写的一个原因。</p>
+<p>ARC的另一个优化是，在编译期，能够把互相抵消的<code>retain</code>, <code>release</code>, <code>autorelease</code>化简。如果在一个对象上执行了多次保留与释放的操作，那么ARC可以成对移除这两个操作。这样的实现通过设置标志位来执行。</p>
+<p>例如，ARC在运行期检测出当<code>autorelease</code>后紧跟<code>retain</code>时，不直接调用对象的<code>autorelease</code>方法，而是改为调用<code>objc_autoreleaseReturnValue</code>. 用标志位的方法来消除多余操作。</p>
+<pre><code class="objective-c">/**objc_autoreleaseReturnValue 伪代码**/
+id objc_autoreleaseReturnValue(id object) {
+  if(/*调用者之后还会retain这个对象*/) {
+    set_flag(object);    // 设置标志位
+    return object;    // 直接返回
+  } else {
+    return [object autorelease];
+  }
+}</code></pre>
+<p>同理，若是执行<code>retain</code>后紧跟<code>autorelease</code>, 则改为调用<code>obj_retainAutoreleasedReturnValue</code></p>
+<pre><code class="objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
+id obj_retainAutoreleasedReturnValue(id object) {
+  if(get_flag(object)) {    // 检测到标志位被设置
+    clear_flag(object);    // 清除标志位
+    return object;    // 返回
+  } else {
+    return [object retain];
+  }
+}</code></pre>
+<p>设置和检测标志位，比直接调用<code>autorelease</code>和<code>retain</code>更快</p>
+<h3><span id="arc下的内存管理语义">ARC下的内存管理语义</span></h3><p>以设置方法为例，当我们使用ARC时只需这么写，ARC能够自动添加相关的<code>retain</code>和<code>release</code>操作</p>
+<pre><code class="objective-c">- (void) setObject: (id) object {
+  _object = object;
+}</code></pre>
+<p>如果是MRC，需要我们手动添加<code>retain</code>和<code>release</code>的操作</p>
+<pre><code class="objective-c">- (void) setObject: (id) object {
+  [_object release];
+  _object = [object retain];
+}</code></pre>
+<p>但是这么写会出现问题。如果新值和旧值相同，并且当前只有该对象在引用这个值，那么设置方法中的<code>release</code>会让<code>_object</code>的引用计数为0，从而被回收，导致应用程序崩溃。而ARC避免这种情况的做法是，以一种更安全的方式来设置：</p>
+<pre><code class="objective-c">- (void) setObject: (id) object {
+  [object retain];    // 保留新值
+  [_object release];    // 释放旧值
+  _object = object;        // 设置
+}</code></pre>
+<p>使用ARC避免了这种边界情况，而且使得代码的编写更加简洁。我们可以用所有权修饰符来控制ARC下对象的内存管理语义：</p>
+<ul>
+<li><code>__strong</code>: 默认语义，只要有一个被它修饰的指针指向某对象，这个对象就不能被回收。</li>
+<li><code>__weak</code>: 并不能保证被修饰的指针指向的对象一定存活。当某对象没有被强引用时，其弱引用会被设置为nil</li>
+<li><code>__unsafe_unretained</code>: 并不能保证被修饰的指针指向的对象一定存活。与<code>__weak</code>不同, 当某对象没有被强引用时，其弱引用也不会被设置为<code>nil</code>，如果它引用的对象被销毁，这个指针会成为悬挂指针</li>
+<li><code>__autoreleasing</code>: 把对象按引用传递给方法时，使用这个特殊的修饰符，这个值在方法返回时自动释放。</li>
+</ul>
+<p>需要留意的是，修饰符修饰的引用也有其作用范围，超出范围之外即便是<code>__strong</code>修饰的也会失效，应该被释放。当带有<code>__strong</code> 修饰符的变量在持有对象时，如果多个对象相互持有，很容易发生循环引用，进而引发内存泄露。例如：</p>
+<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
+[fetcher startWithCompletion:^(BOOL success) {
+  NSLog(@&quot;Successfully fetching from %@&quot;, fetcher.url);
+}]</code></pre>
+<p>此段代码中，由于块能够自动保留捕获的全部对象，因此这个块保留了<code>fetcher</code>,而<code>fetcher</code>本身又引用了这个块，因此构成了保留环。解除保留环最常用的就是利用__weak修饰局部变量，这样，当强引用释放，弱引用也会被设置为nil，从而解除保留环。我们可以这么修复这段代码：</p>
+<pre><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
+MyNetworkFetcher * __weak weakFetcher = fetcher;
+[fetcher startWithCompletion:^(BOOL success) {
+  NSLog(@&quot;Successfully fetching from %@&quot;, weakFetcher.url);
+}]</code></pre>
+<p>ARC下无法直接调用<code>autorelease</code>方法，也无法使用<code>NSAutoreleasePool</code>类, 但是我们可以通过<code>@autoreleasepool</code>块来代替<code>NSAutoreleasePool</code>进行对象的生成、持有、废弃的作用域</p>
+<pre><code class="objective-c">@autoreleasepool{
+  id __autoreleasing object = [[NSObject alloc] init];
+}</code></pre>
+<p>但是通常<code>__autoreleasing</code>并不显式调用，因为@autoreleasepool块指明了对象的作用域，若是最后需要在超出作用域的范围使用变量，则编译器会自动注册<code>autoreleasepool</code>对象来完成推迟release这一操作。</p>
+<h3><span id="arc使用规则">ARC使用规则</span></h3><p>最后，在ARC有效的情况下编译源代码需要遵守一定的规则：</p>
+<ul>
+<li>不能使用<code>retain/release/retainCount/autorelease</code></li>
+<li>不能使用<code>NSAllocateObject/NSDeallocateObject</code></li>
+<li>遵守内存管理的方法命名规则</li>
+<li>不要显示调用<code>dealloc</code></li>
+<li>使用<code>@autoreleasepool</code>块代替<code>NSAutoreleasePool</code></li>
+<li>不要使用<code>NSZone</code></li>
+<li>对象型变量不能作为C语言结构体的成员</li>
+<li>显示转换<code>id</code>和<code>void</code></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/OC-Object-and-Message/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/02/01/OC-Object-and-Message/" class="post-title-link" itemprop="url">OC Object and Message</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-02-01 01:22:01" itemprop="dateCreated datePublished" datetime="2018-02-01T01:22:01+08:00">2018-02-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-26 09:52:06" itemprop="dateModified" datetime="2020-02-26T09:52:06+08:00">2020-02-26</time>
               </span>
 
           
@@ -647,227 +919,11 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 </ol>
 <p>消息转发全过程可表示为下图：</p>
 <p><img src="./OC-Object-and-Message/msg_forward.jpg" alt></p>
-<img src="/2020/02/01/OC-Object-and-Message/msg_forward.jpg" class>
+<img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class>
 <p>步骤越往后，消息转发花费代价越大。</p>
 <blockquote>
 <p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》</p>
 </blockquote>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/Image-completion-with-generative-adversarial-networks/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Wenjie Zhang">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Aven's Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/21/Image-completion-with-generative-adversarial-networks/" class="post-title-link" itemprop="url">GAN in Editing Portrait</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-01-21 19:10:18" itemprop="dateCreated datePublished" datetime="2020-01-21T19:10:18+08:00">2020-01-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-02-10 20:58:10" itemprop="dateModified" datetime="2020-02-10T20:58:10+08:00">2020-02-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。</p>
-<!-- toc -->
-
-<ul>
-<li><a href="#背景知识">背景知识</a><ul>
-<li><a href="#gan原理简述">GAN原理简述</a></li>
-<li><a href="#深度学习在人像编辑的应用">深度学习在人像编辑的应用</a><ul>
-<li><a href="#工作简述">工作简述</a></li>
-<li><a href="#图像翻译">图像翻译</a></li>
-<li><a href="#图像完成">图像完成</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#解决方案">解决方案</a><ul>
-<li><a href="#训练数据">训练数据</a></li>
-<li><a href="#网络结构">网络结构</a><ul>
-<li><a href="#生成器">生成器</a></li>
-<li><a href="#判别器">判别器</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1><span id="背景知识">背景知识</span></h1><h2><span id="gan原理简述">GAN原理简述</span></h2><p>顾名思义，GAN，即生成对抗网络，是由生成器和判别器构成的一种深度学习模型。以人像编辑软件为例，图像生成器的目的是接收用户的涂改作为输入，合成修改后的图片。图像判定器负责判断合成的图片看上去是真的还是假的。而生成模型的训练，就是通过生成器生成图片，判别器做出判断，生成器改进，继续生成图片……直到判别器分辨不出接收到的是一张真实的图片还是由用户提交的修改的图片。</p>
-<h2><span id="深度学习在人像编辑的应用">深度学习在人像编辑的应用</span></h2><h3><span id="工作简述">工作简述</span></h3><p>深度学习已经可以应用于恢复图像中被擦除的部分。最经典的方法就是使用一个方形的蒙板，使用编码-解码生成器恢复蒙板区域的图像，图像是否真实的判断由一个全局本地判别器来判定。但是这种方法的缺点就是较低的图像解析程度，并且由于方形的蒙板导致生成的图像在蒙板区域有一个尴尬的边界。除此之外，生成器不能接收用户的输入，降低了用户友好度。</p>
-<p>其它改进的方式包括Deepfillv2(引入用户输入来恢复缺失部分)，Guided-Inpating(使用其它图片的部分来恢复被删除的部分)。一些其它的工作如Ideepcolor提出了一个能够接受用户输入作为参考，创建彩色图像；FaceShop可接受笔画和颜色同时作为用户输入。但这些方法都有着不同程度的用户交互短板，甚至不尽人意的完成效果。</p>
-<p>为克服这些缺点，这篇文章提出了一种完全卷积神经网络的SC-FEGAN，用于进行端到端训练。该网络利用SN-patchGAN判别器克服尴尬的边界；利用通用的GAN损失和新增的style损失来编辑脸部图像；复合出的图片具有高质量的真实性；具有高度自由的用户输入形式。</p>
-<h3><span id="图像翻译">图像翻译</span></h3><p>用于图像翻译的GAN是在用于学习在两个数据集之间进行图像区域转换。该数据集由一对图像组成，可用于创建将分割标签转换为原始图像，或将草图转换为图像，或将黑白图像转换为彩色图像。但是该系统要求图像和目标图像必须成对存在于训练数据集中，以便学习域之间的转换。给定目标域而没有目标图像，则在原始域中转换图像时，目标域中会存在虚拟结果。如果虚拟结果再次反转，则反转的结果必须是原始图像。因此，转换任务需要两个生成器。</p>
-<h3><span id="图像完成">图像完成</span></h3><p>图像完成领域面临两个主要挑战：</p>
-<ol>
-<li>填充图像的已删除区域</li>
-<li>在恢复区域中正确反映用户输入。</li>
-</ol>
-<h1><span id="解决方案">解决方案</span></h1><h2><span id="训练数据">训练数据</span></h2><p>适当的训练数据对于提高网络的训练性能和提高对用户输入的响应能力非常重要。为了训练模型，使用了CelebA-HQ 数据集。预处理步骤如下：</p>
-<ol>
-<li>随机选取包含29000张图片的集合作为训练数据集，1000张图片作为测试数据集。</li>
-<li>在获得草图和颜色数据集之前，我们将图像调整为512×512像素。</li>
-<li>为了更好地表达人脸图像中眼睛的复杂性，我们使用了基于眼睛位置的自由蒙板来训练网络</li>
-<li>通过使用自由形式的蒙版和面部分割GFC创建了适当的草图域和颜色域。</li>
-</ol>
-<p>关键设计如下：</p>
-<ol>
-<li><p>带有眼睛位置的自由蒙版</p>
-<p>我们使用了类似于Deepfillv2的方法，即采用蒙板的方式，然后利用用户在蒙板上的输入生成不完全的图像，此外，在用面部图像训练时，随机使用以眼睛位置为起点的自由绘制蒙版来表达眼睛的复杂部分。另外，头发的蒙板采用了GFC，细节如下算法表述的那样：</p>
-<pre><code>maxDraw, maxLine, maxAngle, maxLength are hyper
-parameters
-GFCHair is the GFC for get hair mask of input image Mask=zeros(inputSize,inputSize) HairMask=GFCHair(IntputImage) numLine=random.range(maxDraw)
-for i=0 to numLine do
-startX = random.range(inputSize) startY = random.range(inputSize) startAngle = random.range(360) numV = random.range(maxLine) for j=0 to numV do
-angleP = random.range(-maxAngle,maxAngle) if j is even then
-angle = startAngle+angleP
-else
-angle = startAngle+angleP+180
-end if
-length = random.range(maxLength)
-Draw a line on Mask from point (startX, startY) with angle and length.
-startX = startX + length * sin(angle)
-startY = stateY + length * cos(angle)
-end for
-Draw a line on Mask from eye postion randomly.
-end for
-Mask = Mask + HairMask (randomly)</code></pre></li>
-<li><p>草图、颜色域</p>
-<p>1）用HED边缘检测器生成草图数据，该数据对应于用户输入以修改面部图像。</p>
-<p>2）之后，使曲线平滑并消除了小边缘。为了创建色域数据，首先通过应用大小为3的中值过滤，然后应用20个双边过滤器来创建模糊图像。</p>
-<p>3）之后，使用GFC分割人脸，并将每个分割的部分替换为相应部分的中间颜色。</p>
-<p>4）在为色域创建数据时，未应用直方图均衡，以避免光反射和阴影污染颜色。但是，由于用户更愿意在草图域中表达面部的所有部分，而不受光干扰引起的模糊影响，因此在从主体数据创建草图时使用了直方图均衡化。</p>
-</li>
-</ol>
-<h2><span id="网络结构">网络结构</span></h2><p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512<em>512的合成图片。训练时，生成器和判别器同时进行。*</em>生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。**详细网络结构如下图所示：</p>
-<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt></p>
-<img src="/2020/01/21/Image-completion-with-generative-adversarial-networks/structure.png" class>
-
-<h3><span id="生成器">生成器</span></h3><p>生成器基于U-net，即编码器-解码器结构。编码器接收尺寸为512×512×9的输入张量，即一个不完整的RGB通道图像，其中有一个要编辑的去除区域，一个二进制草图（描述了去除部分的结构），一个RGB色彩笔划图，一个二进制蒙版和噪音，见下图</p>
-<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt></p>
-<img src="/2020/01/21/Image-completion-with-generative-adversarial-networks/input.png" class>
-
-<p>编码器使用2个步幅内核卷积对输入进行7次下采样，然后在上采样之前进行膨胀卷积。解码器使用转置卷积进行上采样。然后，添加了跳过连接以允许以相同的空间分辨率与上一层连接。除了输出层使用tanh函数外，在每层之后都使用了泄漏的ReLU激活函数。总体而言，生成器由16个卷积层组成，网络的输出是输入大小相同（512×512）的RGB图像。在将损失函数应用到输入之前，我们用输入图像替换了蒙板之外的图像的其余部分。这种替换使生成器仅在已编辑区域上受到训练。生成器接受了每像素损失，感知损失，样式损失和总方差损失这些损失训练，还使用通用GAN损失函数。</p>
-<h3><span id="判别器">判别器</span></h3><p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：<br>$$<br>L_{GSN} = -IE[D(I_{comp})]<br>$$</p>
-<p>$$<br>L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]<br>$$</p>
-<p>$$<br>L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}<br>$$</p>
-<p>生成器用$$L_G$$训练，判别器用$$L_D$$训练，$$D(I)$$是判别器的输出，其中$I$为输入；在编辑较大的区域比如头发时，损失$$L_{style}$$和$$L_{percent}$$十分关键，</p>
-<p>##</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/21/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Wenjie Zhang">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Aven's Blog">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/21/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-01-21 16:29:54" itemprop="dateCreated datePublished" datetime="2020-01-21T16:29:54+08:00">2020-01-21</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;</code></pre>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server</code></pre>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate</code></pre>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy</code></pre>
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
 
       
     </div>
@@ -955,7 +1011,7 @@ Mask = Mask + HairMask (randomly)</code></pre></li>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>

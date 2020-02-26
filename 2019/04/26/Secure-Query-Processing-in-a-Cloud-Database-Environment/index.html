@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="安全查询处理模型SDB的解读方案来源针对应用了DBaaS模型的云数据服务存在如下安全问题：Data Owner将数据服务外包给Service Provider, 数据在此时并不安全，Service Provider随时有可能将数据泄露出去。 为了保护隐私数据，有如下几种思路对数据进行加密：  完全同态加密。缺点是显而易见的，计算开销过大。 部分同态加密。节约的开销，但由于计算类型受限，对数据的加密">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Secure Query Processing in a Cloud Database Environment">
+<meta property="og:url" content="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/index.html">
+<meta property="og:site_name" content="Aven&#39;s Blog">
+<meta property="og:description" content="安全查询处理模型SDB的解读方案来源针对应用了DBaaS模型的云数据服务存在如下安全问题：Data Owner将数据服务外包给Service Provider, 数据在此时并不安全，Service Provider随时有可能将数据泄露出去。 为了保护隐私数据，有如下几种思路对数据进行加密：  完全同态加密。缺点是显而易见的，计算开销过大。 部分同态加密。节约的开销，但由于计算类型受限，对数据的加密">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png">
+<meta property="article:published_time" content="2019-04-26T02:05:29.000Z">
+<meta property="article:modified_time" content="2020-02-26T02:38:50.909Z">
+<meta property="article:author" content="Wenjie Zhang">
+<meta property="article:tag" content="Secure Query Processing, Cloud Database">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png">
+
+<link rel="canonical" href="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Secure Query Processing in a Cloud Database Environment | Aven's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Aven's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Secure Query Processing in a Cloud Database Environment
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-04-26 10:05:29" itemprop="dateCreated datePublished" datetime="2019-04-26T10:05:29+08:00">2019-04-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-26 10:38:50" itemprop="dateModified" datetime="2020-02-26T10:38:50+08:00">2020-02-26</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="安全查询处理模型sdb的解读">安全查询处理模型SDB的解读</span></h1><h2><span id="方案来源">方案来源</span></h2><p>针对应用了DBaaS模型的云数据服务存在如下安全问题：Data Owner将数据服务外包给Service Provider, 数据在此时并不安全，Service Provider随时有可能将数据泄露出去。</p>
+<p>为了保护隐私数据，有如下几种思路对数据进行加密：</p>
+<ol>
+<li>完全同态加密。缺点是显而易见的，计算开销过大。</li>
+<li>部分同态加密。节约的开销，但由于计算类型受限，对数据的加密能力有限。</li>
+<li>基于Secret Share提出的安全多计算模型，只要是闭合的运算都能被该模型所处理。</li>
+<li>ShareMinds方案。主要思想为将shares分到独立的SP，基于SMC提供安全存储，并提供不同的计算协议。</li>
+<li>本文将着重介绍的SDB方案。</li>
+</ol>
+<blockquote>
+<p>秘密共享方案: 一种基于秘密共享方案是安全多方计算(SMC)，任何明文都可以分解成多 个份额，每个份额被多方中的一方持有，任何一方不可能以自己持有的份 额恢复出明文;多方通过定义执行协议来计算特定的函数，可以被证明的 是，只要是封闭的计算都能在SMC中实现。将SMC应用于云数据库环境，只 需要将敏感数据分解成多个份额，每个份额由一个独立的SP保存。例如， ShareMind就采用了这样的做法。ShareMind基于SMC提供安全存储以及一 系列针对不同操作的协议。但是ShareMind仍有一些缺陷:需要至少三个 独立的SP，计算开销大(SP上的计算和SP之间的通信)。</p>
+</blockquote>
+<p>SDB方案是一种在云数据库环境下具备数据协同处理能力的安全查询模型，以下是相关概念：</p>
+<ol>
+<li><p>云数据库环境</p>
+<p>本文的云数据库环境指的是 Database-as-a-service-model,是一种数据 持有者(DO)和计算服务提供者(SP)分离的一种环境，这种模式(DBaaS) 的优点是负载均衡，理想状态下，对于应用提出的查询请求，DO 仅仅需要 提供数据，查询操作能够分担给一个或多个 SP，极大提高了云数据库的计 算效率。但缺点也是显而易见的，DO 在将计算外包给 SP 的同时，如果不 对传给 SP 的数据进行加密处理，数据会泄露给 SP。</p>
+</li>
+<li><p>安全查询处理<br> 为避免敏感数据从 DO 泄露给 SP，需要提出一种方案在不泄露敏感数据的 同时能够发挥云数据库的负载均衡的能力。</p>
+</li>
+<li><p>数据协同处理能力 现有方案尽管能够实现安全查询处理，但是当遇到复杂的查询语句时(一 个语句中包含多种操作符)，无法执行，因为这些方案都是对不同的操作符 设计了不同的加密函数，这使得数据的协同处理成为短板。本文提出的方 案能够有效克服这个缺点，这也是本方案的一大创新点。</p>
+</li>
+</ol>
+<h2><span id="模型">模型</span></h2><p>SDB 模型也是基于秘密共享，并且只需要一个 SP 和一个 DO 就可执行支持大部分 基本 SQL 查询语句的协议。</p>
+<h3><span id="数据说明">数据说明</span></h3><p>使用[v]表示敏感数据v，符号[]表示当中的数据应该为密文且被安全保存。 [v]使用秘密共享生成两个份额，分别为:𝒗𝒌(保存在 DO)以及𝒗𝒆(保存 在 SP)。本文的目标是防止通过𝒗𝒆恢复出对应的[v]集合。另外，数据库由 一系列表构成，因为本文的方案建立在关系模型上。表中每列为全明文或 者全密文。</p>
+<h3><span id="模型架构">模型架构</span></h3><p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" alt></p>
+<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/architecture.png" class>
+
+<ol>
+<li>SP 使用 DBMS 存储非敏感数据的明文或者敏感数据的𝒗𝒆。</li>
+<li>敏感数据的𝒗𝒌由 DO 保存，但 DO 不需要实际存储所有𝒗𝒌,而是存储每个敏感列的 column key(ck),敏感列 A 所有𝒗𝒌可以由𝒄𝒌𝐀生成。</li>
+<li>SDB 由软件层实现，分别是客户层和服务层。</li>
+<li>客户层接收从应用发来的查询，并将其翻译成为一个查询计划。</li>
+<li>查询计划生成一系列对数据的操作，如果操作仅仅设计非敏感数据，操作直接传递给 SP;否则，操作被秘密共享协议执行。</li>
+<li>秘密共享协议包括一个轻量级的客户端协议和一个服务器协议。客户端协议准备一条包括数据 id、执行的操作以及一个线索组成的消息。线 索由相关的 ck 生成并用于 SP 正确执行密文的计算。消息通过秘密信道发送给 SP。</li>
+<li>当服务层收到消息时，它根据 id 标识相关数据。如果这个数据存在于内存里，例如这个数据是上一步操作的结果，服务层运行服务协议来对 驻留在缓存的数据执行操作;否则，从 DBMS 中取出数据再运行服务协议。</li>
+<li>最后一步计算结果返回给客户层，解密之后即为对应的明文结果。</li>
+</ol>
+<h3><span id="查询操作">查询操作</span></h3><p>支持的查询如下所示：</p>
+<p><img src="./Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" alt></p>
+<img src="/2019/04/26/Secure-Query-Processing-in-a-Cloud-Database-Environment/query.png" class>
+
+<h4><span id="说明">说明</span></h4><ul>
+<li>协议:对于客户协议，将ck作为输入和输出;对服务协议，将密文列作为 输入和输出。</li>
+<li>操作模式:EE模式表示两个操作数都是密文;EC模式表示一个操作数是密 文，另一个是常数;EP 模式表示一个操作数分别是密文和明文，后续对于 不同操作的讨论仅限 EE 模式和 EC 模式，因为 EP 模式可以转换成为 EC 模 式。</li>
+<li>操作输出:很多情况下，一个操作输出的结果是查询的中间结果，因此它 仅仅短暂存在，并不会存储到数据库中。为了简化讨论结果，本文省略中 间数据实际存储的细节。</li>
+<li>附加列:附加列添加的目的是为了实现多种安全操作，对于每个表 T，添 加两列 S 和 R，S 的每一行为 1，R 的每一行为随机数，S 列和 R 列使用上 文的秘密共享进行加密，并将对于的 ck 存储于 DO，𝑺𝒆和𝐑𝒆保存在 SP。</li>
+<li>由于𝒗𝒌的计算公式，若𝒄𝐤𝑨 =&lt;𝒎,𝟎&gt;,则A列的所有值都有相同的𝒗𝒌 =m; 若𝒄𝐤𝑨 = &lt; 𝟏, 𝟎 &gt;，则所有的𝒗𝒆 = [𝒗]，这种性质可以在计算中需要明文结 果的时候使用到，例如选择语句中的比较操作，但是本文证明了这种方式 并不会真正泄露明文。</li>
+</ul>
+<h4><span id="乘操作">乘操作:</span></h4><h5><span id="ee模式">EE模式:</span></h5><p>设操作的两列分别为A和B，𝒄𝐤𝑨 =&lt;𝐦𝑨,𝒙𝑨 &gt;,𝒄𝐤𝑩 =&lt;𝐦𝑩,𝒙𝑩 &gt;,C=A ×B 为输出列,设𝒄𝐤𝐂 = &lt; 𝐦𝑪, 𝒙𝑪 &gt; =&lt; 𝐦𝑨𝐦𝑩, 𝒙𝑨 + 𝒙𝑩 &gt;,则客户协议计 算𝐜𝒌 = 𝐦𝑪 · 𝒈𝒓𝒙𝑪 = 𝐦𝑨𝐦𝑩 · 𝒈𝒓(𝒙𝑨]𝒙𝐁) = 𝐚𝐤𝐛𝐤(𝒎𝒐𝒅𝒏),根据𝐜𝒌和𝐜𝒆恢复明 文:𝐜 = 𝐜𝒆𝐜𝒌 = 𝐚𝐞𝐛𝐞𝐜𝐤 = 𝒂 𝒂V𝒌𝟏 𝒃 𝒃V𝒌𝟏𝒂𝒌𝒃𝒌 = 𝒂 [𝒃],因此设置𝒄𝐤𝐂 = &lt; 𝐦𝑪, 𝒙𝑪 &gt; =&lt; 𝐦𝑨𝐦𝑩, 𝒙𝑨 + 𝒙𝑩 &gt;能够使得协议计算正确。</p>
+<h5><span id="ec模式">EC模式</span></h5><p>设操作的两列分别为A和p，𝒄𝐤𝑨 =&lt;𝐦𝑨,𝒙𝑨 &gt;,p为常数,C=A ×p 为输出列，设𝒄𝐤𝐂 = &lt; 𝐦𝑪, 𝒙𝑪 &gt; =&lt; 𝐩 · 𝐦𝑨, 𝒙𝑨 &gt;，服务协议设表中的 每列的𝒄𝒆=𝒂𝒆,通过引用实现。客户协议计算𝐜 =𝒄𝒆·𝒄𝒌=𝒂𝒆·𝒄𝒌=𝒂𝒂V𝒌𝟏𝒄𝒌= 𝒂𝒂V𝒌𝟏·𝒑·𝒂𝒌=𝒑[𝒂].</p>
+<h5><span id="秘钥更新">秘钥更新</span></h5><p>秘钥更新表示为𝛋(𝐀,&lt; 𝒎𝑪,𝒙𝑪 &gt;),操作符为列A和更新后的秘钥的𝐜𝐤𝑪，其中A 和 C 的明文值相同。利用 S 列秘钥𝒄𝐤𝒔 = &lt; 𝒎𝒔, 𝒙𝒔 &gt;,客户协议计算 p, q:<br> 𝐩 = 𝒙 V𝒔 𝟏 𝒙 𝒄 − 𝒙 𝑨 𝒎 𝒐 𝒅 𝝋 𝒏 , 𝐪 = 𝒎 𝑨 𝒎 𝒑𝒔 𝒎 V𝒄 𝟏 𝒎 𝒐 𝒅 𝒏 𝒑 然后将p和q发送给服务层，服务协议计算出列C的加密值:𝒄𝒆 = 𝒒 · 𝒂𝒆 · 𝒔𝒆. 由于:</p>
+<p>由于p和q由A和C的列秘钥生成，因此我们应该保证攻击者知道p和q之后 不能推断出任何秘钥的信息。以下性质被[1]证明:<br> 1 攻击者拥有DB知识，得到p，q和𝒄𝐤𝒄的情况下不能恢复𝒄𝐤𝑨或𝒄𝐤𝐬.<br> 2 攻击者拥有DB知识，得到p，q和𝒄𝐤𝑨的情况下不能恢复𝒄𝐤𝑪或𝒄𝐤𝐬.</p>
+<h4><span id="加减操作">加减操作</span></h4><p>下面详述加操作，减操作十分类似。</p>
+<h5><span id="ee模式">EE模式:</span></h5><p>设操作的两列分别为A和B，𝒄𝐤𝑨 =&lt;𝐦𝑨,𝒙𝑨 &gt;,𝒄𝐤𝑩 =&lt;𝐦𝑩,𝒙𝑩 &gt;,C=A+B 为输出列。我们注意到如果A，B，C的值 𝐚,𝐛,𝐜的秘钥均为k，则有:</p>
+<p>故可利用秘钥协议辅助计算:客户协议首先生成𝒄𝐤𝒄 =&lt;𝒎𝒄,𝒙𝒄 &gt;,然后执 行秘钥更新协议，计算出𝑨k = 𝜿(𝑨, &lt; 𝒎𝒄, 𝒙𝒄 &gt;), 𝑩k = 𝜿(𝑩, &lt; 𝒎𝒄, 𝒙𝒄 &gt;), 并将秘钥更新中的 p 和 q 传给服务层，服务层通过计算𝐜𝒆 = 𝒂k𝒆 + 𝒃k𝒆就能 得出 C 列对应的加密加结果。</p>
+<h5><span id="ec模式">EC模式:</span></h5><p>设两个操作数分别为列 A 和常数 u，可通过计算 A +(S×u)得到结果。S 为附加列中全 1 的列，这样可将操作拆分为 EC 乘和 EE 加。</p>
+<h4><span id="比较操作">比较操作</span></h4><p>考虑两个比较操作=和&gt;，给出两列 A 和 B，比较结果用列 C 保存，C 中值为 1 表示比较结果为真，0 表示比较结果为假，由于在选择语句中服务层需要知道 比较结果才能进行选择，因此 C 列以明文保存。为计算 C，协议首先计算 Z = R ×(A-B), R 是附加列中的随机列。接着对 Z 进行秘钥更新，计算𝒁k = 𝜿(𝒁, &lt; 𝟏, 𝟎 &gt;),由本章 1)节说明5可以知道𝒁k的加密值和明文结果一致，因此服务端 能知道 R×(A-B)的结果，因为 R 为随机列，因此在不会泄露 A 和 B 的信息的情 况下服务端就能计算出比较结果，EP 模式下也如此。</p>
+<h4><span id="投影操作">投影操作</span></h4><p>投影操作并不会对表中数据产生实际操作，而是通过服务协议返回需要的列， 客户协议对返回结果进行解密即可。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Secure-Query-Processing-Cloud-Database/" rel="tag"># Secure Query Processing, Cloud Database</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/02/04/iOS-Memory-Management/" rel="prev" title="iOS Memory Management">
+      <i class="fa fa-chevron-left"></i> iOS Memory Management
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/07/21/Image-completion-with-generative-adversarial-networks/" rel="next" title="GAN in Editing Portrait">
+      GAN in Editing Portrait <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text">安全查询处理模型SDB的解读</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text">方案来源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text">模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text">数据说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text">模型架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text">查询操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">乘操作:</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.2.1.</span> <span class="nav-text">EE模式:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.2.2.</span> <span class="nav-text">EC模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.2.3.</span> <span class="nav-text">秘钥更新</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">加减操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.3.1.</span> <span class="nav-text">EE模式:</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.3.2.</span> <span class="nav-text">EC模式:</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.4.</span> <span class="nav-text">比较操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.5.</span> <span class="nav-text">投影操作</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wenjie Zhang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wenjie Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
