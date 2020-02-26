@@ -190,6 +190,117 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/03/AIBeautify-Intro/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/01/03/AIBeautify-Intro/" class="post-title-link" itemprop="url">AIBeautify Intro</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1><span id="aibeautify画板实现">AIBeautify–画板实现</span></h1><p>前面一篇文章提到，GAN作为一种处理Image Completion和Image Translation的高效神经网络，在人像编辑上提供了很棒的思路。用户能够根据一张人像照片，思考想要修改的地方，用蒙板遮盖这个地方，然后在蒙板上简单绘制修改后的局部草图，将图片和修改数据上传至服务器，即可生成智能的修改后图片。例如：</p>
+<p>原图：<br><img src="./AIBeautify-Intro/before1.png" alt></p>
+<img src="/2020/01/03/AIBeautify-Intro/before1.png" class>
+<p>涂改：<br><img src="./AIBeautify-Intro/editing1.png" alt></p>
+<img src="/2020/01/03/AIBeautify-Intro/editing1.png" class>
+<p>返回:<br><img src="./AIBeautify-Intro/after1.png" alt></p>
+<img src="/2020/01/03/AIBeautify-Intro/after1.png" class>
+
+<p>具体的模型搭建参考了<a href="https://github.com/run-youngjoo/SC-FEGAN" target="_blank" rel="noopener">https://github.com/run-youngjoo/SC-FEGAN</a></p>
+<p>本文会简单谈谈利用它来完成一个AI人像编辑软件的过程。</p>
+<h2><span id="需求分析">需求分析</span></h2><h3><span id="数据描述">数据描述</span></h3><ul>
+<li>静态数据：静态数据主要包括处理的文件和记录数</li>
+<li>动态数据：动态数据包括输入数据和过程数据和输出数据。输入数据主要是原始图片和用户涂改，包括蒙板区域和涂鸦数据；输出数据包括处理后的图片。</li>
+</ul>
+<h3><span id="功能需求">功能需求</span></h3><p>功能需求的核心模块为图片的导入，接收从相册获取的图片，作为画板的图片输入；绘制涂鸦则在导入图片的基础上进行以用户灵感为驱动的再创造，在导入图片的基础上新增涂鸦区域；修改图片功能接收用户的涂改素材为输入，返回处理后的图片作为结果；存储结果则将获取到的图片进行本地存储。</p>
+<h2><span id="主要接口">主要接口</span></h2><h3><span id="上传图片">上传图片</span></h3><p><strong><em>url:</em></strong> /image/upload</p>
+<p><strong><em>method:</em></strong> POST</p>
+<p><strong><em>params:</em></strong></p>
+<pre><code>file: file</code></pre><p><strong><em>return:</em></strong></p>
+<pre><code>{
+    id: int,
+}</code></pre><h3><span id="上传修改数据">上传修改数据</span></h3><p><strong><em>url:</em></strong> /image/info/upload</p>
+<p><strong><em>method:</em></strong> POST</p>
+<p><strong><em>params:</em></strong></p>
+<pre><code>id: int,
+mask: [{
+    prev: [int, int],
+    curr: [int, int],
+}], //消除笔触记录
+sketch: [{
+    prev: [int, int],
+    curr: [int, int],
+}], //草图笔触记录
+stroke: [{
+    prev: [int, int],
+    curr: [int, int],
+    color: string,
+}]， //涂色笔触位置记录</code></pre><p><strong><em>return:</em></strong></p>
+<pre><code>{
+    url: string, //处理完图片的url
+}</code></pre><h3><span id="获得该用户相关图片数据">获得该用户相关图片数据</span></h3><p><strong><em>url:</em></strong> /image/info/get</p>
+<p><strong><em>method:</em></strong> POST</p>
+<p><strong><em>params:</em></strong></p>
+<pre><code>page: int, //从1开始
+limit: int, //每页有多少个</code></pre><p><strong><em>return:</em></strong></p>
+<pre><code>{
+    totalNumber: int, //总共有多少个
+    list: [{
+        id: int, //编号
+        oroginUrl: string, //原图地址
+        nowUrl: string, //处理后的地址
+        status: int, //图片状态，0为未处理，1为已处理，要注意未处理的nowUrl为空
+    }]
+}</code></pre><h2><span id="画板模块实现">画板模块实现</span></h2><p>画板模块实现部分参考了 <a href="https://github.com/Harley-xk/MaLiang。" target="_blank" rel="noopener">https://github.com/Harley-xk/MaLiang。</a></p>
+<ul>
+<li>借助贝塞尔曲线原理将一系列的点生成为较为圆滑的曲线。</li>
+<li>Canvas记录绘制的点以及它们的序号（时间相关）和位置，清除的点以及序号位置，记录redo的点和undo的点用于扩展redo和undo画板功能。</li>
+<li>封装出Codable的线段、颜色、Texture作为基础元素，进一步组成笔刷和笔画。</li>
+<li>利用着色器进行渲染，并在笔画有删改的时候更新图形管线，重新进行绘制。</li>
+<li>白色笔刷用于生成蒙板，其它颜色的笔刷作为涂鸦工具在蒙板上进行简单绘制。</li>
+</ul>
+<p>完成绘制后，将数据上传至服务器，通过计算生成结果图片以及URL，通过URL获取生成结果。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/21/Image-completion-with-generative-adversarial-networks/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -931,12 +1042,12 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
