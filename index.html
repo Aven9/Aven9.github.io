@@ -143,6 +143,85 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/27/Solution-Set-for-Flutter-Issues/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/27/Solution-Set-for-Flutter-Issues/" class="post-title-link" itemprop="url">Solution Set for Flutter Issues</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>此处是一些食用flutter过程中遇到的问题合集</p>
+<h2><span id="multiple-commands-produce-buildiosdebug-iphonesimulatorrunnerappframeworksflutterframework"> Multiple commands produce '/build/ios/Debug-iphonesimulator/Runner.app/Frameworks/Flutter.framework</span></h2>
+<p>此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。</p>
+<h3><span id="问题根源"> 问题根源</span></h3>
+<p>使用插件时，有两个相互竞争的构建操作，它们将Flutter.framework复制到构建应用程序的Frameworks目录中：</p>
+<ol>
+<li>Runner项目的Embed Frameworks构建阶段</li>
+<li>Pod安装在项目中创建的[CP] Embed Pods Frameworks构建阶段。</li>
+</ol>
+<p>第1项可以确保在没有插件（因此Xcode项目中没有CocoaPods集成）的情况下将框架复制到内置应用程序中。第2项之所以存在，是因为Flutter的podspec将Flutter.framework声明为vended_framework，并且CocoaPods在传递性关闭CocoaPods依赖项时自动为每个此类vended_framework添加了一个复制步骤。</p>
+<h3><span id="解决办法"> 解决办法：</span></h3>
+<ol>
+<li>使用旧版构建系统。打开ios / Runner.xcworkspace，然后将构建系统更改为Legacy Build System。</li>
+<li>使用新的Xcode 10构建系统。打开ios / Runner.xcworkspace
+<ul>
+<li>在项目导航器侧栏中选择Runner项目。</li>
+<li>在主视图中，选择Runner Target，然后选择Build Phases选项卡。</li>
+<li>展开Embed Frameworks，然后从框架列表中选择Flutter.framework。</li>
+<li>单击<code>-</code>从列表中删除Flutter.framework（确保保留App.framework）。</li>
+</ul>
+</li>
+</ol>
+<p>最简单的选择是从上面的“嵌入框架”步骤中消除Flutter.framework，即使在没有插件依赖性的情况下，也始终依赖于pod安装。我们需要更新Flutter工具以自动编辑现有项目，以从Embed Frameworks步骤中删除Flutter.framework。</p>
+<p>优点：更简单的代码。缺点：使cocoapods成为Flutter开发所需的安装步骤，第一次运行涉及大量且非常缓慢的repo下载。</p>
+<p>更好一点的选择是让我们自动检测项目是否使用插件，并编辑Xcode项目以检查是否在使用插件的情况下自动从Embed Frameworks步骤中删除Flutter.framework，如果不使用插件则将其添加。</p>
+<p>优点：更好的用户体验。缺点：更复杂的代码。</p>
+<p>无论哪种方式，我们都需要某种机制来自动编辑project.pbxproj文件，并从embed frameworks build步骤中删除该框架。支持将其重新添加并不需要太多的工作，而是可以带来更好的体验。</p>
+<blockquote>
+<p>来源：<a href="https://github.com/flutter/flutter/issues/20685" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/20685</a></p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/04/Comprehension-of-SDWebImage/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1485,12 +1564,12 @@ void objc_removeAssociatedObjects(id object);	// 移除指定对象的全部关�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>

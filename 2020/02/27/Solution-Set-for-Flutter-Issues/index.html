@@ -22,17 +22,20 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Aven&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/archives/2020/01/index.html">
+  <meta name="description" content="此处是一些食用flutter过程中遇到的问题合集  Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework 此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。  问题根源 使用插件时，有两">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Solution Set for Flutter Issues">
+<meta property="og:url" content="http://yoursite.com/2020/02/27/Solution-Set-for-Flutter-Issues/index.html">
 <meta property="og:site_name" content="Aven&#39;s Blog">
+<meta property="og:description" content="此处是一些食用flutter过程中遇到的问题合集  Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework 此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。  问题根源 使用插件时，有两">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-02-26T17:06:50.000Z">
+<meta property="article:modified_time" content="2020-02-26T17:22:57.612Z">
 <meta property="article:author" content="Wenjie Zhang">
-<meta property="article:tag" content="Developer">
-<meta property="article:tag" content=" Computer Science">
+<meta property="article:tag" content="Flutter">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/archives/2020/01/">
+<link rel="canonical" href="http://yoursite.com/2020/02/27/Solution-Set-for-Flutter-Issues/">
 
 
 <script id="page-configurations">
@@ -40,11 +43,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false
+    isPost: true
   };
 </script>
 
-  <title>Archive | Aven's Blog</title>
+  <title>Solution Set for Flutter Issues | Aven's Blog</title>
   
 
 
@@ -138,49 +141,101 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">Um..! 8 posts in total. Keep on posting.</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/27/Solution-Set-for-Flutter-Issues/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Solution Set for Flutter Issues
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
+        <p>此处是一些食用flutter过程中遇到的问题合集</p>
+<h2><span id="multiple-commands-produce-buildiosdebug-iphonesimulatorrunnerappframeworksflutterframework"> Multiple commands produce '/build/ios/Debug-iphonesimulator/Runner.app/Frameworks/Flutter.framework</span></h2>
+<p>此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。</p>
+<h3><span id="问题根源"> 问题根源</span></h3>
+<p>使用插件时，有两个相互竞争的构建操作，它们将Flutter.framework复制到构建应用程序的Frameworks目录中：</p>
+<ol>
+<li>Runner项目的Embed Frameworks构建阶段</li>
+<li>Pod安装在项目中创建的[CP] Embed Pods Frameworks构建阶段。</li>
+</ol>
+<p>第1项可以确保在没有插件（因此Xcode项目中没有CocoaPods集成）的情况下将框架复制到内置应用程序中。第2项之所以存在，是因为Flutter的podspec将Flutter.framework声明为vended_framework，并且CocoaPods在传递性关闭CocoaPods依赖项时自动为每个此类vended_framework添加了一个复制步骤。</p>
+<h3><span id="解决办法"> 解决办法：</span></h3>
+<ol>
+<li>使用旧版构建系统。打开ios / Runner.xcworkspace，然后将构建系统更改为Legacy Build System。</li>
+<li>使用新的Xcode 10构建系统。打开ios / Runner.xcworkspace
+<ul>
+<li>在项目导航器侧栏中选择Runner项目。</li>
+<li>在主视图中，选择Runner Target，然后选择Build Phases选项卡。</li>
+<li>展开Embed Frameworks，然后从框架列表中选择Flutter.framework。</li>
+<li>单击<code>-</code>从列表中删除Flutter.framework（确保保留App.framework）。</li>
+</ul>
+</li>
+</ol>
+<p>最简单的选择是从上面的“嵌入框架”步骤中消除Flutter.framework，即使在没有插件依赖性的情况下，也始终依赖于pod安装。我们需要更新Flutter工具以自动编辑现有项目，以从Embed Frameworks步骤中删除Flutter.framework。</p>
+<p>优点：更简单的代码。缺点：使cocoapods成为Flutter开发所需的安装步骤，第一次运行涉及大量且非常缓慢的repo下载。</p>
+<p>更好一点的选择是让我们自动检测项目是否使用插件，并编辑Xcode项目以检查是否在使用插件的情况下自动从Embed Frameworks步骤中删除Flutter.framework，如果不使用插件则将其添加。</p>
+<p>优点：更好的用户体验。缺点：更复杂的代码。</p>
+<p>无论哪种方式，我们都需要某种机制来自动编辑project.pbxproj文件，并从embed frameworks build步骤中删除该框架。支持将其重新添加并不需要太多的工作，而是可以带来更好的体验。</p>
+<blockquote>
+<p>来源：<a href="https://github.com/flutter/flutter/issues/20685" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/20685</a></p>
+</blockquote>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-01-03T10:50:41+08:00"
-              content="2020-01-03">
-          01-03
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Flutter/" rel="tag"># Flutter</a>
+          </div>
 
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/01/03/AIBeautify-Intro/" itemprop="url">
-            <span itemprop="name">AIBeautify Intro</span>
-          </a>
-      </h2>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/04/Comprehension-of-SDWebImage/" rel="prev" title="Comprehension of SDWebImage">
+      <i class="fa fa-chevron-left"></i> Comprehension of SDWebImage
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
+  
+  
+  
 
-
-    </div>
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -231,6 +286,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"> Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text"> 问题根源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text"> 解决办法：</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
