@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.0">
+
+<link href="https://cdn.bootcss.com/KaTeX/0.7.1/katex.min.css" rel="stylesheet">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -20,12 +22,12 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="OC中的内存管理引用计数理解和使用引用计数说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：  自己生成的对象，自">
+  <meta name="description" content="OC中的内存管理  引用计数  理解和使用引用计数 说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：  自己生">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS Memory Management">
 <meta property="og:url" content="http://yoursite.com/2018/02/04/iOS-Memory-Management/index.html">
 <meta property="og:site_name" content="Aven&#39;s Blog">
-<meta property="og:description" content="OC中的内存管理引用计数理解和使用引用计数说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：  自己生成的对象，自">
+<meta property="og:description" content="OC中的内存管理  引用计数  理解和使用引用计数 说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：  自己生">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://yoursite.com/2018/02/04/iOS-Memory-Management/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg">
 <meta property="og:image" content="http://yoursite.com/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg">
@@ -176,7 +178,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1><span id="oc中的内存管理">OC中的内存管理</span></h1><h2><span id="引用计数">引用计数</span></h2><h3><span id="理解和使用引用计数">理解和使用引用计数</span></h3><p>说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：</p>
+        <h1><span id="oc中的内存管理"> OC中的内存管理</span></h1>
+<h2><span id="引用计数"> 引用计数</span></h2>
+<h3><span id="理解和使用引用计数"> 理解和使用引用计数</span></h3>
+<p>说到OC中的内存管理，便要从引用计数这个概念作为切入点来理解。简单来说，引用计数即是一种在需要持有对象的时候进行计数增，释放的时候进行计数减的机制，理论上来说，计数为0的时候即是对象声明周期结束、应当被销毁的时候。因为无人引用的时候对象便不再被需要。但更客观的思考方式应该注意到应该由谁持有和应该由谁释放的问题，具体来说有以下几个原则：</p>
 <ul>
 <li>自己生成的对象，自己持有</li>
 <li>非自己生成的对象，自己也能持有</li>
@@ -184,7 +189,6 @@
 <li>非自己持有的对象无法释放</li>
 </ul>
 <p>分别对应的OC方法如下表所示：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -211,9 +215,8 @@
 </tr>
 </tbody>
 </table>
-</div>
 <p>举个例子：</p>
-<pre><code class="lang-objective-c">/**自己生成并持有对象**/
+<pre class="highlight"><code class="objective-c">/**自己生成并持有对象**/
 id obj = [[NSObject alloc] init];
 /**自己持有对象**/
 /**释放对象**/
@@ -221,7 +224,7 @@ id obj = [[NSObject alloc] init];
 /**对象已被释放，不可再被访问**/
 </code></pre>
 <p>另一种方式：</p>
-<pre><code class="lang-objective-c">/**生成对象但并不持有, 此时引用计数为0**/
+<pre class="highlight"><code class="objective-c">/**生成对象但并不持有, 此时引用计数为0**/
 id obj = [NSMutableArray array];
 /**持有对象**/
 [obj retain];
@@ -231,14 +234,15 @@ id obj = [NSMutableArray array];
 /**对象已被释放，不可再被访问**/
 </code></pre>
 <p>如果企图释放计数已经为0的对象或者是自己没有持有的对象，将会造成程序崩溃。</p>
-<h3><span id="autorelease">Autorelease</span></h3><p>除了<code>retain</code>和<code>release</code> 之外，还有一种用于操作计数器的方法：<code>autorelease</code>. <code>autorelease</code>将引用计数递减这一活动延后执行。</p>
+<h3><span id="autorelease"> Autorelease</span></h3>
+<p>除了<code>retain</code>和<code>release</code> 之外，还有一种用于操作计数器的方法：<code>autorelease</code>. <code>autorelease</code>将引用计数递减这一活动延后执行。</p>
 <p><code>autorelease</code>的使用方法如下：</p>
 <ul>
 <li>生成并持有<code>NSAutoreleasePool</code>对象</li>
 <li>调用已分配对象的<code>autorelease</code>实例方法</li>
 <li>废弃<code>NSAutoreleasePool</code>对象</li>
 </ul>
-<pre><code class="lang-objective-c">/**生成并持有NSAutoreleasePool对象**/
+<pre class="highlight"><code class="objective-c">/**生成并持有NSAutoreleasePool对象**/
 NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 id obj = [[NSObject alloc] init];
 /**调用已分配对象的autorelease实例方法**/
@@ -247,18 +251,21 @@ id obj = [[NSObject alloc] init];
 [pool drain];
 </code></pre>
 <p>但是在<code>Cocoa</code>框架中，在充当程序主循环的<code>NSRunloop</code>或其他可运行程序的地方都会对<code>NSAutoreleasePool</code>对象进行生成、持有、废弃处理，因此不必非要采用<code>NSAutoreleasePool</code>对象手动管理资源的生成、持有、释放。</p>
-<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt><br><img src="/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class></p>
+<p><img src="./iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" alt></p>
+<img src="/2018/02/04/iOS-Memory-Management/NSAutoreleasePoolCircle.jpeg" class>
 <p>但是，在这种模式下，当大量产生<code>autorelease</code>对象时，只要<code>NSAutoreleasePool</code>对象没有废弃，那么对象也不能被释放，因此会带来内存不足的问题，此时需要在适当的位置手动生成、持有、废弃<code>NSAutoreleasePool</code>对象。</p>
 <p>例如，在读入图像文件，生成UIImage对象时：</p>
-<pre><code class="lang-objective-c">for(int i = 0; i &lt; imageCount; ++i) {
+<pre class="highlight"><code class="objective-c">for(int i = 0; i &lt; imageCount; ++i) {
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-
+  
   /**读入图像文件, 产生需要autorelease的对象**/
-
-  [pool drain];    //此时，对象及时被释放；
+  
+  [pool drain];	//此时，对象及时被释放；
 }
 </code></pre>
-<h2><span id="自动引用计数">自动引用计数</span></h2><h3><span id="arc特性简介">ARC特性简介</span></h3><p>ARC仍然采用的是引用计数式内存管理的机制，只不过<code>retain</code>和<code>release</code>由ARC自动添加，因此，在ARC下这些内存管理方法是不可被开发者调用的：</p>
+<h2><span id="自动引用计数"> 自动引用计数</span></h2>
+<h3><span id="arc特性简介"> ARC特性简介</span></h3>
+<p>ARC仍然采用的是引用计数式内存管理的机制，只不过<code>retain</code>和<code>release</code>由ARC自动添加，因此，在ARC下这些内存管理方法是不可被开发者调用的：</p>
 <ul>
 <li><code>retain</code></li>
 <li><code>release</code></li>
@@ -268,44 +275,45 @@ id obj = [[NSObject alloc] init];
 <p>此外，ARC在调用这些方法时并不通过消息派发机制，而是直接调用底层C版本，能够节省很多CPU周期，提升性能。这也是这些方法在ARC下不可被覆写的一个原因。</p>
 <p>ARC的另一个优化是，在编译期，能够把互相抵消的<code>retain</code>, <code>release</code>, <code>autorelease</code>化简。如果在一个对象上执行了多次保留与释放的操作，那么ARC可以成对移除这两个操作。这样的实现通过设置标志位来执行。</p>
 <p>例如，ARC在运行期检测出当<code>autorelease</code>后紧跟<code>retain</code>时，不直接调用对象的<code>autorelease</code>方法，而是改为调用<code>objc_autoreleaseReturnValue</code>. 用标志位的方法来消除多余操作。</p>
-<pre><code class="lang-objective-c">/**objc_autoreleaseReturnValue 伪代码**/
+<pre class="highlight"><code class="objective-c">/**objc_autoreleaseReturnValue 伪代码**/
 id objc_autoreleaseReturnValue(id object) {
   if(/*调用者之后还会retain这个对象*/) {
-    set_flag(object);    // 设置标志位
-    return object;    // 直接返回
+    set_flag(object);	// 设置标志位
+    return object;	// 直接返回
   } else {
     return [object autorelease];
   }
 }
 </code></pre>
 <p>同理，若是执行<code>retain</code>后紧跟<code>autorelease</code>, 则改为调用<code>obj_retainAutoreleasedReturnValue</code></p>
-<pre><code class="lang-objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
+<pre class="highlight"><code class="objective-c">/**obj_retainAutoreleasedReturnValue 伪代码**/
 id obj_retainAutoreleasedReturnValue(id object) {
-  if(get_flag(object)) {    // 检测到标志位被设置
-    clear_flag(object);    // 清除标志位
-    return object;    // 返回
+  if(get_flag(object)) {	// 检测到标志位被设置
+    clear_flag(object);	// 清除标志位
+    return object;	// 返回
   } else {
     return [object retain];
   }
 }
 </code></pre>
 <p>设置和检测标志位，比直接调用<code>autorelease</code>和<code>retain</code>更快</p>
-<h3><span id="arc下的内存管理语义">ARC下的内存管理语义</span></h3><p>以设置方法为例，当我们使用ARC时只需这么写，ARC能够自动添加相关的<code>retain</code>和<code>release</code>操作</p>
-<pre><code class="lang-objective-c">- (void) setObject: (id) object {
+<h3><span id="arc下的内存管理语义"> ARC下的内存管理语义</span></h3>
+<p>以设置方法为例，当我们使用ARC时只需这么写，ARC能够自动添加相关的<code>retain</code>和<code>release</code>操作</p>
+<pre class="highlight"><code class="objective-c">- (void) setObject: (id) object {
   _object = object;
 }
 </code></pre>
 <p>如果是MRC，需要我们手动添加<code>retain</code>和<code>release</code>的操作</p>
-<pre><code class="lang-objective-c">- (void) setObject: (id) object {
+<pre class="highlight"><code class="objective-c">- (void) setObject: (id) object {
   [_object release];
   _object = [object retain];
 }
 </code></pre>
 <p>但是这么写会出现问题。如果新值和旧值相同，并且当前只有该对象在引用这个值，那么设置方法中的<code>release</code>会让<code>_object</code>的引用计数为0，从而被回收，导致应用程序崩溃。而ARC避免这种情况的做法是，以一种更安全的方式来设置：</p>
-<pre><code class="lang-objective-c">- (void) setObject: (id) object {
-  [object retain];    // 保留新值
-  [_object release];    // 释放旧值
-  _object = object;        // 设置
+<pre class="highlight"><code class="objective-c">- (void) setObject: (id) object {
+  [object retain];	// 保留新值
+  [_object release];	// 释放旧值
+  _object = object;		// 设置
 }
 </code></pre>
 <p>使用ARC避免了这种边界情况，而且使得代码的编写更加简洁。我们可以用所有权修饰符来控制ARC下对象的内存管理语义：</p>
@@ -316,14 +324,14 @@ id obj_retainAutoreleasedReturnValue(id object) {
 <li><code>__autoreleasing</code>: 把对象按引用传递给方法时，使用这个特殊的修饰符，这个值在方法返回时自动释放。</li>
 </ul>
 <p>需要留意的是，修饰符修饰的引用也有其作用范围，超出范围之外即便是<code>__strong</code>修饰的也会失效，应该被释放。当带有<code>__strong</code> 修饰符的变量在持有对象时，如果多个对象相互持有，很容易发生循环引用，进而引发内存泄露。例如：</p>
-<pre><code class="lang-objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+<pre class="highlight"><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
 MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
 [fetcher startWithCompletion:^(BOOL success) {
   NSLog(@&quot;Successfully fetching from %@&quot;, fetcher.url);
 }]
 </code></pre>
 <p>此段代码中，由于块能够自动保留捕获的全部对象，因此这个块保留了<code>fetcher</code>,而<code>fetcher</code>本身又引用了这个块，因此构成了保留环。解除保留环最常用的就是利用__weak修饰局部变量，这样，当强引用释放，弱引用也会被设置为nil，从而解除保留环。我们可以这么修复这段代码：</p>
-<pre><code class="lang-objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
+<pre class="highlight"><code class="objective-c">NSURL *url = [NSURL URLWithString:@&quot;http://www.example.com&quot;];
 MyNetworkFetcher * fetcher = [[MyNetworkFetcher alloc] initWithURL];
 MyNetworkFetcher * __weak weakFetcher = fetcher;
 [fetcher startWithCompletion:^(BOOL success) {
@@ -331,12 +339,13 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 }]
 </code></pre>
 <p>ARC下无法直接调用<code>autorelease</code>方法，也无法使用<code>NSAutoreleasePool</code>类, 但是我们可以通过<code>@autoreleasepool</code>块来代替<code>NSAutoreleasePool</code>进行对象的生成、持有、废弃的作用域</p>
-<pre><code class="lang-objective-c">@autoreleasepool{
+<pre class="highlight"><code class="objective-c">@autoreleasepool{
   id __autoreleasing object = [[NSObject alloc] init];
 }
 </code></pre>
 <p>但是通常<code>__autoreleasing</code>并不显式调用，因为@autoreleasepool块指明了对象的作用域，若是最后需要在超出作用域的范围使用变量，则编译器会自动注册<code>autoreleasepool</code>对象来完成推迟release这一操作。</p>
-<h3><span id="arc使用规则">ARC使用规则</span></h3><p>最后，在ARC有效的情况下编译源代码需要遵守一定的规则：</p>
+<h3><span id="arc使用规则"> ARC使用规则</span></h3>
+<p>最后，在ARC有效的情况下编译源代码需要遵守一定的规则：</p>
 <ul>
 <li>不能使用<code>retain/release/retainCount/autorelease</code></li>
 <li>不能使用<code>NSAllocateObject/NSDeallocateObject</code></li>
@@ -431,7 +440,7 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text">OC中的内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text">引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.1.</span> <span class="nav-text">理解和使用引用计数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.2.</span> <span class="nav-text">Autorelease</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text">自动引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text">ARC特性简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text">ARC下的内存管理语义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text">ARC使用规则</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"> OC中的内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text"> 引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.1.</span> <span class="nav-text"> 理解和使用引用计数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.2.</span> <span class="nav-text"> Autorelease</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text"> 自动引用计数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text"> ARC特性简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text"> ARC下的内存管理语义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text"> ARC使用规则</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -535,6 +544,55 @@ MyNetworkFetcher * __weak weakFetcher = fetcher;
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

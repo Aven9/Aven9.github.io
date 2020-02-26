@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.0">
+
+<link href="https://cdn.bootcss.com/KaTeX/0.7.1/katex.min.css" rel="stylesheet">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -20,19 +22,19 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。   背景知识 GAN原理简述 深度学习在人像编辑的应用 工作简述 图像翻译 图像完成     解决方案 训练数据 网络结构 生成器 判别器       背景知识GAN原理简述顾">
+  <meta name="description" content="前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。   背景知识  GAN原理简述 深度学习在人像编辑的应用  工作简述 图像翻译 图像完成     解决方案  训练数据 网络结构  生成器 判别器        背景知识  G">
 <meta property="og:type" content="article">
 <meta property="og:title" content="GAN in Editing Portrait">
 <meta property="og:url" content="http://yoursite.com/2019/07/21/Image-completion-with-generative-adversarial-networks/index.html">
 <meta property="og:site_name" content="Aven&#39;s Blog">
-<meta property="og:description" content="前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。   背景知识 GAN原理简述 深度学习在人像编辑的应用 工作简述 图像翻译 图像完成     解决方案 训练数据 网络结构 生成器 判别器       背景知识GAN原理简述顾">
+<meta property="og:description" content="前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。   背景知识  GAN原理简述 深度学习在人像编辑的应用  工作简述 图像翻译 图像完成     解决方案  训练数据 网络结构  生成器 判别器        背景知识  G">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://yoursite.com/2019/07/21/Image-completion-with-generative-adversarial-networks/Image-completion-with-generative-adversarial-networks/structure.png">
 <meta property="og:image" content="http://yoursite.com/2019/07/21/Image-completion-with-generative-adversarial-networks/structure.png">
 <meta property="og:image" content="http://yoursite.com/2019/07/21/Image-completion-with-generative-adversarial-networks/Image-completion-with-generative-adversarial-networks/input.png">
 <meta property="og:image" content="http://yoursite.com/2019/07/21/Image-completion-with-generative-adversarial-networks/input.png">
 <meta property="article:published_time" content="2019-07-21T11:10:18.000Z">
-<meta property="article:modified_time" content="2020-02-26T01:52:35.505Z">
+<meta property="article:modified_time" content="2020-02-26T16:25:18.934Z">
 <meta property="article:author" content="Wenjie Zhang">
 <meta property="article:tag" content="Computer Vision">
 <meta name="twitter:card" content="summary">
@@ -181,38 +183,50 @@
         <p>前段时间看了一篇论文，是生成对抗网络在人像编辑方面的应用，以这个模型为核心跟队友摸鱼写了一个以用户的直接涂改，包括表示修改区域的蒙板、修改笔迹、颜色作为输入的智能人像编辑iPad应用。以下是对文章原理和提供方法的一个简述。</p>
 <!-- toc -->
 <ul>
-<li><a href="#背景知识">背景知识</a><ul>
-<li><a href="#gan原理简述">GAN原理简述</a></li>
-<li><a href="#深度学习在人像编辑的应用">深度学习在人像编辑的应用</a><ul>
-<li><a href="#工作简述">工作简述</a></li>
-<li><a href="#图像翻译">图像翻译</a></li>
-<li><a href="#图像完成">图像完成</a></li>
+<li><a href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86">背景知识</a>
+<ul>
+<li><a href="#gan%E5%8E%9F%E7%90%86%E7%AE%80%E8%BF%B0">GAN原理简述</a></li>
+<li><a href="#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%9C%A8%E4%BA%BA%E5%83%8F%E7%BC%96%E8%BE%91%E7%9A%84%E5%BA%94%E7%94%A8">深度学习在人像编辑的应用</a>
+<ul>
+<li><a href="#%E5%B7%A5%E4%BD%9C%E7%AE%80%E8%BF%B0">工作简述</a></li>
+<li><a href="#%E5%9B%BE%E5%83%8F%E7%BF%BB%E8%AF%91">图像翻译</a></li>
+<li><a href="#%E5%9B%BE%E5%83%8F%E5%AE%8C%E6%88%90">图像完成</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#解决方案">解决方案</a><ul>
-<li><a href="#训练数据">训练数据</a></li>
-<li><a href="#网络结构">网络结构</a><ul>
-<li><a href="#生成器">生成器</a></li>
-<li><a href="#判别器">判别器</a></li>
+<li><a href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">解决方案</a>
+<ul>
+<li><a href="#%E8%AE%AD%E7%BB%83%E6%95%B0%E6%8D%AE">训练数据</a></li>
+<li><a href="#%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84">网络结构</a>
+<ul>
+<li><a href="#%E7%94%9F%E6%88%90%E5%99%A8">生成器</a></li>
+<li><a href="#%E5%88%A4%E5%88%AB%E5%99%A8">判别器</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 <!-- tocstop -->
-<h1><span id="背景知识">背景知识</span></h1><h2><span id="gan原理简述">GAN原理简述</span></h2><p>顾名思义，GAN，即生成对抗网络，是由生成器和判别器构成的一种深度学习模型。以人像编辑软件为例，图像生成器的目的是接收用户的涂改作为输入，合成修改后的图片。图像判定器负责判断合成的图片看上去是真的还是假的。而生成模型的训练，就是通过生成器生成图片，判别器做出判断，生成器改进，继续生成图片……直到判别器分辨不出接收到的是一张真实的图片还是由用户提交的修改的图片。</p>
-<h2><span id="深度学习在人像编辑的应用">深度学习在人像编辑的应用</span></h2><h3><span id="工作简述">工作简述</span></h3><p>深度学习已经可以应用于恢复图像中被擦除的部分。最经典的方法就是使用一个方形的蒙板，使用编码-解码生成器恢复蒙板区域的图像，图像是否真实的判断由一个全局本地判别器来判定。但是这种方法的缺点就是较低的图像解析程度，并且由于方形的蒙板导致生成的图像在蒙板区域有一个尴尬的边界。除此之外，生成器不能接收用户的输入，降低了用户友好度。</p>
+<h1><span id="背景知识"> 背景知识</span></h1>
+<h2><span id="gan原理简述"> GAN原理简述</span></h2>
+<p>顾名思义，GAN，即生成对抗网络，是由生成器和判别器构成的一种深度学习模型。以人像编辑软件为例，图像生成器的目的是接收用户的涂改作为输入，合成修改后的图片。图像判定器负责判断合成的图片看上去是真的还是假的。而生成模型的训练，就是通过生成器生成图片，判别器做出判断，生成器改进，继续生成图片……直到判别器分辨不出接收到的是一张真实的图片还是由用户提交的修改的图片。</p>
+<h2><span id="深度学习在人像编辑的应用"> 深度学习在人像编辑的应用</span></h2>
+<h3><span id="工作简述"> 工作简述</span></h3>
+<p>深度学习已经可以应用于恢复图像中被擦除的部分。最经典的方法就是使用一个方形的蒙板，使用编码-解码生成器恢复蒙板区域的图像，图像是否真实的判断由一个全局本地判别器来判定。但是这种方法的缺点就是较低的图像解析程度，并且由于方形的蒙板导致生成的图像在蒙板区域有一个尴尬的边界。除此之外，生成器不能接收用户的输入，降低了用户友好度。</p>
 <p>其它改进的方式包括Deepfillv2(引入用户输入来恢复缺失部分)，Guided-Inpating(使用其它图片的部分来恢复被删除的部分)。一些其它的工作如Ideepcolor提出了一个能够接受用户输入作为参考，创建彩色图像；FaceShop可接受笔画和颜色同时作为用户输入。但这些方法都有着不同程度的用户交互短板，甚至不尽人意的完成效果。</p>
 <p>为克服这些缺点，这篇文章提出了一种完全卷积神经网络的SC-FEGAN，用于进行端到端训练。该网络利用SN-patchGAN判别器克服尴尬的边界；利用通用的GAN损失和新增的style损失来编辑脸部图像；复合出的图片具有高质量的真实性；具有高度自由的用户输入形式。</p>
-<h3><span id="图像翻译">图像翻译</span></h3><p>用于图像翻译的GAN是在用于学习在两个数据集之间进行图像区域转换。该数据集由一对图像组成，可用于创建将分割标签转换为原始图像，或将草图转换为图像，或将黑白图像转换为彩色图像。但是该系统要求图像和目标图像必须成对存在于训练数据集中，以便学习域之间的转换。给定目标域而没有目标图像，则在原始域中转换图像时，目标域中会存在虚拟结果。如果虚拟结果再次反转，则反转的结果必须是原始图像。因此，转换任务需要两个生成器。</p>
-<h3><span id="图像完成">图像完成</span></h3><p>图像完成领域面临两个主要挑战：</p>
+<h3><span id="图像翻译"> 图像翻译</span></h3>
+<p>用于图像翻译的GAN是在用于学习在两个数据集之间进行图像区域转换。该数据集由一对图像组成，可用于创建将分割标签转换为原始图像，或将草图转换为图像，或将黑白图像转换为彩色图像。但是该系统要求图像和目标图像必须成对存在于训练数据集中，以便学习域之间的转换。给定目标域而没有目标图像，则在原始域中转换图像时，目标域中会存在虚拟结果。如果虚拟结果再次反转，则反转的结果必须是原始图像。因此，转换任务需要两个生成器。</p>
+<h3><span id="图像完成"> 图像完成</span></h3>
+<p>图像完成领域面临两个主要挑战：</p>
 <ol>
 <li>填充图像的已删除区域</li>
 <li>在恢复区域中正确反映用户输入。</li>
 </ol>
-<h1><span id="解决方案">解决方案</span></h1><h2><span id="训练数据">训练数据</span></h2><p>适当的训练数据对于提高网络的训练性能和提高对用户输入的响应能力非常重要。为了训练模型，使用了CelebA-HQ 数据集。预处理步骤如下：</p>
+<h1><span id="解决方案"> 解决方案</span></h1>
+<h2><span id="训练数据"> 训练数据</span></h2>
+<p>适当的训练数据对于提高网络的训练性能和提高对用户输入的响应能力非常重要。为了训练模型，使用了CelebA-HQ 数据集。预处理步骤如下：</p>
 <ol>
 <li>随机选取包含29000张图片的集合作为训练数据集，1000张图片作为测试数据集。</li>
 <li>在获得草图和颜色数据集之前，我们将图像调整为512×512像素。</li>
@@ -221,9 +235,10 @@
 </ol>
 <p>关键设计如下：</p>
 <ol>
-<li><p>带有眼睛位置的自由蒙版</p>
+<li>
+<p>带有眼睛位置的自由蒙版</p>
 <p>我们使用了类似于Deepfillv2的方法，即采用蒙板的方式，然后利用用户在蒙板上的输入生成不完全的图像，此外，在用面部图像训练时，随机使用以眼睛位置为起点的自由绘制蒙版来表达眼睛的复杂部分。另外，头发的蒙板采用了GFC，细节如下算法表述的那样：</p>
-<pre><code>maxDraw, maxLine, maxAngle, maxLength are hyper
+<pre class="highlight"><code class>maxDraw, maxLine, maxAngle, maxLength are hyper
 parameters
 GFCHair is the GFC for get hair mask of input image Mask=zeros(inputSize,inputSize) HairMask=GFCHair(IntputImage) numLine=random.range(maxDraw)
 for i=0 to numLine do
@@ -241,25 +256,36 @@ end for
 Draw a line on Mask from eye postion randomly.
 end for
 Mask = Mask + HairMask (randomly)
-</code></pre></li>
-<li><p>草图、颜色域</p>
+</code></pre>
+</li>
+<li>
+<p>草图、颜色域</p>
 <p>1）用HED边缘检测器生成草图数据，该数据对应于用户输入以修改面部图像。</p>
 <p>2）之后，使曲线平滑并消除了小边缘。为了创建色域数据，首先通过应用大小为3的中值过滤，然后应用20个双边过滤器来创建模糊图像。</p>
 <p>3）之后，使用GFC分割人脸，并将每个分割的部分替换为相应部分的中间颜色。</p>
 <p>4）在为色域创建数据时，未应用直方图均衡，以避免光反射和阴影污染颜色。但是，由于用户更愿意在草图域中表达面部的所有部分，而不受光干扰引起的模糊影响，因此在从主体数据创建草图时使用了直方图均衡化。</p>
 </li>
 </ol>
-<h2><span id="网络结构">网络结构</span></h2><p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512<em>512的合成图片。训练时，生成器和判别器同时进行。<em>*生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。</em></em>详细网络结构如下图所示：</p>
-<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt><br><img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/structure.png" class></p>
-<h3><span id="生成器">生成器</span></h3><p>生成器基于U-net，即编码器-解码器结构。编码器接收尺寸为512×512×9的输入张量，即一个不完整的RGB通道图像，其中有一个要编辑的去除区域，一个二进制草图（描述了去除部分的结构），一个RGB色彩笔划图，一个二进制蒙版和噪音，见下图</p>
-<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt><br><img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/input.png" class></p>
+<h2><span id="网络结构"> 网络结构</span></h2>
+<p>用于图像补充的生成器网络基于编码器-解码器架构，判别器网络则是基于SN-patchGAN结构。这样的网络结构能够快速训练以达稳定，并且生成高质量的大小为512*512的合成图片。训练时，生成器和判别器同时进行。**生成器接收带用户输入的不完整图片，输出带RGB通道的图片，并将蒙板区域的输出图像插入到输入图片中，由此来创建一张完整的图片。**详细网络结构如下图所示：</p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/structure.png" alt></p>
+<img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/structure.png" class>
+<h3><span id="生成器"> 生成器</span></h3>
+<p>生成器基于U-net，即编码器-解码器结构。编码器接收尺寸为512×512×9的输入张量，即一个不完整的RGB通道图像，其中有一个要编辑的去除区域，一个二进制草图（描述了去除部分的结构），一个RGB色彩笔划图，一个二进制蒙版和噪音，见下图</p>
+<p><img src="./Image-completion-with-generative-adversarial-networks/input.png" alt></p>
+<img src="/2019/07/21/Image-completion-with-generative-adversarial-networks/input.png" class>
 <p>编码器使用2个步幅内核卷积对输入进行7次下采样，然后在上采样之前进行膨胀卷积。解码器使用转置卷积进行上采样。然后，添加了跳过连接以允许以相同的空间分辨率与上一层连接。除了输出层使用tanh函数外，在每层之后都使用了泄漏的ReLU激活函数。总体而言，生成器由16个卷积层组成，网络的输出是输入大小相同（512×512）的RGB图像。在将损失函数应用到输入之前，我们用输入图像替换了蒙板之外的图像的其余部分。这种替换使生成器仅在已编辑区域上受到训练。生成器接受了每像素损失，感知损失，样式损失和总方差损失这些损失训练，还使用通用GAN损失函数。</p>
-<h3><span id="判别器">判别器</span></h3><p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：</p>
-<script type="math/tex; mode=display">
-L_{GSN} = -IE[D(I_{comp})]</script><script type="math/tex; mode=display">
-L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]</script><script type="math/tex; mode=display">
-L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}</script><p>生成器用<script type="math/tex">L_G</script>训练，判别器用<script type="math/tex">L_D</script>训练，<script type="math/tex">D(I)</script>是判别器的输出，其中$I$为输入；在编辑较大的区域比如头发时，损失<script type="math/tex">L_{style}</script>和<script type="math/tex">L_{percent}</script>十分关键，</p>
-<h1><span id>#</span></h1>
+<h3><span id="判别器"> 判别器</span></h3>
+<p>判别器具有SN-PatchGAN 结构，它的特性是没有对GAN损失应用ReLu函数。另外还使用了3×3大小的卷积内核并应用了梯度损失。整体损失函数计算如下所示：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>L</mi><mrow><mi>G</mi><mi>S</mi><mi>N</mi></mrow></msub><mo>=</mo><mo>−</mo><mi>I</mi><mi>E</mi><mo>[</mo><mi>D</mi><mo>(</mo><msub><mi>I</mi><mrow><mi>c</mi><mi>o</mi><mi>m</mi><mi>p</mi></mrow></msub><mo>)</mo><mo>]</mo></mrow><annotation encoding="application/x-tex">L_{GSN} = -IE[D(I_{comp})]
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">G</span><span class="mord mathit" style="margin-right:0.05764em;">S</span><span class="mord mathit" style="margin-right:0.10903em;">N</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord">−</span><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="mord mathit" style="margin-right:0.05764em;">E</span><span class="mopen">[</span><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mopen">(</span><span class="mord"><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.07847em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">c</span><span class="mord mathit">o</span><span class="mord mathit">m</span><span class="mord mathit">p</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mclose">)</span><span class="mclose">]</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>L</mi><mi>G</mi></msub><mo>=</mo><msub><mi>L</mi><mrow><mi>p</mi><mi>e</mi><mi>r</mi><mo>−</mo><mi>p</mi><mi>i</mi><mi>x</mi><mi>e</mi><mi>l</mi></mrow></msub><mo>+</mo><mi>σ</mi><msub><mi>L</mi><mrow><mi>p</mi><mi>e</mi><mi>r</mi><mi>c</mi><mi>e</mi><mi>n</mi><mi>t</mi></mrow></msub><mo>+</mo><mi>β</mi><msub><mi>L</mi><mrow><msub><mi>G</mi><mi>S</mi></msub><mi>N</mi></mrow></msub><mo>+</mo><mi>γ</mi><mo>(</mo><msub><mi>L</mi><mrow><mi>s</mi><mi>t</mi><mi>y</mi><mi>l</mi><mi>e</mi></mrow></msub><mo>(</mo><msub><mi>I</mi><mrow><mi>g</mi><mi>e</mi><mi>n</mi></mrow></msub><mo>)</mo><mo>+</mo><msub><mi>L</mi><mrow><mi>s</mi><mi>t</mi><mi>y</mi><mi>l</mi><mi>e</mi></mrow></msub><mo>(</mo><msub><mi>I</mi><mrow><mi>c</mi><mi>o</mi><mi>m</mi><mi>p</mi></mrow></msub><mo>)</mo><mo>)</mo><mo>+</mo><mi>υ</mi><msub><mi>L</mi><mrow><mi>t</mi><mi>υ</mi></mrow></msub><mo>+</mo><mi>ϵ</mi><mi>I</mi><mi>E</mi><mo>[</mo><mi>D</mi><mo>(</mo><msub><mi>I</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><msup><mo>)</mo><mn>2</mn></msup><mo>]</mo></mrow><annotation encoding="application/x-tex">L_G = L_{per-pixel}+\sigma L_{percent}+\beta L_{G_SN}+ \gamma (L_{style}(I_{gen})+L_{style}(I_{comp}))+\upsilon L_{t\upsilon}+\epsilon IE[D(I_{gt})^2]
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8641079999999999em;"></span><span class="strut bottom" style="height:1.150216em;vertical-align:-0.286108em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit">G</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">p</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mbin">−</span><span class="mord mathit">p</span><span class="mord mathit">i</span><span class="mord mathit">x</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.01968em;">l</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">+</span><span class="mord mathit" style="margin-right:0.03588em;">σ</span><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">p</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">c</span><span class="mord mathit">e</span><span class="mord mathit">n</span><span class="mord mathit">t</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">+</span><span class="mord mathit" style="margin-right:0.05278em;">β</span><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15000000000000002em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord"><span class="mord mathit">G</span><span class="vlist"><span style="top:0.15em;margin-right:0.07142857142857144em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathit" style="margin-right:0.05764em;">S</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mord mathit" style="margin-right:0.10903em;">N</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">+</span><span class="mord mathit" style="margin-right:0.05556em;">γ</span><span class="mopen">(</span><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">s</span><span class="mord mathit">t</span><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mord mathit">e</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.07847em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathit">e</span><span class="mord mathit">n</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mclose">)</span><span class="mbin">+</span><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">s</span><span class="mord mathit">t</span><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mord mathit">e</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.07847em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">c</span><span class="mord mathit">o</span><span class="mord mathit">m</span><span class="mord mathit">p</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mclose">)</span><span class="mclose">)</span><span class="mbin">+</span><span class="mord mathit" style="margin-right:0.03588em;">υ</span><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">t</span><span class="mord mathit" style="margin-right:0.03588em;">υ</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">+</span><span class="mord mathit">ϵ</span><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="mord mathit" style="margin-right:0.05764em;">E</span><span class="mopen">[</span><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mopen">(</span><span class="mord"><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.07847em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathit">t</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mclose"><span class="mclose">)</span><span class="vlist"><span style="top:-0.413em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mclose">]</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>L</mi><mi>D</mi></msub><mo>=</mo><mi>I</mi><mi>E</mi><mo>[</mo><mn>1</mn><mo>−</mo><mi>D</mi><mo>(</mo><msub><mi>I</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo>)</mo><mo>]</mo><mo>+</mo><mi>I</mi><mi>E</mi><mo>[</mo><mn>1</mn><mo>+</mo><mi>D</mi><mo>(</mo><msub><mi>I</mi><mrow><mi>c</mi><mi>o</mi><mi>m</mi><mi>p</mi></mrow></msub><mo>)</mo><mo>]</mo><mo>+</mo><mi>θ</mi><msub><mi>L</mi><mrow><mi>G</mi><mi>P</mi></mrow></msub></mrow><annotation encoding="application/x-tex">L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit" style="margin-right:0.02778em;">D</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="mord mathit" style="margin-right:0.05764em;">E</span><span class="mopen">[</span><span class="mord mathrm">1</span><span class="mbin">−</span><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mopen">(</span><span class="mord"><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.07847em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathit">t</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mclose">)</span><span class="mclose">]</span><span class="mbin">+</span><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="mord mathit" style="margin-right:0.05764em;">E</span><span class="mopen">[</span><span class="mord mathrm">1</span><span class="mbin">+</span><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mopen">(</span><span class="mord"><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.07847em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">c</span><span class="mord mathit">o</span><span class="mord mathit">m</span><span class="mord mathit">p</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mclose">)</span><span class="mclose">]</span><span class="mbin">+</span><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">G</span><span class="mord mathit" style="margin-right:0.13889em;">P</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span></span></p>
+<p>生成器用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>L</mi><mi>G</mi></msub></mrow><annotation encoding="application/x-tex">L_G</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit">G</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>训练，判别器用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>L</mi><mi>D</mi></msub></mrow><annotation encoding="application/x-tex">L_D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit" style="margin-right:0.02778em;">D</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>训练，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>D</mi><mo>(</mo><mi>I</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">D(I)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mopen">(</span><span class="mord mathit" style="margin-right:0.07847em;">I</span><span class="mclose">)</span></span></span></span>是判别器的输出，其中<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>I</mi></mrow><annotation encoding="application/x-tex">I</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.07847em;">I</span></span></span></span>为输入；在编辑较大的区域比如头发时，损失<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>L</mi><mrow><mi>s</mi><mi>t</mi><mi>y</mi><mi>l</mi><mi>e</mi></mrow></msub></mrow><annotation encoding="application/x-tex">L_{style}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">s</span><span class="mord mathit">t</span><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mord mathit">e</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>L</mi><mrow><mi>p</mi><mi>e</mi><mi>r</mi><mi>c</mi><mi>e</mi><mi>n</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">L_{percent}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit">L</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit">p</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">c</span><span class="mord mathit">e</span><span class="mord mathit">n</span><span class="mord mathit">t</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>十分关键，</p>
+<h2><span id> </span></h2>
+
     </div>
 
     
@@ -343,7 +369,7 @@ L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}</script><p>生成器用<sc
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text">背景知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text">GAN原理简述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text">深度学习在人像编辑的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text">工作简述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text">图像翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text">图像完成</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">2.1.</span> <span class="nav-text">训练数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">2.2.</span> <span class="nav-text">网络结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">2.2.1.</span> <span class="nav-text">生成器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">2.2.2.</span> <span class="nav-text">判别器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">3.</span> <span class="nav-text">#</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"> 背景知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text"> GAN原理简述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text"> 深度学习在人像编辑的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text"> 工作简述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text"> 图像翻译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text"> 图像完成</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">2.</span> <span class="nav-text"> 解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">2.1.</span> <span class="nav-text"> 训练数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">2.2.</span> <span class="nav-text"> 网络结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">2.2.1.</span> <span class="nav-text"> 生成器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">2.2.2.</span> <span class="nav-text"> 判别器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">2.3.</span> <span class="nav-text"> </span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -447,6 +473,55 @@ L_D = IE[1-D(I_{gt})]+IE[1+D(I_{comp})]+\theta L_{GP}</script><p>生成器用<sc
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

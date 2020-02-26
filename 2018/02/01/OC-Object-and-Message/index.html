@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.0">
+
+<link href="https://cdn.bootcss.com/KaTeX/0.7.1/katex.min.css" rel="stylesheet">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -20,12 +22,12 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="OC 对象和消息在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。 属性属性用于封装对象中的数据，OC">
+  <meta name="description" content="OC 对象和消息 在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。  属性 属性用于封装对象中的数">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OC Object and Message">
 <meta property="og:url" content="http://yoursite.com/2018/02/01/OC-Object-and-Message/index.html">
 <meta property="og:site_name" content="Aven&#39;s Blog">
-<meta property="og:description" content="OC 对象和消息在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。 属性属性用于封装对象中的数据，OC">
+<meta property="og:description" content="OC 对象和消息 在使用面向对象语言编程的时候，对象就是基本构造单元，通过对象可以存储并传递数据，消息传递就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做运行期环境(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。  属性 属性用于封装对象中的数">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://yoursite.com/2018/02/01/OC-Object-and-Message/OC-Object-and-Message/msg_forward.jpg">
 <meta property="og:image" content="http://yoursite.com/2018/02/01/OC-Object-and-Message/msg_forward.jpg">
@@ -176,39 +178,40 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1><span id="oc-对象和消息">OC 对象和消息</span></h1><p>在使用面向对象语言编程的时候，<strong>对象</strong>就是<strong>基本构造单元</strong>，通过对象可以存储并传递数据，<strong>消息传递</strong>就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做<strong>运行期环境</strong>(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。</p>
-<h2><span id="属性">属性</span></h2><p>属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变量，通过存取方法访问。</p>
+        <h1><span id="oc-对象和消息"> OC 对象和消息</span></h1>
+<p>在使用面向对象语言编程的时候，<strong>对象</strong>就是<strong>基本构造单元</strong>，通过对象可以存储并传递数据，<strong>消息传递</strong>就是在对象间传递数据并执行任务的过程。当应用程序运行起来以后，为其提供相关支持的代码叫做<strong>运行期环境</strong>(runtime)，用于提供一些使得对象之间能够传递传递消息的重要函数，此外，runtime还包含了创建类实例所用的全部逻辑。本文将简单分析对象和消息的一些机制。</p>
+<h2><span id="属性"> 属性</span></h2>
+<p>属性用于封装对象中的数据，OC中的对象通常将需要的数据保存为各种实例变量，通过存取方法访问。</p>
 <p>在Java或者C++中的实例变量看上去也许是这样的：</p>
-<pre><code class="lang-c++">class Person {
-  public:
-    string firstName;
-    string lastName;
-    private:
-    string IDNumber;
+<pre class="highlight"><code class="c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> {</span>
+  <span class="hljs-keyword">public</span>:
+    <span class="hljs-built_in">string</span> firstName;
+    <span class="hljs-built_in">string</span> lastName;
+	<span class="hljs-keyword">private</span>:
+    <span class="hljs-built_in">string</span> IDNumber;
 }
 </code></pre>
 <p>这样就能够定义实例变量的作用域。但是编写OC时很少这么做：</p>
-<pre><code class="lang-objective-c">@interface Person: NSObject {
+<pre class="highlight"><code class="objective-c">@interface Person: NSObject {
   @public 
     NSString *_firstName;
-      NSString *_lastName;
+  	NSString *_lastName;
   @private
     NSString *_IDNumber;
 }
 </code></pre>
 <p>因为这种写法的对象布局在编译器就已经确定。换句话说，编译器将访问<code>_firstName</code>变量的代码替换为<strong>偏移量</strong>，用于表示变量距离存放对象内存的起始地址有多远，假如新增一个变量在<code>_firstName</code>前：</p>
-<pre><code class="lang-objective-c">@interface Person: NSObject {
-  @public     
-    NSString *_birthday;    // 新增变量
+<pre class="highlight"><code class="objective-c">@interface Person: NSObject {
+  @public     
+    NSString *_birthday;	// 新增变量
     NSString *_firstName;    
-      NSString *_lastName;  
-  @private    
+  	NSString *_lastName;  
+  @private    
     NSString *_IDNumber;
 }
 </code></pre>
 <p>内存布局变化将如下所示</p>
 <p>新增实例变量前:</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -231,9 +234,7 @@
 </tr>
 </tbody>
 </table>
-</div>
 <p>新增实例变量后:</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -260,36 +261,40 @@
 </tr>
 </tbody>
 </table>
-</div>
 <p>这样的后果就是如果代码使用了编译期计算出来的偏移量，那么在修改类定义之后必须重新编译，否则会出错。OC的解决办法是：<strong>将实例变量当做一种存储偏移量所用的特殊变量，交给类对象保管，偏移量在运行期再查找</strong>，由此保证始终正确的偏移量。这提供了可以在class-continuation分类或者实现文件中定义实例变量的能力。</p>
 <p>还有一种解决方案是通过存取方法访问变量，<strong>尽量不直接访问实例变量</strong>。这时属性便派上了用场，因为使用属性能够让编译器自动编写访问这些属性所需的方法。这个过程由编译器在编译期执行，所以在编辑器里这些合成方法的源代码不可见。此外，编译期还要自动向类中添加合适类型的实例变量，并且在属性名前加<code>_</code>，以此作为实例变量的名字。</p>
 <blockquote>
 <p>@synthesize 语法可以指定实例变量的名字，但一般情况下无需修改。</p>
 <p>@dynamic语法用于阻止编译器自动创建实现属性所用的实例变量及其存取方法，此时，编译器认为这些属性的存取方法在运行期一定能找到。</p>
 </blockquote>
-<h2><span id="属性特质">属性特质</span></h2><p>属性特质(attribute)可分为：</p>
+<h2><span id="属性特质"> 属性特质</span></h2>
+<p>属性特质(attribute)可分为：</p>
 <ul>
 <li>原子性</li>
 <li>读写权限</li>
 <li>内存管理语义</li>
 <li>方法名</li>
 </ul>
-<h3><span id="原子性">原子性</span></h3><ul>
+<h3><span id="原子性"> 原子性</span></h3>
+<ul>
 <li><code>atomic/nonatomic</code></li>
 </ul>
 <p>默认情况下，由编译器合成的方法会通过锁的机制确保其具有原子性(atomic)，但需要注意的是，即便是atomic也不能确保线程安全，反而占用了较大的开销。要实现线程安全，需要更深层的锁机制。</p>
-<h3><span id="读写权限">读写权限</span></h3><ul>
+<h3><span id="读写权限"> 读写权限</span></h3>
+<ul>
 <li><code>readwrite</code>：可读可写</li>
 <li><code>readonly</code>：可读</li>
 </ul>
-<h3><span id="内存管理语义">内存管理语义</span></h3><ul>
+<h3><span id="内存管理语义"> 内存管理语义</span></h3>
+<ul>
 <li><code>assign</code>: 设置方法只执行针对标量的简单赋值，如<code>CGFloat, NSInteger</code></li>
 <li><code>strong</code>: 表示属性定义了一种拥有关系，设置方法先保留新值，再释放旧值，最后将新值设置</li>
 <li><code>weak</code>: 表示属性定义了一种非拥有关系，设置时，既不保留新值，也不释放旧值，当属性所指对象被摧毁时，属性值也清空</li>
 <li><code>unsafe_unretained</code>: 适用于对象类型，语义与<code>assign</code>相同，当对象摧毁时，属性值不会自动清空，不安全</li>
 <li><code>copy</code>: 表示的所属关系与<code>strong</code>类似，但设置方法不保留新值，而是将其拷贝</li>
 </ul>
-<h3><span id="方法名">方法名</span></h3><ul>
+<h3><span id="方法名"> 方法名</span></h3>
+<ul>
 <li><code>getter=&lt;name&gt;</code>: 指定获取方法名</li>
 <li><code>setter=&lt;name&gt;</code>: 指定设置方法名，不常见</li>
 </ul>
@@ -304,8 +309,8 @@
 <li>通过属性访问能够通过断点监测属性调用者和访问时机</li>
 </ul>
 <p>这也是为什么要在写入实例变量时使用设置方法来做，而读取则采取直接访问的原因。另外还需注意，在使用lazy initialization 时，必须通过获取方法来访问属性，否则实例变量永远不会被初始化。</p>
-<h2><span id="关联对象">关联对象</span></h2><p>可以给某对象关联许多其他对象，并指明其存储策略来维护相应的内存管理语义。表示存储策略的枚举类型<code>obj_AssociationPolicy</code>取值及其对应语义如下所示：</p>
-<div class="table-container">
+<h2><span id="关联对象"> 关联对象</span></h2>
+<p>可以给某对象关联许多其他对象，并指明其存储策略来维护相应的内存管理语义。表示存储策略的枚举类型<code>obj_AssociationPolicy</code>取值及其对应语义如下所示：</p>
 <table>
 <thead>
 <tr>
@@ -336,20 +341,20 @@
 </tr>
 </tbody>
 </table>
-</div>
 <p>关联对象管理方法：</p>
-<pre><code class="lang-objective-c">void objc_setAssociatedObject(id object, void*key, id value, obj_AssociationPolicy policy);    // 设置某对象的关联对象值，关联对象以key区分
+<pre class="highlight"><code class="objective-c">void objc_setAssociatedObject(id object, void*key, id value, obj_AssociationPolicy policy);	// 设置某对象的关联对象值，关联对象以key区分
 
-id objc_getAssociatedObject(id object, void*key);    // 获取关联对象值
+id objc_getAssociatedObject(id object, void*key);	// 获取关联对象值
 
-void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部关联对象
+void objc_removeAssociatedObjects(id object);	// 移除指定对象的全部关联对象
 </code></pre>
 <p>需要注意，关联对象的使用可能引入一些难以查找的bug，例如保留环问题，需要谨慎使用。</p>
-<h2><span id="消息传递">消息传递</span></h2><p>在对象上调用方法叫做<strong>消息传递</strong>。C语言的函数调用方式采用的是静态绑定，但是OC不同，需要采用动态绑定机制来确定需要调用哪一个方法。在底层，所有方法都是普通的C函数，然而在对象收到消息后，调用哪一个方法完全由运行期决定，甚至能在程序运行时改变。下面是给某对象发送消息的格式：</p>
-<pre><code class="lang-objective-c">id returnValue = [someObject messageName: parameter];
+<h2><span id="消息传递"> 消息传递</span></h2>
+<p>在对象上调用方法叫做<strong>消息传递</strong>。C语言的函数调用方式采用的是静态绑定，但是OC不同，需要采用动态绑定机制来确定需要调用哪一个方法。在底层，所有方法都是普通的C函数，然而在对象收到消息后，调用哪一个方法完全由运行期决定，甚至能在程序运行时改变。下面是给某对象发送消息的格式：</p>
+<pre class="highlight"><code class="objective-c">id returnValue = [someObject messageName: parameter];
 </code></pre>
 <p>其中<code>someObject</code>是接收者，<code>messageName</code>和<code>parameter</code>同时构成<strong>消息</strong>。编译器看到这条消息后将它转换为一条标准的C函数调用：<code>objc_msgSend</code></p>
-<pre><code class="lang-objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);
+<pre class="highlight"><code class="objective-c">id returnValue = objc_msgSend(someObject, @selector(messageName:), parameter);
 </code></pre>
 <p>然后，<code>objc_msgSend</code>根据接收者和selector的类型决定调用哪一个方法。</p>
 <ol>
@@ -358,18 +363,23 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 <li>若最终不能找到相符的方法，执行消息转发。</li>
 </ol>
 <p>在搜寻方法列表时，<code>objc_msgSend</code>使用快速映射表缓存结果，以此提高性能。</p>
-<h2><span id="消息转发">消息转发</span></h2><p>对象接收到无法理解的消息时，就会启动<strong>消息转发</strong>机制。消息转发分为两大阶段：</p>
+<h2><span id="消息转发"> 消息转发</span></h2>
+<p>对象接收到无法理解的消息时，就会启动<strong>消息转发</strong>机制。消息转发分为两大阶段：</p>
 <ol>
-<li><p>动态方法解析</p>
+<li>
+<p>动态方法解析</p>
 <p>查看接收者所属类是否能够动态添加方法来处理这个未知的selector；</p>
 </li>
-<li><p>完整消息转发</p>
+<li>
+<p>完整消息转发</p>
 <p>1）让接收者查看是否存在其他的对象能够处理这条消息，有则转发消息到那个对象。例如，在一个对象内部还有其它能够处理这条消息的对象，这时，将其返回；</p>
 <p>2）否则，在运行期将消息有关的细节封装在NSInvocation对象中，再一次让接收者解决当前未能处理的消息。可以通过追加参数，改换选择子等方法在触发消息前先改变消息内容。</p>
 </li>
 </ol>
 <p>消息转发全过程可表示为下图：</p>
-<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt><br><img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class><br>步骤越往后，消息转发花费代价越大。</p>
+<p><img src="./OC-Object-and-Message/msg_forward.jpg" alt></p>
+<img src="/2018/02/01/OC-Object-and-Message/msg_forward.jpg" class>
+<p>步骤越往后，消息转发花费代价越大。</p>
 <blockquote>
 <p>参考书目: 《Effective Objective-C 2.0 编写高质量iOS与OS X代码的52个有效方法》</p>
 </blockquote>
@@ -454,7 +464,7 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text">OC 对象和消息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text">属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text">属性特质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text">读写权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text">内存管理语义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.4.</span> <span class="nav-text">方法名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.3.</span> <span class="nav-text">关联对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.4.</span> <span class="nav-text">消息传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.5.</span> <span class="nav-text">消息转发</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"> OC 对象和消息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text"> 属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text"> 属性特质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text"> 原子性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text"> 读写权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text"> 内存管理语义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.4.</span> <span class="nav-text"> 方法名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.3.</span> <span class="nav-text"> 关联对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.4.</span> <span class="nav-text"> 消息传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.5.</span> <span class="nav-text"> 消息转发</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -558,6 +568,55 @@ void objc_removeAssociatedObjects(id object);    // 移除指定对象的全部�
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
