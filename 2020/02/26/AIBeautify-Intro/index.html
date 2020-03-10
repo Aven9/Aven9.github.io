@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+
+<link href="https://cdn.bootcss.com/KaTeX/0.7.1/katex.min.css" rel="stylesheet">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="AIBeautify–画板实现 前面一篇文章提到，GAN作为一种处理Image Completion和Image Translation的高效神经网络，在人像编辑上提供了很棒的思路。用户能够根据一张人像照片，思考想要修改的地方，用蒙板遮盖这个地方，然后在蒙板上简单绘制修改后的局部草图，将图片和修改数据上传至服务器，即可生成智能的修改后图片。例如： 原图：   涂改：   返回:   具体的模型搭">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AIBeautify-Intro">
+<meta property="og:url" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/index.html">
+<meta property="og:site_name" content="Aven&#39;s Blog">
+<meta property="og:description" content="AIBeautify–画板实现 前面一篇文章提到，GAN作为一种处理Image Completion和Image Translation的高效神经网络，在人像编辑上提供了很棒的思路。用户能够根据一张人像照片，思考想要修改的地方，用蒙板遮盖这个地方，然后在蒙板上简单绘制修改后的局部草图，将图片和修改数据上传至服务器，即可生成智能的修改后图片。例如： 原图：   涂改：   返回:   具体的模型搭">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/AIBeautify-Intro/before1.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/before1.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/AIBeautify-Intro/editing1.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/editing1.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/AIBeautify-Intro/after1.png">
+<meta property="og:image" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/after1.png">
+<meta property="article:published_time" content="2020-02-26T02:50:41.662Z">
+<meta property="article:modified_time" content="2020-03-10T08:49:10.595Z">
+<meta property="article:author" content="Wenjie Zhang">
+<meta property="article:tag" content="Developer">
+<meta property="article:tag" content=" Computer Science">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/26/AIBeautify-Intro/AIBeautify-Intro/before1.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/26/AIBeautify-Intro/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>AIBeautify-Intro | Aven's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Aven's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/26/AIBeautify-Intro/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AIBeautify-Intro
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="aibeautify画板实现"> AIBeautify–画板实现</span></h1>
+<p>前面一篇文章提到，GAN作为一种处理Image Completion和Image Translation的高效神经网络，在人像编辑上提供了很棒的思路。用户能够根据一张人像照片，思考想要修改的地方，用蒙板遮盖这个地方，然后在蒙板上简单绘制修改后的局部草图，将图片和修改数据上传至服务器，即可生成智能的修改后图片。例如：</p>
+<p>原图：<br>
+<img src="./AIBeautify-Intro/before1.png" alt></p>
+<img src="/2020/02/26/AIBeautify-Intro/before1.png" class>
+<p>涂改：<br>
+<img src="./AIBeautify-Intro/editing1.png" alt></p>
+<img src="/2020/02/26/AIBeautify-Intro/editing1.png" class>
+<p>返回:<br>
+<img src="./AIBeautify-Intro/after1.png" alt></p>
+<img src="/2020/02/26/AIBeautify-Intro/after1.png" class>
+<p>具体的模型搭建参考了https://github.com/run-youngjoo/SC-FEGAN</p>
+<p>本文会简单谈谈利用它来完成一个AI人像编辑软件的过程。</p>
+<h2><span id="需求分析"> 需求分析</span></h2>
+<h3><span id="数据描述"> 数据描述</span></h3>
+<ul>
+<li>静态数据：静态数据主要包括处理的文件和记录数</li>
+<li>动态数据：动态数据包括输入数据和过程数据和输出数据。输入数据主要是原始图片和用户涂改，包括蒙板区域和涂鸦数据；输出数据包括处理后的图片。</li>
+</ul>
+<h3><span id="功能需求"> 功能需求</span></h3>
+<p>功能需求的核心模块为图片的导入，接收从相册获取的图片，作为画板的图片输入；绘制涂鸦则在导入图片的基础上进行以用户灵感为驱动的再创造，在导入图片的基础上新增涂鸦区域；修改图片功能接收用户的涂改素材为输入，返回处理后的图片作为结果；存储结果则将获取到的图片进行本地存储。</p>
+<h2><span id="主要接口"> 主要接口</span></h2>
+<h3><span id="上传图片"> 上传图片</span></h3>
+<p><em><strong>url:</strong></em> /image/upload</p>
+<p><em><strong>method:</strong></em> POST</p>
+<p><em><strong>params:</strong></em></p>
+<pre class="highlight"><code class>file: file
+</code></pre>
+<p><em><strong>return:</strong></em></p>
+<pre class="highlight"><code class>{
+    id: int,
+}
+</code></pre>
+<h3><span id="上传修改数据"> 上传修改数据</span></h3>
+<p><em><strong>url:</strong></em> /image/info/upload</p>
+<p><em><strong>method:</strong></em> POST</p>
+<p><em><strong>params:</strong></em></p>
+<pre class="highlight"><code class>id: int,
+mask: [{
+    prev: [int, int],
+    curr: [int, int],
+}], //消除笔触记录
+sketch: [{
+    prev: [int, int],
+    curr: [int, int],
+}], //草图笔触记录
+stroke: [{
+    prev: [int, int],
+    curr: [int, int],
+    color: string,
+}]， //涂色笔触位置记录
+</code></pre>
+<p><em><strong>return:</strong></em></p>
+<pre class="highlight"><code class>{
+    url: string, //处理完图片的url
+}
+</code></pre>
+<h3><span id="获得该用户相关图片数据"> 获得该用户相关图片数据</span></h3>
+<p><em><strong>url:</strong></em> /image/info/get</p>
+<p><em><strong>method:</strong></em> POST</p>
+<p><em><strong>params:</strong></em></p>
+<pre class="highlight"><code class>page: int, //从1开始
+limit: int, //每页有多少个
+</code></pre>
+<p><em><strong>return:</strong></em></p>
+<pre class="highlight"><code class>{
+    totalNumber: int, //总共有多少个
+    list: [{
+        id: int, //编号
+        oroginUrl: string, //原图地址
+        nowUrl: string, //处理后的地址
+        status: int, //图片状态，0为未处理，1为已处理，要注意未处理的nowUrl为空
+    }]
+}
+</code></pre>
+<h2><span id="画板模块实现"> 画板模块实现</span></h2>
+<p>画板模块实现部分参考了 <a href="https://github.com/Harley-xk/MaLiang%E3%80%82" target="_blank" rel="noopener">https://github.com/Harley-xk/MaLiang。</a></p>
+<ul>
+<li>
+<p>借助贝塞尔曲线原理将一系列的点生成为较为圆滑的曲线。</p>
+<pre class="highlight"><code class="swift"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BezierGenerator</span> </span>{
+  
+  	<span class="hljs-keyword">var</span> points: [<span class="hljs-type">CGPoint</span>] = []
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> step = <span class="hljs-number">0</span>
+  
+    <span class="hljs-keyword">init</span>(beginPoint: <span class="hljs-type">CGPoint</span>) {
+        begin(with: beginPoint)
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">begin</span><span class="hljs-params">(with point: CGPoint)</span></span> {
+        points.append(point)
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">pushPoint</span><span class="hljs-params">(<span class="hljs-number">_</span> point: CGPoint)</span></span> -&gt; [<span class="hljs-type">CGPoint</span>] {
+        <span class="hljs-keyword">if</span> point == points.last {
+            <span class="hljs-keyword">return</span> []
+        }
+        points.append(point)
+        step += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">let</span> result = genericPathPoints()
+        <span class="hljs-keyword">return</span> result
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">finish</span><span class="hljs-params">()</span></span> {
+        step = <span class="hljs-number">0</span>
+        points.removeAll()
+    }
+  
+    <span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">genericPathPoints</span><span class="hljs-params">()</span></span> -&gt; [<span class="hljs-type">CGPoint</span>] {
+        
+        <span class="hljs-keyword">var</span> begin: <span class="hljs-type">CGPoint</span>
+        <span class="hljs-keyword">var</span> control: <span class="hljs-type">CGPoint</span>
+        <span class="hljs-keyword">let</span> end = <span class="hljs-type">CGPoint</span>.middle(p1: points[step], p2: points[step + <span class="hljs-number">1</span>])
+
+        <span class="hljs-keyword">var</span> vertices: [<span class="hljs-type">CGPoint</span>] = []
+        <span class="hljs-keyword">if</span> step == <span class="hljs-number">1</span> {
+            begin = points[<span class="hljs-number">0</span>]
+            <span class="hljs-keyword">let</span> middle1 = <span class="hljs-type">CGPoint</span>.middle(p1: points[<span class="hljs-number">0</span>], p2: points[<span class="hljs-number">1</span>])
+            control = <span class="hljs-type">CGPoint</span>.middle(p1: middle1, p2: points[<span class="hljs-number">1</span>])
+        } <span class="hljs-keyword">else</span> {
+            begin = <span class="hljs-type">CGPoint</span>.middle(p1: points[step - <span class="hljs-number">1</span>], p2: points[step])
+            control = points[step]
+        }
+        
+        <span class="hljs-comment">/// segements are based on distance about start and end point</span>
+        <span class="hljs-keyword">let</span> dis = begin.<span class="hljs-built_in">distance</span>(to: end)
+        <span class="hljs-keyword">let</span> segements = <span class="hljs-built_in">max</span>(<span class="hljs-type">Int</span>(dis / <span class="hljs-number">5</span>), <span class="hljs-number">2</span>)
+
+        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> ..&lt; segements {
+            <span class="hljs-keyword">let</span> t = <span class="hljs-type">CGFloat</span>(i) / <span class="hljs-type">CGFloat</span>(segements)
+            <span class="hljs-keyword">let</span> x = pow(<span class="hljs-number">1</span> - t, <span class="hljs-number">2</span>) * begin.x + <span class="hljs-number">2.0</span> * (<span class="hljs-number">1</span> - t) * t * control.x + t * t * end.x
+            <span class="hljs-keyword">let</span> y = pow(<span class="hljs-number">1</span> - t, <span class="hljs-number">2</span>) * begin.y + <span class="hljs-number">2.0</span> * (<span class="hljs-number">1</span> - t) * t * control.y + t * t * end.y
+            vertices.append(<span class="hljs-type">CGPoint</span>(x: x, y: y))
+        }
+        vertices.append(end)
+        <span class="hljs-keyword">return</span> vertices
+    }
+}
+</code></pre>
+</li>
+<li>
+<p>Canvas记录绘制的点以及它们的序号（时间相关）和位置，清除的点以及序号位置，记录redo的点和undo的点用于扩展redo和undo画板功能。</p>
+<pre class="highlight"><code class="swift"><span class="hljs-comment">/// base element that can be draw on canvas</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">protocol</span> <span class="hljs-title">CanvasElement</span>: <span class="hljs-title">Codable</span> </span>{
+    
+    <span class="hljs-comment">/// index in the emelent list of canvas</span>
+    <span class="hljs-comment">/// element with smaller index will draw earlier</span>
+    <span class="hljs-comment">/// Automatically set by Canvas.Data</span>
+    <span class="hljs-keyword">var</span> index: <span class="hljs-type">Int</span> { <span class="hljs-keyword">get</span> <span class="hljs-keyword">set</span> }
+    
+    <span class="hljs-comment">/// draw this element on specifyied target</span>
+    <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawSelf</span><span class="hljs-params">(on target: RenderTarget)</span></span>
+}
+
+<span class="hljs-comment">/// clear action, a command to clear the canvas</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ClearAction</span>: <span class="hljs-title">CanvasElement</span> </span>{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">var</span> index: <span class="hljs-type">Int</span> = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawSelf</span><span class="hljs-params">(on target: RenderTarget)</span></span> {
+        target.clear()
+    }
+}
+
+<span class="hljs-comment">/// content data on canvas</span>
+<span class="hljs-keyword">open</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CanvasData</span> </span>{
+    
+    <span class="hljs-comment">/// elements array before an clear action</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-keyword">internal</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> clearedElements: [[<span class="hljs-type">CanvasElement</span>]] = []
+    
+    <span class="hljs-comment">/// current drawing elements</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-keyword">internal</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> elements: [<span class="hljs-type">CanvasElement</span>] = []
+    
+    <span class="hljs-comment">/// current unfinished element</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-keyword">internal</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> currentElement: <span class="hljs-type">CanvasElement?</span>
+    
+    <span class="hljs-comment">/// Append a set of lines to current element in document</span>
+    <span class="hljs-comment">///</span>
+    <span class="hljs-comment">/// - Parameters:</span>
+    <span class="hljs-comment">///   - lines: lines to add</span>
+    <span class="hljs-comment">///   - brush: brush used to draw these lines</span>
+    <span class="hljs-comment">///   - isNewElement: if sets true, current line strip will be set to finished and a new one will be setup</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">append</span><span class="hljs-params">(lines: [MLLine], with brush: Brush)</span></span> {
+        <span class="hljs-keyword">guard</span> lines.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span>
+        }
+        <span class="hljs-comment">// append lines to current line strip</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> lineStrip = currentElement <span class="hljs-keyword">as</span>? <span class="hljs-type">LineStrip</span>, lineStrip.brush === brush {
+            lineStrip.append(lines: lines)
+        } <span class="hljs-keyword">else</span> {
+            finishCurrentElement()
+            
+            <span class="hljs-keyword">let</span> lineStrip = <span class="hljs-type">LineStrip</span>(lines: lines, brush: brush)
+            currentElement = lineStrip
+            undoArray.removeAll()
+            h_onElementBegin?(<span class="hljs-keyword">self</span>)
+        }
+    }
+    
+    <span class="hljs-comment">/// add a chartlet to elements</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">append</span><span class="hljs-params">(chartlet: Chartlet)</span></span> {
+        finishCurrentElement()
+        chartlet.index = lastElementIndex + <span class="hljs-number">1</span>
+        elements.append(chartlet)
+        undoArray.removeAll()
+        h_onElementFinish?(<span class="hljs-keyword">self</span>)
+    }
+    
+    <span class="hljs-comment">/// index for latest element</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> lastElementIndex: <span class="hljs-type">Int</span> {
+        <span class="hljs-keyword">return</span> elements.last?.index ?? <span class="hljs-number">0</span>
+    }
+    
+    <span class="hljs-keyword">open</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">finishCurrentElement</span><span class="hljs-params">()</span></span> {
+        <span class="hljs-keyword">guard</span> <span class="hljs-keyword">var</span> element = currentElement <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span>
+        }
+        element.index = lastElementIndex + <span class="hljs-number">1</span>
+        elements.append(element)
+        currentElement = <span class="hljs-literal">nil</span>
+        h_onElementFinish?(<span class="hljs-keyword">self</span>)
+    }
+    
+    <span class="hljs-keyword">open</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">appendClearAction</span><span class="hljs-params">()</span></span> {
+        finishCurrentElement()
+
+        <span class="hljs-keyword">guard</span> elements.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span>
+        }
+        clearedElements.append(elements)
+        elements.removeAll()
+    }
+    
+    <span class="hljs-comment">// MARK: - Undo &amp; Redo</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">var</span> canRedo: <span class="hljs-type">Bool</span> {
+        <span class="hljs-keyword">return</span> undoArray.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span>
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">var</span> canUndo: <span class="hljs-type">Bool</span> {
+        <span class="hljs-keyword">return</span> elements.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span> || clearedElements.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span>
+    }
+    
+    <span class="hljs-keyword">private</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> undoArray: [<span class="hljs-type">CanvasElement</span>] = []
+    
+    <span class="hljs-keyword">internal</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">undo</span><span class="hljs-params">()</span></span> -&gt; <span class="hljs-type">Bool</span> {
+        finishCurrentElement()
+        
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> last = elements.last {
+            undoArray.append(last)
+            elements.removeLast()
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> lastCleared = clearedElements.last {
+            undoArray.append(<span class="hljs-type">ClearAction</span>())
+            elements = lastCleared
+            clearedElements.removeLast()
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+        }
+        h_onUndo?(<span class="hljs-keyword">self</span>)
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+    }
+    
+    <span class="hljs-keyword">internal</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">redo</span><span class="hljs-params">()</span></span> -&gt; <span class="hljs-type">Bool</span> {
+        <span class="hljs-keyword">guard</span> currentElement == <span class="hljs-literal">nil</span>, <span class="hljs-keyword">let</span> last = undoArray.last <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+        }
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-number">_</span> = last <span class="hljs-keyword">as</span>? <span class="hljs-type">ClearAction</span> {
+            clearedElements.append(elements)
+            elements.removeAll()
+        } <span class="hljs-keyword">else</span> {
+            elements.append(last)
+        }
+        undoArray.removeLast()
+        h_onRedo?(<span class="hljs-keyword">self</span>)
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+    }
+    
+    <span class="hljs-comment">// MARK: - EventHandler</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">typealias</span> <span class="hljs-type">EventHandler</span> = (<span class="hljs-type">CanvasData</span>) -&gt; ()
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> h_onElementBegin: <span class="hljs-type">EventHandler?</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> h_onElementFinish: <span class="hljs-type">EventHandler?</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> h_onRedo: <span class="hljs-type">EventHandler?</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> h_onUndo: <span class="hljs-type">EventHandler?</span>
+    
+    <span class="hljs-comment">/// this closure will be called when a continuously elements begins</span>
+    <span class="hljs-meta">@discardableResult</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">onElementBegin</span><span class="hljs-params">(<span class="hljs-number">_</span> h: @escaping EventHandler)</span></span> -&gt; <span class="hljs-type">Self</span> {
+        h_onElementBegin = h
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>
+    }
+    
+    <span class="hljs-comment">/// this closure will be called when an element finished</span>
+    <span class="hljs-meta">@discardableResult</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">onElementFinish</span><span class="hljs-params">(<span class="hljs-number">_</span> h: @escaping EventHandler)</span></span> -&gt; <span class="hljs-type">Self</span> {
+        h_onElementFinish = h
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>
+    }
+    
+    <span class="hljs-comment">/// this closure will be called when a redo command is performed</span>
+    <span class="hljs-meta">@discardableResult</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">onRedo</span><span class="hljs-params">(<span class="hljs-number">_</span> h: @escaping EventHandler)</span></span> -&gt; <span class="hljs-type">Self</span> {
+        h_onRedo = h
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>
+    }
+    
+    <span class="hljs-comment">/// this closure will be called when an undo command is performed</span>
+    <span class="hljs-meta">@discardableResult</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">onUndo</span><span class="hljs-params">(<span class="hljs-number">_</span> h: @escaping EventHandler)</span></span> -&gt; <span class="hljs-type">Self</span> {
+        h_onUndo = h
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>
+    }
+}
+
+</code></pre>
+</li>
+<li>
+<p>封装出Codable的线段、颜色、Texture作为基础元素，进一步组成笔刷和笔画。</p>
+<pre class="highlight"><code class="swift"><span class="hljs-comment">/// a line strip with lines and brush info</span>
+<span class="hljs-keyword">open</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LineStrip</span>: <span class="hljs-title">CanvasElement</span> </span>{
+    
+    <span class="hljs-comment">/// element index</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">var</span> index: <span class="hljs-type">Int</span> = <span class="hljs-number">0</span>
+    
+    <span class="hljs-comment">/// identifier of bursh used to render this line strip</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">var</span> brushName: <span class="hljs-type">String?</span>
+    
+    <span class="hljs-comment">/// default color</span>
+    <span class="hljs-comment">// this color will be used when line's color not set</span>
+    <span class="hljs-keyword">var</span> color: <span class="hljs-type">MLColor</span>
+    
+    <span class="hljs-comment">/// line units of this line strip</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-keyword">private</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> lines: [<span class="hljs-type">MLLine</span>] = []
+    
+    <span class="hljs-comment">/// brush used to render this line strip</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-keyword">internal</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">weak</span> <span class="hljs-keyword">var</span> brush: <span class="hljs-type">Brush?</span> {
+        <span class="hljs-keyword">didSet</span> {
+            brushName = brush?.name
+        }
+    }
+    
+    <span class="hljs-keyword">init</span>(lines: [<span class="hljs-type">MLLine</span>], brush: <span class="hljs-type">Brush</span>) {
+        <span class="hljs-keyword">self</span>.lines = lines
+        <span class="hljs-keyword">self</span>.brush = brush
+        <span class="hljs-keyword">self</span>.brushName = brush.name
+        <span class="hljs-keyword">self</span>.color = brush.renderingColor
+        remakBuffer()
+    }
+    
+    <span class="hljs-keyword">open</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">append</span><span class="hljs-params">(lines: [MLLine])</span></span> {
+        <span class="hljs-keyword">self</span>.lines.append(contentsOf: lines)
+        vertex_buffer = <span class="hljs-literal">nil</span>
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">drawSelf</span><span class="hljs-params">(on target: RenderTarget)</span></span> {
+        brush?.render(lineStrip: <span class="hljs-keyword">self</span>, on: target)
+    }
+    
+    <span class="hljs-comment">/// get vertex buffer for this line strip, remake if not exists</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">retrieveBuffers</span><span class="hljs-params">()</span></span> -&gt; <span class="hljs-type">MTLBuffer?</span> {
+        <span class="hljs-keyword">if</span> vertex_buffer == <span class="hljs-literal">nil</span> {
+            remakBuffer()
+        }
+        <span class="hljs-keyword">return</span> vertex_buffer
+    }
+    
+    <span class="hljs-comment">/// count of vertexes, set when remake buffers</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-keyword">private</span>(<span class="hljs-keyword">set</span>) <span class="hljs-keyword">var</span> vertexCount: <span class="hljs-type">Int</span> = <span class="hljs-number">0</span>
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> vertex_buffer: <span class="hljs-type">MTLBuffer?</span>
+    
+    <span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">remakBuffer</span><span class="hljs-params">()</span></span> {
+        
+        <span class="hljs-keyword">guard</span> lines.<span class="hljs-built_in">count</span> &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span>
+        }
+        
+        <span class="hljs-keyword">var</span> vertexes: [<span class="hljs-type">Point</span>] = []
+        
+        lines.forEach { (line) <span class="hljs-keyword">in</span>
+            <span class="hljs-keyword">let</span> scale = brush?.target?.contentScaleFactor ?? <span class="hljs-type">UIScreen</span>.main.nativeScale
+            <span class="hljs-keyword">var</span> line = line
+            line.begin = line.begin * scale
+            line.end = line.end * scale
+            <span class="hljs-keyword">let</span> <span class="hljs-built_in">count</span> = <span class="hljs-built_in">max</span>(line.length / line.pointStep, <span class="hljs-number">1</span>)
+            <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> ..&lt; <span class="hljs-type">Int</span>(<span class="hljs-built_in">count</span>) {
+                <span class="hljs-keyword">let</span> index = <span class="hljs-type">CGFloat</span>(i)
+                <span class="hljs-keyword">let</span> x = line.begin.x + (line.end.x - line.begin.x) * (index / <span class="hljs-built_in">count</span>)
+                <span class="hljs-keyword">let</span> y = line.begin.y + (line.end.y - line.begin.y) * (index / <span class="hljs-built_in">count</span>)
+                vertexes.append(<span class="hljs-type">Point</span>(x: x, y: y, color: line.color ?? color, size: line.pointSize * scale))
+            }
+        }
+        
+        vertexCount = vertexes.<span class="hljs-built_in">count</span>
+        vertex_buffer = sharedDevice?.makeBuffer(bytes: vertexes, length: <span class="hljs-type">MemoryLayout</span>&lt;<span class="hljs-type">Point</span>&gt;.<span class="hljs-built_in">stride</span> * vertexCount, options: .cpuCacheModeWriteCombined)
+    }
+    
+    <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">CodingKeys</span>: <span class="hljs-title">String</span>, <span class="hljs-title">CodingKey</span> </span>{
+        <span class="hljs-keyword">case</span> index
+        <span class="hljs-keyword">case</span> brush
+        <span class="hljs-keyword">case</span> lines
+        <span class="hljs-keyword">case</span> color
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">required</span> <span class="hljs-keyword">init</span>(from decoder: <span class="hljs-type">Decoder</span>) <span class="hljs-keyword">throws</span> {
+        <span class="hljs-keyword">let</span> container = <span class="hljs-keyword">try</span> decoder.container(keyedBy: <span class="hljs-type">CodingKeys</span>.<span class="hljs-keyword">self</span>)
+        index = <span class="hljs-keyword">try</span> container.decode(<span class="hljs-type">Int</span>.<span class="hljs-keyword">self</span>, forKey: .index)
+        brushName = <span class="hljs-keyword">try</span> container.decode(<span class="hljs-type">String</span>.<span class="hljs-keyword">self</span>, forKey: .brush)
+        lines = <span class="hljs-keyword">try</span> container.decode([<span class="hljs-type">MLLine</span>].<span class="hljs-keyword">self</span>, forKey: .lines)
+        color = <span class="hljs-keyword">try</span> container.decode(<span class="hljs-type">MLColor</span>.<span class="hljs-keyword">self</span>, forKey: .color)
+    }
+    
+    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">encode</span><span class="hljs-params">(to encoder: Encoder)</span></span> <span class="hljs-keyword">throws</span> {
+        <span class="hljs-keyword">var</span> container = encoder.container(keyedBy: <span class="hljs-type">CodingKeys</span>.<span class="hljs-keyword">self</span>)
+        <span class="hljs-keyword">try</span> container.encode(index, forKey: .index)
+        <span class="hljs-keyword">try</span> container.encode(brushName, forKey: .brush)
+        <span class="hljs-keyword">try</span> container.encode(lines, forKey: .lines)
+        <span class="hljs-keyword">try</span> container.encode(color, forKey: .color)
+    }
+}
+</code></pre>
+</li>
+<li>
+<p>利用着色器进行渲染，并在笔画有删改的时候更新图形管线，重新进行绘制。</p>
+</li>
+<li>
+<p>白色笔刷用于生成蒙板，其它颜色的笔刷作为涂鸦工具在蒙板上进行简单绘制。</p>
+</li>
+</ul>
+<p>完成绘制后，将数据上传至服务器，通过计算生成结果图片以及URL，通过URL获取生成结果。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/04/Comprehension-of-SDWebImage/" rel="prev" title="Comprehension of SDWebImage">
+      <i class="fa fa-chevron-left"></i> Comprehension of SDWebImage
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/27/Solution-Set-for-Flutter-Issues/" rel="next" title="Solution Set for Flutter Issues">
+      Solution Set for Flutter Issues <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"> AIBeautify–画板实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text"> 需求分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.1.</span> <span class="nav-text"> 数据描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.2.</span> <span class="nav-text"> 功能需求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text"> 主要接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.1.</span> <span class="nav-text"> 上传图片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.2.</span> <span class="nav-text"> 上传修改数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.3.</span> <span class="nav-text"> 获得该用户相关图片数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.3.</span> <span class="nav-text"> 画板模块实现</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wenjie Zhang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wenjie Zhang</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.7.1
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

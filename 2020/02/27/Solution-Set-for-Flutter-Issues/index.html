@@ -22,15 +22,15 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="此处是一些食用flutter过程中遇到的问题合集  Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework 此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。  问题根源 使用插件时，有两">
+  <meta name="description" content="此处是一些食用flutter过程中遇到的问题合集   Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework 此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。  问题根源 使用插件时，有">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Solution Set for Flutter Issues">
 <meta property="og:url" content="http://yoursite.com/2020/02/27/Solution-Set-for-Flutter-Issues/index.html">
 <meta property="og:site_name" content="Aven&#39;s Blog">
-<meta property="og:description" content="此处是一些食用flutter过程中遇到的问题合集  Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework 此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。  问题根源 使用插件时，有两">
+<meta property="og:description" content="此处是一些食用flutter过程中遇到的问题合集   Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework 此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。  问题根源 使用插件时，有">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-02-26T17:06:50.000Z">
-<meta property="article:modified_time" content="2020-02-26T17:22:57.612Z">
+<meta property="article:modified_time" content="2020-02-29T07:45:14.864Z">
 <meta property="article:author" content="Wenjie Zhang">
 <meta property="article:tag" content="Flutter">
 <meta name="twitter:card" content="summary">
@@ -176,16 +176,17 @@
 
       
         <p>此处是一些食用flutter过程中遇到的问题合集</p>
-<h2><span id="multiple-commands-produce-buildiosdebug-iphonesimulatorrunnerappframeworksflutterframework"> Multiple commands produce '/build/ios/Debug-iphonesimulator/Runner.app/Frameworks/Flutter.framework</span></h2>
+<!--TOC-->
+<h1><span id="multiple-commands-produce-buildiosdebug-iphonesimulatorrunnerappframeworksflutterframework"> Multiple commands produce '/build/ios/Debug-iphonesimulator/Runner.app/Frameworks/Flutter.framework</span></h1>
 <p>此问题影响所有使用Xcode 10构建的，依赖CocoaPods的Flutter项目-通常这意味着那些依赖插件的项目。</p>
-<h3><span id="问题根源"> 问题根源</span></h3>
+<h2><span id="问题根源"> 问题根源</span></h2>
 <p>使用插件时，有两个相互竞争的构建操作，它们将Flutter.framework复制到构建应用程序的Frameworks目录中：</p>
 <ol>
 <li>Runner项目的Embed Frameworks构建阶段</li>
 <li>Pod安装在项目中创建的[CP] Embed Pods Frameworks构建阶段。</li>
 </ol>
 <p>第1项可以确保在没有插件（因此Xcode项目中没有CocoaPods集成）的情况下将框架复制到内置应用程序中。第2项之所以存在，是因为Flutter的podspec将Flutter.framework声明为vended_framework，并且CocoaPods在传递性关闭CocoaPods依赖项时自动为每个此类vended_framework添加了一个复制步骤。</p>
-<h3><span id="解决办法"> 解决办法：</span></h3>
+<h2><span id="解决办法"> 解决办法：</span></h2>
 <ol>
 <li>使用旧版构建系统。打开ios / Runner.xcworkspace，然后将构建系统更改为Legacy Build System。</li>
 <li>使用新的Xcode 10构建系统。打开ios / Runner.xcworkspace
@@ -205,6 +206,32 @@
 <blockquote>
 <p>来源：<a href="https://github.com/flutter/flutter/issues/20685" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/20685</a></p>
 </blockquote>
+<h1><span id="flutter-doctor-error-could-not-authenticate-download-server-you-may-be-experiencing-a-man-in-the-middle-attack"> flutter doctor error Could not authenticate download server. You may be experiencing a man-in-the-middle attack.</span></h1>
+<p>更新flutter版本之后兜兜转转就来到了这里，<s>直接愣住</s>。不过检查一下代理和环境变量就可以解决这个问题了。环境变量设置如下：</p>
+<pre class="highlight"><code class>export PUB_HOSTED_URL=https://pub.flutter-io.cn //国内用户需要设置
+export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn //国内用户需要设置
+export PATH=PATH_TO_FLUTTER_GIT_DIRECTORY/flutter/bin:$PATH
+</code></pre>
+<blockquote>
+<p>packages get操作特别缓慢，或者是launch simulator特别缓慢的时候也考虑一下是不是没有配置环境变量或者是代理问题</p>
+</blockquote>
+<h1><span id="flutter-failing-to-connect-to-emulator-with-vscode"> Flutter failing to connect to emulator with VSCode</span></h1>
+<p>Android模拟器连接不到可以这么操作：</p>
+<ol>
+<li>Open Android Studio</li>
+<li>Tools -&gt; AVD Manager</li>
+<li>Virtual Device -&gt; Actions (Refer Image)</li>
+<li>Click On Stop</li>
+<li>Now Start Emulator</li>
+</ol>
+<p>iOS模拟器连接不到时，运行一下<code>flutter doctor -v</code>, 有可能是Xcode build版本问题。可以手动更新Xcode，重新运行<code>flutter doctor -v</code>, 之后按照提示确认一下条款即可。</p>
+<h1><span id="dart-package-version-conflicts"> Dart package version conflicts</span></h1>
+<ol>
+<li>将冲突的package version全部用<code>any</code>替代</li>
+<li>执行<code>flutter packages get</code></li>
+<li>生成的<code>pubspec.lock</code>文件里面会有不冲突的版本号，按照这个填回来替换<code>any</code></li>
+<li>执行<code>flutter packages get</code></li>
+</ol>
 
     </div>
 
@@ -223,8 +250,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/02/04/Comprehension-of-SDWebImage/" rel="prev" title="Comprehension of SDWebImage">
-      <i class="fa fa-chevron-left"></i> Comprehension of SDWebImage
+    <a href="/2020/02/26/AIBeautify-Intro/" rel="prev" title="AIBeautify-Intro">
+      <i class="fa fa-chevron-left"></i> AIBeautify-Intro
     </a></div>
       <div class="post-nav-item"></div>
     </div>
@@ -286,7 +313,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"> Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text"> 问题根源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text"> 解决办法：</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text"> Multiple commands produce &#39;&#x2F;build&#x2F;ios&#x2F;Debug-iphonesimulator&#x2F;Runner.app&#x2F;Frameworks&#x2F;Flutter.framework</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text"> 问题根源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text"> 解决办法：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">2.</span> <span class="nav-text"> flutter doctor error Could not authenticate download server. You may be experiencing a man-in-the-middle attack.</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">3.</span> <span class="nav-text"> Flutter failing to connect to emulator with VSCode</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">4.</span> <span class="nav-text"> Dart package version conflicts</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -305,7 +332,7 @@
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
