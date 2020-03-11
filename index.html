@@ -143,6 +143,288 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/11/DP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wenjie Zhang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Aven's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/11/DP/" class="post-title-link" itemprop="url">DP</a>
+        </h1>
+
+        <div class="post-meta">
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1><span id="前言"> 前言</span></h1>
+<p>DP说起来简单，但是在实际问题里确实不容易想到迭代下去的规律，毕竟不是每个题都想斐波那契那样，迭代规律人尽皆知orz，这个合集会大概对几个问题进行DP思路整理。</p>
+<h1><span id="dp思想"> DP思想</span></h1>
+<p>简单来说，应用问题常见的DP是在递归的基础之上提出的，通过存储需要重复计算的中间结果来优化结果的生成的一种online方案。以斐波那契为例，这个问题的递归版本为：</p>
+<pre class="highlight"><code class="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fib</span><span class="hljs-params">(n)</span>:</span>
+  <span class="hljs-keyword">if</span> n == <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> n == <span class="hljs-number">2</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>
+  <span class="hljs-keyword">return</span> fib(n<span class="hljs-number">-1</span>) + fib(n<span class="hljs-number">-2</span>)
+</code></pre>
+<p>但递归生成了很多重复计算。比如，fib(5) = fib(4)+fib(3), 而fib(4) = fib(3)+fib(2), 到此fib(3)就和另一次递归操作里的fib(3)重合了，长此以往一定浪费了很多时间。因此更好的做法是将可能的递归操作的结果保存起来，这样就能达到时间复杂度O(2^n)到O(n)的优化٩(๑&gt;◡&lt;๑)۶</p>
+<pre class="highlight"><code class="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fib_memoized</span><span class="hljs-params">(n, memo)</span>:</span>
+  <span class="hljs-keyword">if</span> memo[n] <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> null:
+    <span class="hljs-keyword">return</span> memo[n]
+  <span class="hljs-keyword">if</span> n == <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> n == <span class="hljs-number">2</span>:
+    result = <span class="hljs-number">1</span>
+  <span class="hljs-keyword">else</span>:
+    result = fib(n<span class="hljs-number">-1</span>) + fib(n<span class="hljs-number">-2</span>)
+  memo[n] = result
+  <span class="hljs-keyword">return</span> result
+</code></pre>
+<p>不过这个方案还有可以改进的地方：采用递归的方式在处理较大输入的时候可能会导致栈溢出，可以用Bottom-up方式生成存储较低层次的fib结果以供使用，从而避免递归：</p>
+<pre class="highlight"><code class="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fib_bottom_up</span><span class="hljs-params">(n)</span>:</span>
+  <span class="hljs-keyword">if</span> n == <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> n == <span class="hljs-number">2</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>
+  bottom_up = new int[n+<span class="hljs-number">1</span>]
+  bottom_up[<span class="hljs-number">1</span>] = <span class="hljs-number">1</span>
+  bottom_up[<span class="hljs-number">2</span>] = <span class="hljs-number">1</span>
+  <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">3</span>, n+<span class="hljs-number">1</span>):
+    bottom_up[i] = bottom_up[i<span class="hljs-number">-1</span>]+bottom_up[i<span class="hljs-number">-2</span>]
+  <span class="hljs-keyword">return</span> bottom_up[n]
+    
+</code></pre>
+<p>那么，接下来就是具体问题合集了[]<sub>(￣▽￣)</sub>*</p>
+<h1><span id="maximum-subarray"> Maximum Subarray</span></h1>
+<p>题源：<a href="https://leetcode.com/problems/maximum-subarray/" target="_blank" rel="noopener">leetcode</a></p>
+<p>描述：Given an integer array <code>nums</code>, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.</p>
+<p><strong>Example:</strong></p>
+<pre class="highlight"><code class>Input: [-2,1,-3,4,-1,2,1,-5,4],
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6.
+</code></pre>
+<p>Breakthrough Point：</p>
+<ul>
+<li>初始子规模：
+<ul>
+<li>分析：若array规模缩小到只含有一个元素：[-2]，显然这时候maximum subarray结果就是它自身</li>
+<li>结果：只含有一个元素的array，记录它的唯一元素</li>
+</ul>
+</li>
+<li>更大的规模：
+<ul>
+<li>分析：若我们已经知道array: [-2]的maximum subarray = -1，那么对于[-2, 1]中的新增元素1，我们有两个选择：
+<ol>
+<li>以新增元素作为新的subarray起点，返回1</li>
+<li>以上一个subarray的返回结果加上新增元素作为返回值，返回(-2+1)</li>
+</ol>
+</li>
+<li>结果：array from index 0 to n: 记录<code>max(function(array, n-1), array[n])</code></li>
+<li>注意：由于subarray的元素是连续的，所以在这个递归过程中每个元素对应的记录为：<strong>从0到i的array中，包含了array[i]的最大subarray结果</strong></li>
+</ul>
+</li>
+<li>总体：遍历整个array，用数组记录每个元素对应的maximum subarray值，并拿到其中最大的那个</li>
+</ul>
+<p>代码实现：</p>
+<pre class="highlight"><code class="c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Solution</span> {</span>
+<span class="hljs-keyword">public</span>:
+    <span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">maxSubArray</span><span class="hljs-params">(<span class="hljs-built_in">vector</span>&lt;<span class="hljs-keyword">int</span>&gt;&amp; nums)</span> </span>{
+        <span class="hljs-keyword">int</span> len = nums.<span class="hljs-built_in">size</span>();
+        <span class="hljs-keyword">if</span> (len == <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+        }
+        <span class="hljs-function"><span class="hljs-built_in">vector</span>&lt;<span class="hljs-keyword">int</span>&gt; <span class="hljs-title">memo</span><span class="hljs-params">(len, <span class="hljs-number">0</span>)</span></span>;
+        memo[<span class="hljs-number">0</span>] = nums[<span class="hljs-number">0</span>];
+        <span class="hljs-keyword">int</span> maxRes = memo[<span class="hljs-number">0</span>];
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt; len; ++i) {
+            memo[i] = <span class="hljs-built_in">max</span>(nums[i], nums[i]+memo[i<span class="hljs-number">-1</span>]);
+            <span class="hljs-keyword">if</span> (memo[i] &gt; maxRes) {
+                maxRes = memo[i];
+            }
+        }
+        <span class="hljs-keyword">return</span> maxRes;
+    }
+};
+</code></pre>
+<h1><span id="longest-palindromic-substring"> Longest Palindromic Substring</span></h1>
+<p>来源：<a href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank" rel="noopener">LeetCode</a></p>
+<p>描述：Given a string <strong>s</strong>, find the longest palindromic substring in <strong>s</strong>. You may assume that the maximum length of <strong>s</strong> is 1000.</p>
+<p><strong>Example 1:</strong></p>
+<pre class="highlight"><code class>Input: &quot;babad&quot;
+Output: &quot;bab&quot;
+Note: &quot;aba&quot; is also a valid answer.
+</code></pre>
+<p><strong>Example 2:</strong></p>
+<pre class="highlight"><code class>Input: &quot;cbbd&quot;
+Output: &quot;bb&quot;
+</code></pre>
+<p>Breakthrough Point：</p>
+<ul>
+<li>初始子规模：若<code>s == &quot;&quot; or s.length() == 1</code>, 最大palindrome为它自己</li>
+<li>更大规模：对于<code>s.length() &gt; 2</code>的情况，考虑将每个元素作为palindrome的中心或中心线旁的第一个元素，记录最长的palindrome，可能有两种情况：
+<ol>
+<li>对称中心是字母，如：“aba”，对称中心为b，此时以b为中心，令<code>left = index-1, right = index+1</code>同时向左向右寻找对称元素，直到找到最大的palindrome</li>
+<li>对称中心不是字母，如&quot;abba&quot;，此时有<code>array[index] == array[index+1]</code>成立，令<code>left = index, right = index+1</code>向左向右寻找对称元素，直到找到最大的palindrome</li>
+</ol>
+</li>
+<li>遍历array，得到其中最大的palindrome</li>
+</ul>
+<pre class="highlight"><code class="c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Solution</span> {</span>
+<span class="hljs-keyword">public</span>:
+    <span class="hljs-function"><span class="hljs-built_in">string</span> <span class="hljs-title">longestPalindrome</span><span class="hljs-params">(<span class="hljs-built_in">string</span> s)</span> </span>{
+        <span class="hljs-keyword">if</span> (s.empty()||s.length()==<span class="hljs-number">1</span>) {
+            <span class="hljs-keyword">return</span> s;
+        }
+        <span class="hljs-keyword">int</span> start = <span class="hljs-number">0</span>, <span class="hljs-built_in">end</span> = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; s.length(); ++i) {
+            <span class="hljs-keyword">int</span> len1 = expandPalindrome(s, i<span class="hljs-number">-1</span>, i+<span class="hljs-number">1</span>);
+            <span class="hljs-keyword">if</span> (len1 &gt; <span class="hljs-built_in">end</span>-start+<span class="hljs-number">1</span>) {
+                start = i-len1/<span class="hljs-number">2</span>;
+                <span class="hljs-built_in">end</span> = i+len1/<span class="hljs-number">2</span>;
+            }
+            <span class="hljs-keyword">int</span> len2 = expandPalindrome(s, i, i+<span class="hljs-number">1</span>);
+            <span class="hljs-keyword">if</span> (len2 &gt; <span class="hljs-built_in">end</span>-start+<span class="hljs-number">1</span>) {
+                start = i-len2/<span class="hljs-number">2</span>+<span class="hljs-number">1</span>;
+                <span class="hljs-built_in">end</span> = i+len2/<span class="hljs-number">2</span>;
+            }
+
+        }
+        <span class="hljs-keyword">return</span> s.substr(start, <span class="hljs-built_in">end</span>-start+<span class="hljs-number">1</span>);
+    }
+    <span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">expandPalindrome</span><span class="hljs-params">(<span class="hljs-built_in">string</span> &amp; s, <span class="hljs-keyword">int</span> start, <span class="hljs-keyword">int</span> <span class="hljs-built_in">end</span>)</span> </span>{
+        <span class="hljs-keyword">if</span> (start &gt; <span class="hljs-built_in">end</span> || start &lt; <span class="hljs-number">0</span> || <span class="hljs-built_in">end</span> &gt;= s.length()) {
+            <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+        }
+        <span class="hljs-keyword">int</span> len = <span class="hljs-built_in">end</span>-start &gt; <span class="hljs-number">1</span> ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">while</span>(start &gt;= <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-built_in">end</span> &lt; s.length() &amp;&amp; s[start] == s[<span class="hljs-built_in">end</span>]) {
+            len+=<span class="hljs-number">2</span>;
+            start--;
+            <span class="hljs-built_in">end</span>++;
+        }
+        <span class="hljs-keyword">return</span> len;
+    }
+};
+</code></pre>
+<h1><span id="wildcard-matching"> WildCard Matching</span></h1>
+<p>题源：<a href="https://leetcode.com/problems/wildcard-matching/" target="_blank" rel="noopener">LeetCode</a></p>
+<p>描述：Given an input string (<code>s</code>) and a pattern (<code>p</code>), implement wildcard pattern matching with support for <code>'?'</code> and <code>'*'</code>.</p>
+<pre class="highlight"><code class>'?' Matches any single character.
+'*' Matches any sequence of characters (including the empty sequence).
+</code></pre>
+<p>The matching should cover the <strong>entire</strong> input string (not partial).</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li><code>s</code> could be empty and contains only lowercase letters <code>a-z</code>.</li>
+<li><code>p</code> could be empty and contains only lowercase letters <code>a-z</code>, and characters like <code>?</code> or <code>*</code>.</li>
+</ul>
+<p><strong>Example 1:</strong></p>
+<pre class="highlight"><code class>Input:
+s = &quot;aa&quot;
+p = &quot;a&quot;
+Output: false
+Explanation: &quot;a&quot; does not match the entire string &quot;aa&quot;.
+</code></pre>
+<p><strong>Example 2:</strong></p>
+<pre class="highlight"><code class>Input:
+s = &quot;aa&quot;
+p = &quot;*&quot;
+Output: true
+Explanation: '*' matches any sequence.
+</code></pre>
+<p><strong>Example 3:</strong></p>
+<pre class="highlight"><code class>Input:
+s = &quot;cb&quot;
+p = &quot;?a&quot;
+Output: false
+Explanation: '?' matches 'c', but the second letter is 'a', which does not match 'b'.
+</code></pre>
+<p><strong>Example 4:</strong></p>
+<pre class="highlight"><code class>Input:
+s = &quot;adceb&quot;
+p = &quot;*a*b&quot;
+Output: true
+Explanation: The first '*' matches the empty sequence, while the second '*' matches the substring &quot;dce&quot;.
+</code></pre>
+<p><strong>Example 5:</strong></p>
+<pre class="highlight"><code class>Input:
+s = &quot;acdcb&quot;
+p = &quot;a*c?b&quot;
+Output: false
+</code></pre>
+<p>Breakthrough point：</p>
+<p>由于s和p可能存在多对多的匹配关系，子串的匹配显然对串的匹配有直接联系，因此考虑用二维数组<code>M[p.length()+1][s.length()+1]</code>存储s和p的匹配映射</p>
+<ul>
+<li>初始子规模
+<ul>
+<li>分析：匹配的情况<code>s == &quot;&quot; &amp;&amp; p ==&quot;&quot; or s == &quot;&quot; &amp;&amp; p仅由*组成 or s为任意字符 &amp;&amp; p仅由*组成 or s为任意字符 &amp;&amp; p = &quot;.&quot; or s == p</code></li>
+<li>结果：<code>M[0][0] = true, M[0][j] = false, M[1][0] = p[1]==&quot;*&quot;,M[i][0] = M[i-1]&amp;&amp;p[i]==&quot;*&quot;</code></li>
+</ul>
+</li>
+<li>更大的规模：若已知<code>M[i-1][j-1], M[i-1][j], M[i][j-1]</code>的情况：
+<ol>
+<li>没有星星的时候，对应位置的字母如果能够匹配上，串和模式的匹配情况就只和p[i-1]和s[j-1]的匹配情况有关：<code>if p[i] != '*' and (p[i] == s[j]||p[i] == '.') then M[i][j] = M[i-1][j-1]</code></li>
+<li>有星星的时候，要考虑这颗星星是充当空气还是确实能代表些什么
+<ul>
+<li>星星是空气：e.g. <code>s = &quot;abc&quot;, p = &quot;abc*&quot;</code>, 如果我们此时知道串abc和模式abc匹配，那么显然<code>abc</code>和<code>abc*</code>也应该匹配，这时候<code>*</code>没有任何作用：<code>if p[i] == '*'and M[i-1][j] == true then M[i][j] = true</code></li>
+<li>星星不是空气：e.g.  <code>s = &quot;abc&quot;, p = &quot;a*&quot;</code>, 如果我们此时知道串a和模式a匹配，那么显然<code>a</code>和<code>a*</code>也匹配(由上条可得到)，由这个条件可以推断<code>ab</code>和<code>a*</code>匹配(先前星星充当了空气，此时我们让它和非空字符匹配也是可以的)：<code>if p[i] == '*'and M[i][j-1] == true then M[i][j] = true</code></li>
+</ul>
+</li>
+<li>如果都不是，那就不匹配</li>
+</ol>
+</li>
+</ul>
+<pre class="highlight"><code class="c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Solution</span> {</span>
+<span class="hljs-keyword">public</span>:
+   <span class="hljs-function"><span class="hljs-keyword">bool</span> <span class="hljs-title">isMatch</span><span class="hljs-params">(<span class="hljs-built_in">string</span> s, <span class="hljs-built_in">string</span> p)</span> </span>{
+        <span class="hljs-keyword">int</span> m = p.length(), n = s.length();
+        <span class="hljs-function"><span class="hljs-built_in">vector</span>&lt;<span class="hljs-built_in">vector</span>&lt;<span class="hljs-keyword">bool</span>&gt;&gt; <span class="hljs-title">M</span><span class="hljs-params">(m+<span class="hljs-number">1</span>, <span class="hljs-built_in">vector</span>&lt;<span class="hljs-keyword">bool</span>&gt;(n+<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>))</span></span>;
+        M[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>] = <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt; m+<span class="hljs-number">1</span>; ++i) {
+            M[i][<span class="hljs-number">0</span>] = M[i<span class="hljs-number">-1</span>][<span class="hljs-number">0</span>] &amp;&amp; p[i<span class="hljs-number">-1</span>] == <span class="hljs-string">'*'</span>;
+        }
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt; m+<span class="hljs-number">1</span>; ++i) {
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> j = <span class="hljs-number">1</span>; j &lt; n+<span class="hljs-number">1</span>; ++j) {
+                <span class="hljs-keyword">if</span> (p[i<span class="hljs-number">-1</span>] != <span class="hljs-string">'*'</span> &amp;&amp; (p[i<span class="hljs-number">-1</span>]== s[j<span class="hljs-number">-1</span>]||p[i<span class="hljs-number">-1</span>]==<span class="hljs-string">'?'</span>)) {
+                    M[i][j] = M[i<span class="hljs-number">-1</span>][j<span class="hljs-number">-1</span>];
+                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (p[i<span class="hljs-number">-1</span>] == <span class="hljs-string">'*'</span> &amp;&amp; (M[i<span class="hljs-number">-1</span>][j]||M[i][j<span class="hljs-number">-1</span>])) {
+                    M[i][j] = <span class="hljs-literal">true</span>;
+                }
+            }
+        }
+        <span class="hljs-keyword">return</span> M[m][n];
+    }
+};
+</code></pre>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/27/Solution-Set-for-Flutter-Issues/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1933,12 +2215,12 @@ void objc_removeAssociatedObjects(id object);	// 移除指定对象的全部关�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
